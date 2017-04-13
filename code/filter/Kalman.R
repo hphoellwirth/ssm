@@ -61,12 +61,3 @@ kalman.filter <- function(y, var.eps=1, var.eta=1, a1=0, P1=1) {
     return(list(a=a[1:n], P=P[1:n]))
 }
 
-# test Kalman filter
-llm.data <- gen.llm.data(n=100)
-llm.est <- kalman.filter(llm.data$y)
-
-# plot result
-plot(llm.data$y, type='l', col="red")
-lines(llm.data$alpha, col="blue")
-lines(llm.est$a, col="green")
-

@@ -2,7 +2,7 @@
 # Information
 # ----------------------------------------------------------------------
 
-# Local level model
+# Run space state methods
 #
 # (Author) Hans-Peter Höllwirth
 # (Date)   13.04.2017
@@ -17,35 +17,32 @@ rm(list = ls())
 par(mfrow=c(1,1))
 
 # load libraries
+# NONE
 
 # if interactive, during the development, set to TRUE
 interactive <- TRUE
 if (interactive) {
-    setwd("/Users/Hans-Peter/Documents/Masters/14D000/code/models")
+    setwd("/Users/Hans-Peter/Documents/Masters/14D000/code")
 } 
 
+# load state space models
+source("models/01_localLevel.R")
+
+# load filters
+source("../filter/kalman.R")
 
 # ----------------------------------------------------------------------
-# Generate local level model data
+# Test Kalman filter on local level model
 # ----------------------------------------------------------------------
-gen.llm.data <- function(n, var.eps=1, var.eta=1, a1=0, P1=1) {
-    y <- rep(0,n)
-    alpha <- rep(0,n+1)
-    
-    # draw intial state
-    alpha[1] <- rnorm(1, mean=a1, sd=sqrt(P1))
-    
-    # draw disturbances
-    eps <- rnorm(n, mean=0, sd=sqrt(var.eps))
-    eta <- rnorm(n, mean=0, sd=sqrt(var.eta))
-    
-    # compute observations and states
-    for (t in 1:n) {
-        y[t]       <- alpha[t] + eps[t] # observation
-        alpha[t+1] <- alpha[t] + eta[t] # state
-    }
-    return(list(y=y, alpha=alpha[1:n]))
-}
 
+# generate local level data
+llm.data <- gen.llm.data(n=100)
 
+# use Kalman filter to estimate model states
+llm.est <- kalman.filter(llm.data$y)
+
+# plot result
+plot(llm.data$y, type='l', col="red")
+lines(llm.data$alpha, col="blue")
+lines(llm.est$a, col="green")
 
