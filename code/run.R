@@ -26,13 +26,13 @@ if (interactive) {
 } 
 
 # load state space models
-source("models/01_localLevel.R")
+source("models/localLevel.R")
 
 # load filters
 source("../filter/kalman.R")
 
 # ----------------------------------------------------------------------
-# Test Kalman filter on local level model
+# Test Kalman filter on (univariate) local level model
 # ----------------------------------------------------------------------
 
 # generate local level data
