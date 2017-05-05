@@ -1,0 +1,143 @@
+\documentclass[11pt, oneside]{scrreprt}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{bm}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+
+%%%%%%%%
+%    Cover     %
+%%%%%%%%
+\title{\textit{}\\\textit{}\\State Space Models}
+\author{Hans-Peter H{\"o}llwirth}
+\publishers{Master Project Report \\ 
+Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
+\date{}
+
+\begin{document}
+\maketitle
+%\afterpage{\blankpage}
+
+%%%%%%%%%%%%%
+%    Table of Contents   %
+%%%%%%%%%%%%%
+\newpage
+\tableofcontents
+\newpage
+
+%%%%%%%%%%
+%    Introduction   %
+%%%%%%%%%%
+\chapter{Introduction}
+\label{chp:introduction}
+
+
+
+%%%%%%%%
+%    Models   %
+%%%%%%%%
+\chapter{State Space Models}
+\label{chp:models}
+
+
+%%%%  Local Level Model  %%%%
+\section{Local Level Model}
+
+\begin{center}
+\begin{tabular}{ r r l }
+  observation: & $y_t = x_t + \epsilon_t$, & $\epsilon_t \sim N(0,\sigma_{\epsilon}^2)$ \\
+  state: & $x_{t+1} = x_t + \eta_t$, & $\eta_t \sim N(0,\sigma_{\eta}^2)$ \\
+\end{tabular}
+\end{center}
+
+
+%%%%  Trivariate Local Level Model  %%%%
+\section{Trivariate Local Level Model}
+
+\begin{center}
+\begin{tabular}{ r r l }
+  observation: & $y_t = \begin{bmatrix}y_{1t}\\ y_{2t} \\ y_{3t} \end{bmatrix} = x_t + \epsilon_t$, & $\epsilon_t \sim N(\textbf{0}, \begin{bmatrix}\sigma_{\epsilon 1}^2 \\ \sigma_{\epsilon 2}^2 \\ \sigma_{\epsilon 3}^2 \end{bmatrix} I)$ \\
+  state: & $x_{t+1} = x_t + \eta_t$, & $\eta_t \sim N(\textbf{0}, \Sigma_{\eta})$ \\
+\end{tabular}
+\end{center}
+
+
+
+%%%%  Hierarchical Dynamic Poisson Model   %%%%
+\section{Hierarchical Dynamic Poisson Model}
+Let $t$ denote the day and $i$ be the intraday index.
+
+\begin{center}
+\begin{tabular}{ r r l }
+  %observation: & $y_{ti} = x_{ti} + \epsilon_t$, & $\epsilon_t \sim N(0,\sigma_{\epsilon}^2)$ \\
+  state: & $x_{ti} = \text{Poisson}(\lambda_{ti})$\\
+\end{tabular}
+\end{center}
+
+where the parameter
+$$
+\log \lambda_{ti} = \log \lambda_t^{(D)} + \log \lambda_i^{(P)} + \log \lambda_{ti}^{(I)}  
+$$
+consists of a daily, a periodic, and an intra-daily component:
+\begin{center}
+\begin{tabular}{ r l l }
+  daily component: & $\log \lambda_t^{(D)} = \phi_0^{(D)} + \phi_1^{(D)} \log \lambda_{t-1}^{(D)}  + u_t^{(D)}$ & (AR(1)) \\
+  periodic component: & $\log \lambda_i^{(P)} = \delta_i$ & (B-spline) \\
+  intra-daily component: & $\log \lambda_{ti}^{(I)} = \phi_1^{(I)} \log \lambda_{ti-1}^{(I)}  + u_{ti}^{(I)}$ & (AR(1)) \\
+\end{tabular}
+\end{center}
+
+
+%%%%%%%
+%  Filtering %
+%%%%%%%
+\chapter{Filtering}
+\label{chp:filtering}
+The object of filtering is to update our knowledge of the system each time a new observation $y_t$ is brought in.
+
+%%%%  Kalman Filter   %%%%
+\section{Kalman Filter}
+
+%\begin{align} 
+%\begin{split}
+%|m-M| &= |\mathbb{E}(X)-M|\\
+%\end{split}					
+%\end{align} 
+
+
+%%%%%%%%%%
+%    Conclusion   %
+%%%%%%%%%%
+\chapter{Conclusion}
+\label{chp:conclusion}
+by Etessami et al.\cite{etessami2014_2}
+
+%%%%%%%%%%%
+%    Bibliography          %
+%%%%%%%%%%%
+%\afterpage{\blankpage}
+\bibliography{references}
+\bibliographystyle{plain}
+\end{document}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
