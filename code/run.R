@@ -25,8 +25,9 @@ if (interactive) {
     setwd("/Users/Hans-Peter/Documents/Masters/14D000/code")
 } 
 
-# load state space models
+# load models
 source("models/localLevel.R")
+source("hierarchDynPoisson.R")
 
 # load filters
 source("../filter/kalman.R")
@@ -46,6 +47,7 @@ plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
 lines(llm.est$a, col="green")
 
+
 # ----------------------------------------------------------------------
 # Test Kalman filter on trivariate local level model
 # ----------------------------------------------------------------------
@@ -61,4 +63,33 @@ mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=cov.eta)
 # plot(llm.data$y, type='l', col="red")
 # lines(llm.data$x, col="blue")
 # lines(llm.est$a, col="green")
+
+
+# ----------------------------------------------------------------------
+# Simulate hierarchical dynamic Poisson model
+# ----------------------------------------------------------------------
+
+# generate hierarchical dynamic Poisson data
+set.seed(1000)
+hdpm.data <- gen.hdpm.data(n=5, m=20, D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=1, I.var=1, a1=0, P1=1)
+
+#x <- hdpm.data$x
+#lambda <- hdpm.data$lambda
+#D <- hdpm.data$D
+#P <- hdpm.data$P
+#I <- hdpm.data$I
+
+# plot data and parameter (components)
+plot(as.vector(t(as.matrix(hdpm.data$x))), type='p', pch=19, col="red", xlab="time", ylab="counts / parameter (components)")
+lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
+lines(hdpm.data$D, type='l', col="orange")
+lines(hdpm.data$P, type='l', col="green")
+lines(hdpm.data$I, type='l', col="blue")
+
+# plot log parameter (components)
+plot(log(as.vector(t(as.matrix(hdpm.data$lambda)))), type='l', col="black", xlab="time", ylab="log parameter (components)")
+lines(log(hdpm.data$D), type='l', col="orange")
+lines(log(hdpm.data$P), type='l', col="green")
+lines(log(hdpm.data$I), type='l', col="blue")
+
 
