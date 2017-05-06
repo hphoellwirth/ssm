@@ -40,9 +40,10 @@ source("../filter/kalman.R")
 llm.data <- gen.llm.data(n=100)
 
 # use Kalman filter to estimate model states
-llm.est <- kalman.filter(llm.data$y)
+llm.est <- m.kalman.filter(llm.data$y)
 
 # plot result
+par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
 lines(llm.est$a, col="green")
@@ -53,17 +54,19 @@ lines(llm.est$a, col="green")
 # ----------------------------------------------------------------------
 
 # generate local level data
-cov.eta <- matrix(c(1,0.5,0,0.5,1,0.1,0,0.1,2), nrow=3, ncol=3)
+cov.eta <- matrix(c(1,0.95,0,0.95,1,0.1,0,0.1,2), nrow=3, ncol=3)
 mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=cov.eta)
 
 # use Kalman filter to estimate model states
-# llm.est <- kalman.filter(mllm.data$y)
+mllm.est <- m.kalman.filter(mllm.data$y)
 
 # plot result
-# plot(llm.data$y, type='l', col="red")
-# lines(llm.data$x, col="blue")
-# lines(llm.est$a, col="green")
-
+par(mfrow=c(3,1), mar=c(1,1,1,1))
+for (d in 1:3) {
+    plot(mllm.data$y[,d], type='l', col="red")
+    lines(mllm.data$x[,d], col="blue")
+    lines(mllm.est$a[,d], col="green")
+}
 
 # ----------------------------------------------------------------------
 # Simulate hierarchical dynamic Poisson model
@@ -80,6 +83,7 @@ hdpm.data <- gen.hdpm.data(n=5, m=20, D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=
 #I <- hdpm.data$I
 
 # plot data and parameter (components)
+par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(as.vector(t(as.matrix(hdpm.data$x))), type='p', pch=19, col="red", xlab="time", ylab="counts / parameter (components)")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
 lines(hdpm.data$D, type='l', col="orange")
