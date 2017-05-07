@@ -42,12 +42,15 @@ llm.data <- gen.llm.data(n=100)
 # use Kalman filter to estimate model states
 llm.est <- m.kalman.filter(llm.data$y)
 
-# plot result
+# plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
 lines(llm.est$a, col="green")
 
+# plot log-likelihood
+par(mfrow=c(1,1), mar=c(2,2,1,1))
+plot(llm.est$l, type='l', col="red")
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on trivariate local level model
@@ -60,13 +63,17 @@ mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=cov.eta)
 # use Kalman filter to estimate model states
 mllm.est <- m.kalman.filter(mllm.data$y)
 
-# plot result
+# plot observations, states, and estimates
 par(mfrow=c(3,1), mar=c(1,1,1,1))
 for (d in 1:3) {
     plot(mllm.data$y[,d], type='l', col="red")
     lines(mllm.data$x[,d], col="blue")
     lines(mllm.est$a[,d], col="green")
 }
+
+# plot log-likelihood
+par(mfrow=c(1,1), mar=c(2,2,1,1))
+plot(mllm.est$l, type='l', col="red")
 
 # ----------------------------------------------------------------------
 # Simulate hierarchical dynamic Poisson model

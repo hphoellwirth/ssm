@@ -70,11 +70,14 @@ m.kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
     y <- data.frame(y)
     n <- nrow(y)
     
-    # initialize series
+    # initialize series and loglikelihood
     v <- data.frame(matrix(ncol = d, nrow = n))
     a.t <- data.frame(matrix(ncol = d, nrow = n+1)) 
     a <- data.frame(matrix(ncol = d, nrow = n)) 
     F <- K <- P <- P.t <- list()
+    
+    l <- rep(0,n)
+    loglik <- 0
     
     # initial state estimator
     a[1,] <- a1
@@ -99,8 +102,11 @@ m.kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
         a[t+1,] <- a.t[t,]
         P[[t+1]] <- P.t[[t]] + cov.eta
         
+        # [3] (Log-likelihood computation)
+        loglik <- loglik - 0.5 * (d*log(2*pi) + log(det(F[[t]])) + c(t(v[t,])) %*% solve(F[[t]]) %*% c(t(v[t,])))
+        l[t] <- loglik
     }
     P[[n+1]] <- NULL
-    return(list(a=a[1:n,], P=P))
+    return(list(a=a[1:n,], P=P, l=l))
 }
 
