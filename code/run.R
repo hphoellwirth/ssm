@@ -20,7 +20,7 @@ par(mfrow=c(1,1))
 # NONE
 
 # if interactive, during the development, set to TRUE
-interactive <- TRUE
+interactive <- FALSE
 if (interactive) {
     setwd("/Users/Hans-Peter/Documents/Masters/14D000/code")
 } 
@@ -40,7 +40,7 @@ source("../filter/kalman.R")
 llm.data <- gen.llm.data(n=100)
 
 # use Kalman filter to estimate model states
-llm.est <- m.kalman.filter(llm.data$y)
+llm.est <- kalman.filter(llm.data$y)
 
 # plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
@@ -61,7 +61,7 @@ cov.eta <- matrix(c(1,0.95,0,0.95,1,0.1,0,0.1,2), nrow=3, ncol=3)
 mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=cov.eta)
 
 # use Kalman filter to estimate model states
-mllm.est <- m.kalman.filter(mllm.data$y)
+mllm.est <- kalman.filter(mllm.data$y)
 
 # plot observations, states, and estimates
 par(mfrow=c(3,1), mar=c(1,1,1,1))

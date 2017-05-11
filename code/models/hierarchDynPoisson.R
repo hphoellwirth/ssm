@@ -9,23 +9,6 @@
 
 
 # ----------------------------------------------------------------------
-# Setup
-# ----------------------------------------------------------------------
-
-# house cleaning
-rm(list = ls())
-par(mfrow=c(1,1))
-
-# load libraries
-
-# if interactive, during the development, set to TRUE
-interactive <- TRUE
-if (interactive) {
-    setwd("/Users/Hans-Peter/Documents/Masters/14D000/code/models")
-} 
-
-
-# ----------------------------------------------------------------------
 # Generate hierarchical dynamic Poisson model
 # ----------------------------------------------------------------------
 gen.hdpm.data <- function(n, m, D.phi0=0, D.phi1=0.5, I.phi1=0.5, P.int=1, D.var=1, I.var=1, a1=0, P1=1) {

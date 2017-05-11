@@ -12,18 +12,8 @@
 # Setup
 # ----------------------------------------------------------------------
 
-# house cleaning
-rm(list = ls())
-par(mfrow=c(1,1))
-
 # load libraries
 library(MASS)
-
-# if interactive, during the development, set to TRUE
-interactive <- TRUE
-if (interactive) {
-    setwd("/Users/Hans-Peter/Documents/Masters/14D000/code/models")
-} 
 
 
 # ----------------------------------------------------------------------

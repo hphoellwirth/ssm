@@ -9,64 +9,9 @@
 
 
 # ----------------------------------------------------------------------
-# Setup
+# (Multivariate) Kalman filter
 # ----------------------------------------------------------------------
-
-# house cleaning
-#rm(list = ls())
-par(mfrow=c(1,1))
-
-# load libraries
-
-# if interactive, during the development, set to TRUE
-interactive <- TRUE
-if (interactive) {
-    setwd("/Users/Hans-Peter/Documents/Masters/14D000/code/filter")
-} 
-
-
-# ----------------------------------------------------------------------
-# Univariate Kalman filter
-# ----------------------------------------------------------------------
-kalman.filter <- function(y, var.eps=1, var.eta=1, a1=0, P1=1) {
-    n <- length(y)
-    
-    # initialize series
-    v <- F <- K <- rep(0,n)
-    a.t <- P.t <- rep(0,n)
-    a <- P <- rep(0,n+1)
-    
-    # initial state estimator
-    a[1] <- a1
-    P[1] <- P1
-    
-    # estimate states (alphas) of state space model
-    for (t in 1:n) {
-        # [1] (Update step)
-        # compare prediction to observation
-        v[t] <- y[t] - a[t]     
-        F[t] <- P[t] + var.eps
-        
-        # compute Kalman gain (determines how much the new observation will affect the updated prediction)
-        K[t] <- P[t] / F[t]
-        
-        # compute filtered estimator to update (a posteriori) state estimate
-        a.t[t] <- a[t] + K[t]*v[t]
-        P.t[t] <- P[t] * (1 - K[t])
-        
-        # [2] (Prediction step) 
-        # one-step ahead (a priori) prediction
-        a[t+1] <- a.t[t]
-        P[t+1] <- P.t[t] + var.eta
-        
-    }
-    return(list(a=a[1:n], P=P[1:n]))
-}
-
-# ----------------------------------------------------------------------
-# Multivariate Kalman filter
-# ----------------------------------------------------------------------
-m.kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), a1=0, P1=diag(d)) {
+kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), a1=0, P1=diag(d)) {
     y <- data.frame(y)
     n <- nrow(y)
     
