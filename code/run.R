@@ -27,10 +27,10 @@ if (interactive) {
 
 # load models
 source("models/localLevel.R")
-source("hierarchDynPoisson.R")
+source("models/hierarchDynPoisson.R")
 
 # load filters
-source("../filter/kalman.R")
+source("filter/kalman.R")
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on (univariate) local level model
@@ -40,40 +40,63 @@ source("../filter/kalman.R")
 llm.data <- gen.llm.data(n=100)
 
 # use Kalman filter to estimate model states
-llm.est <- kalman.filter(llm.data$y)
+llm.filter <- kalman.filter(llm.data$y)
 
 # plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
-lines(llm.est$a, col="green")
+lines(llm.filter$a, col="green")
 
-# plot log-likelihood
-par(mfrow=c(1,1), mar=c(2,2,1,1))
-plot(llm.est$l, type='l', col="red")
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on trivariate local level model
 # ----------------------------------------------------------------------
 
 # generate local level data
-cov.eta <- matrix(c(1,0.95,0,0.95,1,0.1,0,0.1,2), nrow=3, ncol=3)
-mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=cov.eta)
+cov.eta.var <- c(1.3,0.8,0.9)
+cov.eta.rho <- -0.5
+mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # use Kalman filter to estimate model states
-mllm.est <- kalman.filter(mllm.data$y)
+mllm.filter <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # plot observations, states, and estimates
 par(mfrow=c(3,1), mar=c(1,1,1,1))
 for (d in 1:3) {
     plot(mllm.data$y[,d], type='l', col="red")
     lines(mllm.data$x[,d], col="blue")
-    lines(mllm.est$a[,d], col="green")
+    lines(mllm.filter$a[,d], col="green")
 }
 
-# plot log-likelihood
-par(mfrow=c(1,1), mar=c(2,2,1,1))
-plot(mllm.est$l, type='l', col="red")
+# plot log-likelihood for different rho values
+rho <- seq(-0.9,1,0.1)
+ll <- rep(0,length(rho))
+for (i in 1:length(rho)) {
+    ll[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
+}
+
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+plot(rho, ll, type='b', col="red", xlab="rho", ylab="log-likelihood", xaxt="n", las=2)
+xticks <- axis(side=1, at=rho)
+abline(v=xticks , lty=3)
+
+# estimate model parameters
+mllm.mle <- mll.mle(mllm.data$y, 4)
+print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
+print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
+print(paste('     True log-likelihood:', round(mllm.filter$loglik,3)))
+print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
+
+# plot filter with true and estimated paramteres
+mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], mllm.mle$theta_mle[4]))
+#mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], 0.8))
+par(mfrow=c(3,1), mar=c(1,1,1,1))
+for (d in 1:3) {
+    plot(mllm.data$x[,d], type='l', col="blue")
+    lines(mllm.filter$a[,d], col="green")
+    lines(mllm.est$a[,d], col="purple")
+}
 
 # ----------------------------------------------------------------------
 # Simulate hierarchical dynamic Poisson model
@@ -82,12 +105,6 @@ plot(mllm.est$l, type='l', col="red")
 # generate hierarchical dynamic Poisson data
 set.seed(1000)
 hdpm.data <- gen.hdpm.data(n=5, m=20, D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=1, I.var=1, a1=0, P1=1)
-
-#x <- hdpm.data$x
-#lambda <- hdpm.data$lambda
-#D <- hdpm.data$D
-#P <- hdpm.data$P
-#I <- hdpm.data$I
 
 # plot data and parameter (components)
 par(mfrow=c(1,1), mar=c(2,2,1,1))

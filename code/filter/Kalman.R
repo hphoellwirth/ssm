@@ -2,34 +2,37 @@
 # Information
 # ----------------------------------------------------------------------
 
-# Kalman filter
+# Kalman filter (for multivariate local level model)
 #
 # (Author) Hans-Peter Höllwirth
-# (Date)   13.04.2017
+# (Date)   12.05.2017
 
+# ----------------------------------------------------------------------
+# Setup
+# ----------------------------------------------------------------------
+
+# load libraries
+library(nloptr)
 
 # ----------------------------------------------------------------------
 # (Multivariate) Kalman filter
 # ----------------------------------------------------------------------
 kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), a1=0, P1=diag(d)) {
     y <- data.frame(y)
-    n <- nrow(y)
+    T <- nrow(y)
     
     # initialize series and loglikelihood
-    v <- data.frame(matrix(ncol = d, nrow = n))
-    a.t <- data.frame(matrix(ncol = d, nrow = n+1)) 
-    a <- data.frame(matrix(ncol = d, nrow = n)) 
+    v <- data.frame(matrix(ncol = d, nrow = T))
+    a.t <- data.frame(matrix(ncol = d, nrow = T+1)) 
+    a <- data.frame(matrix(ncol = d, nrow = T)) 
     F <- K <- P <- P.t <- list()
-    
-    l <- rep(0,n)
-    loglik <- 0
     
     # initial state estimator
     a[1,] <- a1
     P[[1]] <- P1
     
     # estimate states (alphas) of state space model
-    for (t in 1:n) {
+    for (t in 1:T) {
         # [1] (Update step)
         # compare prediction to observation
         v[t,] <- y[t,] - a[t,]     
@@ -46,12 +49,38 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
         # one-step ahead (a priori) prediction
         a[t+1,] <- a.t[t,]
         P[[t+1]] <- P.t[[t]] + cov.eta
-        
-        # [3] (Log-likelihood computation)
-        loglik <- loglik - 0.5 * (d*log(2*pi) + log(det(F[[t]])) + c(t(v[t,])) %*% solve(F[[t]]) %*% c(t(v[t,])))
-        l[t] <- loglik
     }
-    P[[n+1]] <- NULL
-    return(list(a=a[1:n,], P=P, l=l))
+    P[[T+1]] <- NULL
+    
+    # compute log-likelihood
+    loglik <- -T*d/2 * log(2*pi)
+    for (t in 1:T) {
+        loglik <- loglik - 0.5 * (log(det(F[[t]])) + c(t(v[t,])) %*% solve(F[[t]]) %*% c(t(v[t,]))) 
+    }
+    
+    return(list(a=a[1:T,], P=P, loglik=loglik))
 }
 
+# ----------------------------------------------------------------------
+# Maximum likelihood estimator
+# ----------------------------------------------------------------------
+mll.mle <- function(y, D) {
+    T <- length(y)
+    
+    # set optimization parameters
+    lb <- c(rep(0.1,(D-1)), -1);
+    ub <- c(rep(5,  (D-1)),  1);
+    theta_start <- c(rep(1,(D-1)), 0)
+    obj <- function(theta){ return( -kalman.filter(y, cov.eta=construct.cov(theta[1:(D-1)], theta[D]))$loglik ) } 
+    
+    # run box-constrained optimization
+    print('estimating model parameters...') 
+    param <- nlminb( theta_start, obj, lower=lb, upper=ub )
+    theta_mle <- param$par
+    print('... done!') 
+    
+    # compute log-liklihood of MLE parameters
+    loglik <- kalman.filter(y, cov.eta=construct.cov(theta_mle[1:(D-1)], theta_mle[D]))$loglik
+    
+    return(list(loglik = loglik, theta_mle = theta_mle))
+}

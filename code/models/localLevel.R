@@ -61,5 +61,22 @@ gen.multi.llm.data <- function(n, d=2, var.eps=1, cov.eta=diag(d), a1=0, P1=diag
     return(list(y=y, x=x[1:n,]))
 }
 
+# ----------------------------------------------------------------------
+# Construct covariance matrix from variances and correlation 
+# ----------------------------------------------------------------------
+construct.cov <- function(var, rho) {
+    d <- length(var)
+    cov <- matrix(nrow=d, ncol=d)
+    
+    for (i in 1:d) {
+        for (j in 1:d) {
+            if (i==j)
+                cov[i,j] <- var[i]
+            else
+                cov[i,j] <- rho * (sqrt(var[i]) * sqrt(var[j]))
+        }
+    }
+    return(cov)
+}
 
 
