@@ -68,6 +68,16 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 \end{tabular}
 \end{center}
 
+where we restrict the covariance matrix of the state disturbances, $\Sigma_{\eta}$, to the form
+$$
+\Sigma_{\eta} = 
+\begin{bmatrix}
+\sigma_{\eta 1}^2 & \rho \sigma_{\eta 1} \sigma_{\eta 2} & \rho \sigma_{\eta 1} \sigma_{\eta 3}
+\\ \rho \sigma_{\eta 1} \sigma_{\eta 2} & \sigma_{\eta 2}^2 & \rho \sigma_{\eta 2} \sigma_{\eta 3}
+\\ \rho \sigma_{\eta 1} \sigma_{\eta 3} & \rho \sigma_{\eta 2} \sigma_{\eta 3} & \sigma_{\eta 3}^2
+\end{bmatrix}
+$$
+Thus, $\Sigma_{\eta}$ can be described by the vector $[\sigma_{\eta 1}^2, \sigma_{\eta 2}^2, \sigma_{\eta 3}^2, \rho]$.
 
 
 %%%%  Hierarchical Dynamic Poisson Model   %%%%
@@ -104,6 +114,11 @@ The object of filtering is to update our knowledge of the system each time a new
 
 %%%%  Kalman Filter   %%%%
 \section{Kalman Filter}
+
+\subsection{Likelihood evaluation}
+$$
+\log L(Y_n) = -\frac{nd}{2} \log(2 \pi) - \frac{1}{2} \sum_{t=1}^T (\log |F_t| + v_t^TF_t^{-1} v_t)
+$$
 
 %\begin{align} 
 %\begin{split}
