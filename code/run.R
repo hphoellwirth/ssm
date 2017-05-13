@@ -54,8 +54,8 @@ lines(llm.filter$a, col="green")
 # ----------------------------------------------------------------------
 
 # generate local level data
-cov.eta.var <- c(1.3,0.8,0.9)
-cov.eta.rho <- -0.5
+cov.eta.var <- c(4.3,2.8,0.9)
+cov.eta.rho <- 0.3
 mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # use Kalman filter to estimate model states
@@ -70,7 +70,7 @@ for (d in 1:3) {
 }
 
 # plot log-likelihood for different rho values
-rho <- seq(-0.9,1,0.1)
+rho <- seq(-1,1,0.1)
 ll <- rep(0,length(rho))
 for (i in 1:length(rho)) {
     ll[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
@@ -88,15 +88,22 @@ print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.
 print(paste('     True log-likelihood:', round(mllm.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
 
-# plot filter with true and estimated paramteres
+# plot filter with true and estimated parameters
 mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], mllm.mle$theta_mle[4]))
-#mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], 0.8))
 par(mfrow=c(3,1), mar=c(1,1,1,1))
 for (d in 1:3) {
     plot(mllm.data$x[,d], type='l', col="blue")
     lines(mllm.filter$a[,d], col="green")
     lines(mllm.est$a[,d], col="purple")
 }
+
+# and compare MSE of true and estimated parameters
+mse <- function(target, pred) {
+    return(sum((target - pred)**2))
+}
+print(paste('     True MSE:', mse(mllm.data$x, mllm.filter$a)))
+print(paste('Estimated MSE:', mse(mllm.data$x, mllm.est$a)))
+
 
 # ----------------------------------------------------------------------
 # Simulate hierarchical dynamic Poisson model
