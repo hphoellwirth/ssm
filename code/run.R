@@ -31,22 +31,33 @@ source("models/hierarchDynPoisson.R")
 
 # load filters
 source("filter/kalman.R")
+source("filter/particle.R")
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on (univariate) local level model
 # ----------------------------------------------------------------------
 
 # generate local level data
-llm.data <- gen.llm.data(n=100)
+T <- 100
+var.eta <- 1
+llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 
 # use Kalman filter to estimate model states
-llm.filter <- kalman.filter(llm.data$y)
+llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
+
+# use particle filter to estimate model states
+P <- 200
+eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
+u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
+for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
+llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim)
 
 # plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
-lines(llm.filter$a, col="green")
+lines(llm.kalman.filter$a, col="green")
+lines(llm.particle.filter$x.pr, col="orange")
 
 
 # ----------------------------------------------------------------------
@@ -81,7 +92,7 @@ plot(rho, ll, type='b', col="red", xlab="rho", ylab="log-likelihood", xaxt="n", 
 xticks <- axis(side=1, at=rho)
 abline(v=xticks , lty=3)
 
-# estimate model parameters
+# estimate model parameters, using Kalman filter
 mllm.mle <- mll.mle(mllm.data$y, 4)
 print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
 print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
@@ -92,7 +103,7 @@ print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
 mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], mllm.mle$theta_mle[4]))
 par(mfrow=c(3,1), mar=c(1,1,1,1))
 for (d in 1:3) {
-    plot(mllm.data$x[,d], type='l', col="blue")
+    plot(mllm.data$x[,d], type='l', col="blue") 
     lines(mllm.filter$a[,d], col="green")
     lines(mllm.est$a[,d], col="purple")
 }
