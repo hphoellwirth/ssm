@@ -65,19 +65,32 @@ lines(llm.particle.filter$x.pr, col="orange")
 # ----------------------------------------------------------------------
 
 # generate local level data
+D <- 3
+T <- 100
 cov.eta.var <- c(4.3,2.8,0.9)
 cov.eta.rho <- 0.3
-mllm.data <- gen.multi.llm.data(n=100, d=3, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
+mllm.data <- gen.multi.llm.data(n=T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # use Kalman filter to estimate model states
-mllm.filter <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
+mllm.kalman.filter <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
+
+# use particle filter to estimate model states
+P <- 200
+eta.sim <- u.sim <- list()
+for (t in 1:T) {
+    eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
+    u.sim[[t]]   <- matrix(runif(P*D, min=0, max=1), nrow=P, ncol=D) 
+    for (d in 1:D) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
+}
+mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)
 
 # plot observations, states, and estimates
 par(mfrow=c(3,1), mar=c(1,1,1,1))
 for (d in 1:3) {
     plot(mllm.data$y[,d], type='l', col="red")
     lines(mllm.data$x[,d], col="blue")
-    lines(mllm.filter$a[,d], col="green")
+    lines(mllm.kalman.filter$a[,d], col="green")
+    lines(mllm.particle.filter$x.pr[,d], col="orange")
 }
 
 # plot log-likelihood for different rho values

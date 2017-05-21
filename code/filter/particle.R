@@ -15,9 +15,9 @@
 #library(nloptr)
 
 # ----------------------------------------------------------------------
-# (Multivariate) Particle filter
+# (Univariate) Particle filter
 # ----------------------------------------------------------------------
-particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), eta.sim, u.sim, a1=0) {
+particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), eta.sim, u.sim, a1=0, P1=1) {
     y <- data.frame(y)
     T <- nrow(y)
     P <- nrow(u.sim)
@@ -28,7 +28,7 @@ particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
     loglik <- 0 
     
     # initial state estimator
-    x_up <- rnorm(P, a1, 1)
+    x_up <- rnorm(P, mean=a1, sd=P1)
     
     # estimate states (alphas) of state space model
     for (t in 1:T) {
@@ -38,7 +38,7 @@ particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
         x.pr[t] <- mean(x_pr)
         
         # [2] (Update step)
-        lik <- dnorm( y[t,]*rep(1,P) , x_pr , var.eps) 
+        lik <- dnorm( y[t,]*rep(1,P), mean=x_pr, sd=sqrt(var.eps)) 
         log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
         
         if (log.mean.lik == -Inf) {
@@ -54,15 +54,60 @@ particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
     return(list(x.pr=x.pr, x.up=x.up, loglik=loglik))
 }
 
-# sequential importance sampling algorithm
+# ----------------------------------------------------------------------
+# (Multivariate) Particle filter
+# ----------------------------------------------------------------------
+m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(D), eta.sim, u.sim, a1=rep(0,D), P1=diag(D)) {
+    y <- data.frame(y)
+    T <- nrow(y)
+    P <- nrow(u.sim[[1]])
+    
+    # initialize series and loglikelihood
+    x.pr <- data.frame(matrix(ncol = D, nrow = T)) 
+    x.up <- data.frame(matrix(ncol = D, nrow = T)) 
+    lik <- matrix(ncol = D, nrow = P)
+    loglik <- 0 
+    
+    # initial state estimator
+    x_up <- mvrnorm(P, mu=a1, Sigma=P1)
+    
+    # estimate states (alphas) of state space model
+    for (t in 1:T) {
+        # [1] (Prediction step) 
+        # one-step ahead (a priori) prediction
+        x_pr <- x_up + eta.sim[[t]] %*% cov.eta # need to simulate using cov.eta
+        x.pr[t,] <- colMeans(x_pr)
+        
+        # [2] (Update step)
+        for (d in 1:D)
+            lik[,d] <- dnorm( y[t,d]*rep(1,P) , mean=x_pr[,d] , sd=sqrt(var.eps)) 
+        log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
+        
+        if (log.mean.lik == -Inf) {
+            break
+        } 
+        loglik <- loglik - log.mean.lik
+        
+        # compute filtered estimator to update (a posteriori) state estimate
+        for (d in 1:D)
+            x_up[,d] <- sir(x_pr[,d], lik[,d], u.sim[[t]][,d])
+        x.up[t,] <- colMeans(x_up) 
+    }
+    
+    return(list(x.pr=x.pr, x.up=x.up, loglik=loglik))
+}
+
+# ----------------------------------------------------------------------
+# Sequential importance resampling algorithm
+# ----------------------------------------------------------------------
 sir <- function(x_pr_, x_wt, u) {
     
     P <- length(x_pr_)
     x_up <- rep(0,P)
     
     # sorting and weighting
-    x_wt <- x_wt/sum(x_wt)
-    x_sort <- cbind(seq(1,P,1),c(x_pr_)) # update for multivariate
+    x_wt <- x_wt/sum(x_wt) # normalize weights
+    x_sort <- cbind(seq(1,P,1),c(x_pr_)) 
     x_pr_idx <- x_sort[order(x_sort[,2]),]
     x_pr_ <- x_pr_idx[,2]
     x_idx <- x_pr_idx[,1]
