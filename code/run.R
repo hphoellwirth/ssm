@@ -39,7 +39,7 @@ source("filter/particle.R")
 
 # generate local level data
 T <- 100
-var.eta <- 1
+var.eta <- 1.7
 llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 
 # use Kalman filter to estimate model states
@@ -59,6 +59,26 @@ lines(llm.data$x, col="blue")
 lines(llm.kalman.filter$a, col="green")
 lines(llm.particle.filter$x.pr, col="orange")
 
+# plot log-likelihood for different var.eta values
+eta <- seq(0.5,2,0.1)
+ll.kalman <- ll.particle <- rep(0,length(eta))
+for (i in 1:length(eta)) {
+    ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
+    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik
+    
+}
+
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot(eta, ll.kalman, type='b', col="green", xlab="var.eta with Kalman filter", ylab="log-likelihood", xaxt="n", las=2)
+points(var.eta, llm.kalman.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=eta)
+abline(v=xticks , lty=3)
+
+plot(eta, ll.particle, type='b', col="orange", xlab="var.eta with particle filter", ylab="log-likelihood", xaxt="n", las=2)
+points(var.eta, llm.particle.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=eta)
+abline(v=xticks , lty=3)
+
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on trivariate local level model
@@ -67,8 +87,8 @@ lines(llm.particle.filter$x.pr, col="orange")
 # generate local level data
 D <- 3
 T <- 100
-cov.eta.var <- c(4.3,2.8,0.9)
-cov.eta.rho <- 0.3
+cov.eta.var <- c(4.2,2.8,0.9)
+cov.eta.rho <- 0.7
 mllm.data <- gen.multi.llm.data(n=T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # use Kalman filter to estimate model states
@@ -83,6 +103,9 @@ for (t in 1:T) {
     for (d in 1:D) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
 }
 mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)
+#mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(1.0,2.8,4.5), 0.7), eta.sim=eta.sim, u.sim=u.sim)
+#mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=diag(3), eta.sim=eta.sim, u.sim=u.sim)
+
 
 # plot observations, states, and estimates
 par(mfrow=c(3,1), mar=c(1,1,1,1))
@@ -95,21 +118,70 @@ for (d in 1:3) {
 
 # plot log-likelihood for different rho values
 rho <- seq(-1,1,0.1)
-ll <- rep(0,length(rho))
+ll.kalman <- ll.particle <- rep(0,length(rho))
 for (i in 1:length(rho)) {
-    ll[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
+    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]), eta.sim=eta.sim, u.sim=u.sim)$loglik
 }
 
-par(mfrow=c(1,1), mar=c(4,4,1,1))
-plot(rho, ll, type='b', col="red", xlab="rho", ylab="log-likelihood", xaxt="n", las=2)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot(rho, ll.kalman, type='b', col="green", xlab="rho with Kalman filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.rho, mllm.kalman.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=rho)
+abline(v=xticks , lty=3)
+plot(rho, ll.particle, type='b', col="orange", xlab="rho with particle filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.rho, mllm.particle.filter$loglik) # highlight true parameter
 xticks <- axis(side=1, at=rho)
 abline(v=xticks , lty=3)
 
+# plot log-likelihood for different eta.var1 values
+var1 <- seq(2,5.6,0.2)
+ll.kalman <- ll.particle <- rep(0,length(var1))
+for (i in 1:length(var1)) {
+    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho))$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)$loglik
+}
+
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot(var1, ll.kalman, type='b', col="green", xlab="eta.var1 with Kalman filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.var[1], mllm.kalman.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=var1)
+abline(v=xticks , lty=3)
+plot(var1, ll.particle, type='b', col="orange", xlab="eta.var1 with particle filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.var[1], mllm.particle.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=var1)
+abline(v=xticks , lty=3)
+
+# plot log-likelihood for different eta.var3 values
+var3 <- seq(0.2,4,0.2)
+ll.kalman <- ll.particle <- rep(0,length(var3))
+for (i in 1:length(var3)) {
+    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho))$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)$loglik
+}
+
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot(var3, ll.kalman, type='b', col="green", xlab="eta.var1 with Kalman filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.var[3], mllm.kalman.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=var3)
+abline(v=xticks , lty=3)
+plot(var3, ll.particle, type='b', col="orange", xlab="eta.var1 with particle filter", ylab="log-likelihood", xaxt="n", las=2)
+points(cov.eta.var[3], mllm.particle.filter$loglik) # highlight true parameter
+xticks <- axis(side=1, at=var3)
+abline(v=xticks , lty=3)
+
 # estimate model parameters, using Kalman filter
-mllm.mle <- mll.mle(mllm.data$y, 4)
+mllm.mle <- kalman.mle(mllm.data$y, 4)
 print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
 print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
-print(paste('     True log-likelihood:', round(mllm.filter$loglik,3)))
+print(paste('     True log-likelihood:', round(mllm.kalman.filter$loglik,3)))
+print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
+
+# estimate model parameters, using particle filter
+mllm.mle <- particle.mle(mllm.data$y, 4, P)
+print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
+print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
+print(paste('     True log-likelihood:', round(mllm.kalman.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
 
 # plot filter with true and estimated parameters

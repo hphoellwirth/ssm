@@ -34,17 +34,17 @@ particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
-        x_pr <- x_up + cov.eta * eta.sim[,t] # need to simulate using cov.eta
+        x_pr <- x_up + cov.eta * eta.sim[,t] 
         x.pr[t] <- mean(x_pr)
         
         # [2] (Update step)
+        # compute importance weights
         lik <- dnorm( y[t,]*rep(1,P), mean=x_pr, sd=sqrt(var.eps)) 
         log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
         
-        if (log.mean.lik == -Inf) {
-            break
-        } 
-        loglik <- loglik - log.mean.lik
+        # update likelihood
+        if (log.mean.lik == -Inf) break
+        loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
         x_up <- sir(x_pr, lik, u.sim[,t])
@@ -75,18 +75,18 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
-        x_pr <- x_up + eta.sim[[t]] %*% cov.eta # need to simulate using cov.eta
+        x_pr <- x_up + eta.sim[[t]] %*% cov.eta
         x.pr[t,] <- colMeans(x_pr)
         
         # [2] (Update step)
+        # compute importance weights
         for (d in 1:D)
             lik[,d] <- dnorm( y[t,d]*rep(1,P) , mean=x_pr[,d] , sd=sqrt(var.eps)) 
-        log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
+        log.mean.lik <- tryCatch(sum(log(colMeans(lik))), error=function(e)(-Inf))
         
-        if (log.mean.lik == -Inf) {
-            break
-        } 
-        loglik <- loglik - log.mean.lik
+        # update likelihood
+        if (log.mean.lik == -Inf) break
+        loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
         for (d in 1:D)
@@ -131,19 +131,26 @@ sir <- function(x_pr_, x_wt, u) {
 # Maximum likelihood estimator
 # ----------------------------------------------------------------------
 particle.mle <- function(y, D, P) {
-    T <- length(y)
+    T <- nrow(y)
     
-    # draw noise
-    eta_sim <- rnorm(P*T, 0,1) # TBD mvrnorm 3-dimensional
-    eta_sim <- matrix(eta_sim, nrow=P, ncol=T) 
-    u_sim <- runif(P*T, 0,1)
-    u_sim <- matrix(u_sim, P, T)    
+    # draw noise and particles
+    eta.sim <- u.sim <- list()
+    for (t in 1:T) {
+        eta.sim[[t]] <- mvrnorm(P, mu=rep(0,(D-1)), Sigma=diag(D-1)) 
+        u.sim[[t]]   <- matrix(runif(P*(D-1), min=0, max=1), nrow=P, ncol=(D-1)) 
+        for (d in 1:(D-1)) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
+    }
+    
+    #eta_sim <- rnorm(P*T, 0,1) # TBD mvrnorm 3-dimensional
+    #eta_sim <- matrix(eta_sim, nrow=P, ncol=T) 
+    #u_sim <- runif(P*T, 0,1)
+    #u_sim <- matrix(u_sim, P, T)    
     
     # set optimization parameters
     lb <- c(rep(0.1,(D-1)), -1);
     ub <- c(rep(5,  (D-1)),  1);
     theta_start <- c(rep(1,(D-1)), 0)
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=construct.cov(theta[1:(D-1)], theta[D]))$loglik ) } 
+    obj <- function(theta){ return( -m.particle.filter(y, cov.eta=construct.cov(theta[1:(D-1)], theta[D]), eta.sim=eta.sim, u.sim=u.sim)$loglik ) } 
     
     # run box-constrained optimization
     print('estimating model parameters...') 
@@ -152,7 +159,7 @@ particle.mle <- function(y, D, P) {
     print('... done!') 
     
     # compute log-liklihood of MLE parameters
-    loglik <- kalman.filter(y, cov.eta=construct.cov(theta_mle[1:(D-1)], theta_mle[D]))$loglik
+    loglik <- m.particle.filter(y, cov.eta=construct.cov(theta_mle[1:(D-1)], theta_mle[D]), eta.sim=eta.sim, u.sim=u.sim)$loglik
     
     return(list(loglik = loglik, theta_mle = theta_mle))
 }

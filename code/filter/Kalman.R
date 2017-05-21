@@ -64,7 +64,7 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
 # ----------------------------------------------------------------------
 # Maximum likelihood estimator
 # ----------------------------------------------------------------------
-mll.mle <- function(y, D) {
+kalman.mle <- function(y, D) {
     T <- length(y)
     
     # set optimization parameters
