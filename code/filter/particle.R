@@ -12,7 +12,8 @@
 # ----------------------------------------------------------------------
 
 # load libraries
-#library(nloptr)
+library(matrixcalc)
+library(nloptr)
 
 # ----------------------------------------------------------------------
 # (Univariate) Particle filter
@@ -34,7 +35,7 @@ particle.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d)
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
-        x_pr <- x_up + cov.eta * eta.sim[,t] 
+        x_pr <- x_up + sqrt(cov.eta) * eta.sim[,t] 
         x.pr[t] <- mean(x_pr)
         
         # [2] (Update step)
@@ -75,17 +76,24 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
-        x_pr <- x_up + eta.sim[[t]] %*% cov.eta
-        x.pr[t,] <- colMeans(x_pr)
-        
-        # [2] (Update step)
-        # compute importance weights
-        for (d in 1:D)
-            lik[,d] <- dnorm( y[t,d]*rep(1,P) , mean=x_pr[,d] , sd=sqrt(var.eps)) 
-        log.mean.lik <- tryCatch(sum(log(colMeans(lik))), error=function(e)(-Inf))
+        if (is.positive.definite(cov.eta)) {
+            x_pr <- x_up +  eta.sim[[t]] %*% chol(cov.eta) # TBD: handle error where chol cannot be computed
+            x.pr[t,] <- colMeans(x_pr)
+            
+            # [2] (Update step)
+            # compute importance weights
+            for (d in 1:D)
+                lik[,d] <- dnorm( y[t,d]*rep(1,P) , mean=x_pr[,d] , sd=sqrt(var.eps)) 
+            log.mean.lik <- tryCatch(sum(log(colMeans(lik))), error=function(e)(Inf))
+        } else {
+            log.mean.lik <- Inf
+        }
         
         # update likelihood
-        if (log.mean.lik == -Inf) break
+        if (log.mean.lik == Inf) {
+            loglik <- Inf
+            break
+        }
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
