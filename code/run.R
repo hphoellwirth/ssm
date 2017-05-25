@@ -15,7 +15,6 @@
 # house cleaning
 rm(list = ls())
 par(mfrow=c(1,1))
-set.seed(1000)
 
 # load libraries
 # NONE
@@ -42,6 +41,7 @@ source("util/plots.R")
 # ----------------------------------------------------------------------
 
 # generate local level data
+set.seed(1000)
 T <- 100
 var.eta <- 1.3
 llm.data <- gen.llm.data(n=T, var.eta=var.eta)
@@ -103,6 +103,7 @@ abline(v=xticks , lty=3)
 # ----------------------------------------------------------------------
 
 # generate local level data
+set.seed(1000)
 D <- 3
 T <- 100
 cov.eta.var <- c(4.2,2.8,0.9)
@@ -114,12 +115,14 @@ mllm.kalman.filter <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.v
 
 # use particle filter to estimate model states
 P <- 200
-eta.sim <- u.sim <- list()
+eta.sim <- list()
 for (t in 1:T) {
     eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
-    u.sim[[t]]   <- matrix(runif(P*D, min=0, max=1), nrow=P, ncol=D) 
-    for (d in 1:D) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
+    #u.sim[[t]]   <- matrix(runif(P*D, min=0, max=1), nrow=P, ncol=D) 
+    #for (d in 1:D) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
 }
+u.sim <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
+for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
 mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)
 
 # plot observations, states, and estimates
@@ -132,7 +135,7 @@ for (d in 1:3) {
 }
 
 # plot log-likelihood for different rho values
-rho <- seq(-0.4,1,0.1)
+rho <- seq(-1.0,1,0.1)
 ll.kalman <- ll.particle <- rep(0,length(rho))
 for (i in 1:length(rho)) {
     cat('.')
@@ -171,18 +174,18 @@ plot.loglik(var3, ll.kalman, cov.eta.var[3], mllm.kalman.filter$loglik, 'green',
 plot.loglik(var3, ll.particle, cov.eta.var[3], mllm.particle.filter$loglik, 'orange', 'eta.var3 with particle filter')
 
 # estimate model parameters, using Kalman filter
-mllm.mle <- kalman.mle(mllm.data$y, 4)
+mllm.kalman.mle <- kalman.mle(mllm.data$y, 4)
 print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
-print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
+print(paste('Estimated parameters:', round(mllm.kalman.mle$theta_mle[1],2), round(mllm.kalman.mle$theta_mle[2],2), round(mllm.kalman.mle$theta_mle[3],2), round(mllm.kalman.mle$theta_mle[4],2)))
 print(paste('     True log-likelihood:', round(mllm.kalman.filter$loglik,3)))
-print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
+print(paste('Estimated log-likelihood:', round(mllm.kalman.mle$loglik,3)))
 
 # estimate model parameters, using particle filter
-mllm.mle <- particle.mle(mllm.data$y, 4, P)
+mllm.particle.mle <- particle.mle(mllm.data$y, 4, P)
 print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
-print(paste('Estimated parameters:', round(mllm.mle$theta_mle[1],2), round(mllm.mle$theta_mle[2],2), round(mllm.mle$theta_mle[3],2), round(mllm.mle$theta_mle[4],2)))
-print(paste('     True log-likelihood:', round(mllm.kalman.filter$loglik,3)))
-print(paste('Estimated log-likelihood:', round(mllm.mle$loglik,3)))
+print(paste('Estimated parameters:', round(mllm.particle.mle$theta_mle[1],2), round(mllm.particle.mle$theta_mle[2],2), round(mllm.particle.mle$theta_mle[3],2), round(mllm.particle.mle$theta_mle[4],2)))
+print(paste('     True log-likelihood:', round(mllm.particle.filter$loglik,3)))
+print(paste('Estimated log-likelihood:', round(mllm.particle.mle$loglik,3)))
 
 # plot filter with true and estimated parameters
 mllm.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.mle$theta_mle[1:3], mllm.mle$theta_mle[4]))
