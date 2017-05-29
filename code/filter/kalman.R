@@ -68,11 +68,18 @@ kalman.mle <- function(y, D) {
     T <- length(y)
     
     # set optimization parameters
-    lb <- c(rep(0.1,(D-1)), -1);
-    ub <- c(rep(5,  (D-1)),  1);
-    theta_start <- c(rep(1,(D-1)), 0)
-    obj <- function(theta){ return( -kalman.filter(y, cov.eta=construct.cov(theta[1:(D-1)], theta[D]))$loglik ) } 
-    
+    if (D == 1) {
+        lb <- 0.1
+        ub <- 5
+        theta_start <- 0
+        obj <- function(theta){ return( -kalman.filter(y, cov.eta=theta)$loglik ) } 
+        
+    } else {
+        lb <- c(rep(0.1,D), -1)
+        ub <- c(rep(5,  D),  1)
+        theta_start <- c(rep(1,D), 0)
+        obj <- function(theta){ return( -kalman.filter(y, cov.eta=construct.cov(theta[1:D], theta[D+1]))$loglik ) } 
+    }
     # run box-constrained optimization
     print('estimating model parameters...') 
     param <- nlminb( theta_start, obj, lower=lb, upper=ub )
@@ -80,7 +87,10 @@ kalman.mle <- function(y, D) {
     print('... done!') 
     
     # compute log-liklihood of MLE parameters
-    loglik <- kalman.filter(y, cov.eta=construct.cov(theta_mle[1:(D-1)], theta_mle[D]))$loglik
+    if (D == 1) 
+        loglik <- kalman.filter(y, cov.eta=theta_mle)$loglik
+    else
+        loglik <- kalman.filter(y, cov.eta=construct.cov(theta_mle[1:D], theta_mle[D+1]))$loglik
     
     return(list(loglik = loglik, theta_mle = theta_mle))
 }
