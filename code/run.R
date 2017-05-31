@@ -57,8 +57,8 @@ u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
 llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim)
 
-# use auxiliary filter to estimate model states
-llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)
+# use auxiliary filter to compute true log-likelihood
+llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta)
 
 # plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
@@ -76,7 +76,7 @@ for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
     ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik
-    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
 }
 
 par(mfrow=c(3,1), mar=c(4,4,1,1))
@@ -92,7 +92,7 @@ for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
     ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik 
-    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
     
 }
 
@@ -104,7 +104,6 @@ ll.particle <- ll.particle / abs( ll.particle[ which(round(eta,3)==var.eta)] )
 ll.aux      <- ll.aux / abs( ll.aux[ which(round(eta,3)==var.eta)] )
 
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-#matplot(eta, cbind(ll.kalman,ll.particle), type='b', col=c("green","orange") , ylab="log-likelihood", xaxt="n", las=2)
 matplot(eta, cbind(ll.kalman,ll.particle,ll.aux), type='b', col=c("green","orange","magenta") , ylab="log-likelihood", xaxt="n", las=2)
 points(var.eta, -1 ) # highlight true parameter
 xticks <- axis(side=1, at=eta)
@@ -123,6 +122,13 @@ print(paste('     True parameters:', var.eta))
 print(paste('Estimated parameters:', round(llm.particle.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.particle.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(llm.particle.mle$loglik,3)))
+
+# estimate model parameter, using auxiliary filter
+llm.aux.mle <- aux.mle(llm.data$y, P=P)
+print(paste('     True parameters:', var.eta))
+print(paste('Estimated parameters:', round(llm.aux.mle$theta_mle[1],3)))
+print(paste('     True log-likelihood:', round(llm.aux.filter$loglik,3)))
+print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 
 
 # ----------------------------------------------------------------------

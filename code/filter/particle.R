@@ -173,6 +173,7 @@ m.sir <- function(x_pr_, x_wt, u) {
 # ----------------------------------------------------------------------
 # (Univariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
+# TBD: use continous SIR 
 particle.mle <- function(y, P) {
     T <- length(y)
     
@@ -184,7 +185,7 @@ particle.mle <- function(y, P) {
     # set optimization parameters
     lb <- 0.1
     ub <- 5
-    theta_start <- 0
+    theta_start <- 2
     obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim)$loglik ) } 
     
     # run box-constrained optimization
@@ -202,6 +203,7 @@ particle.mle <- function(y, P) {
 # ----------------------------------------------------------------------
 # (Multivariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
+# note: does not work properly for multivariate case
 m.particle.mle <- function(y, D, P) {
     T <- nrow(y)
     

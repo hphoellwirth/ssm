@@ -19,7 +19,7 @@ library(nloptr)
 # ----------------------------------------------------------------------
 # (Univariate) Auxiliary filter
 # ----------------------------------------------------------------------
-aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.eta.aux=1, eta.sim, u.sim, a1=0, P1=1) {
+aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.eta.aux=1) {
     y <- data.frame(y)
     T <- nrow(y)
     P <- nrow(u.sim)
@@ -64,4 +64,35 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
     }
     
     return(list(loglik=loglik))
+}
+
+# ----------------------------------------------------------------------
+# (Univariate) maximum likelihood estimator
+# ----------------------------------------------------------------------
+aux.mle <- function(y, P) {
+    T <- length(y)
+    
+    # draw noise and particles
+    theta_aux = 1
+    eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
+    u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
+    for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
+    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim)
+    
+    # set optimization parameters
+    lb <- 0.1
+    ub <- 5
+    theta_start <- 1
+    obj <- function(theta){ return( -aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta, cov.eta.aux=theta_aux)$loglik ) } 
+    
+    # run box-constrained optimization
+    print('estimating model parameters...') 
+    param <- nlminb( theta_start, obj, lower=lb, upper=ub )
+    theta_mle <- param$par
+    print('... done!') 
+    
+    # compute log-liklihood of MLE parameters
+    loglik <- aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta_mle, cov.eta.aux=theta_aux)$loglik
+    
+    return(list(loglik = loglik, theta_mle = theta_mle))
 }
