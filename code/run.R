@@ -32,6 +32,7 @@ source("models/hierarchDynPoisson.R")
 # load filters
 source("filter/kalman.R")
 source("filter/particle.R")
+source("filter/aux.R")
 
 # utilities
 source("util/plots.R")
@@ -43,7 +44,7 @@ source("util/plots.R")
 # generate local level data
 set.seed(1000)
 T <- 100
-var.eta <- 1.3
+var.eta <- 1.4
 llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 
 # use Kalman filter to estimate model states
@@ -56,43 +57,55 @@ u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
 llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim)
 
+# use auxiliary filter to estimate model states
+llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)
+
 # plot observations, states, and estimates
 par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='l', col="red")
 lines(llm.data$x, col="blue")
 lines(llm.kalman.filter$a, col="green")
 lines(llm.particle.filter$x.pr, col="orange")
-legend(10,15, c('observation','state','kalman','particle'), cex=0.7, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','green','orange'))
+#lines(llm.aux.filter$x.pr, col="magenta")
+legend(10,15, c('observation','state','kalman','particle','auxilary'), cex=0.7, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','green','orange','magenta'))
 
 # plot log-likelihood for different var.eta values
 eta <- seq(0.5,2,0.1)
-ll.kalman <- ll.particle <- rep(0,length(eta))
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
     ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)$loglik
 }
 
-par(mfrow=c(2,1), mar=c(4,4,1,1))
+par(mfrow=c(3,1), mar=c(4,4,1,1))
 plot.loglik(eta, ll.kalman, var.eta, llm.kalman.filter$loglik, 'green', 'var.eta with Kalman filter')
 plot.loglik(eta, ll.particle, var.eta, llm.particle.filter$loglik, 'orange', 'var.eta with particle filter')
+plot.loglik(eta, ll.aux, var.eta, llm.aux.filter$loglik, 'magenta', 'var.eta with auxiliary filter')
+
 
 # plot log-likelihood for different var.eta values zoomed around true value
-eta <- seq(1.650,1.750,0.001)
-ll.kalman <- ll.particle <- rep(0,length(eta))
+eta <- seq(1.350,1.450,0.001)
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik    
+    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik 
+    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta, eta.sim=eta.sim, u.sim=u.sim)$loglik
+    
 }
 
 ll.kalman   <- ll.kalman / T
 ll.particle <- ll.particle / T
-ll.kalman   <- ll.kalman / abs( ll.kalman[ which(eta==var.eta)] )
-ll.particle <- ll.particle / abs( ll.particle[ which(eta==var.eta)] )
+ll.aux      <- ll.aux / T
+ll.kalman   <- ll.kalman / abs( ll.kalman[ which(round(eta,3)==var.eta)] )
+ll.particle <- ll.particle / abs( ll.particle[ which(round(eta,3)==var.eta)] )
+ll.aux      <- ll.aux / abs( ll.aux[ which(round(eta,3)==var.eta)] )
 
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-matplot(eta, cbind(ll.kalman,ll.particle), type='b', col=c("green","orange") , ylab="log-likelihood", xaxt="n", las=2)
+#matplot(eta, cbind(ll.kalman,ll.particle), type='b', col=c("green","orange") , ylab="log-likelihood", xaxt="n", las=2)
+matplot(eta, cbind(ll.kalman,ll.particle,ll.aux), type='b', col=c("green","orange","magenta") , ylab="log-likelihood", xaxt="n", las=2)
 points(var.eta, -1 ) # highlight true parameter
 xticks <- axis(side=1, at=eta)
 abline(v=xticks , lty=3)
@@ -105,7 +118,7 @@ print(paste('     True log-likelihood:', round(llm.kalman.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(llm.kalman.mle$loglik,3)))
 
 # estimate model parameter, using particle filter
-llm.particle.mle <- particle.mle(llm.data$y, P=200)
+llm.particle.mle <- particle.mle(llm.data$y, P=P)
 print(paste('     True parameters:', var.eta))
 print(paste('Estimated parameters:', round(llm.particle.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.particle.filter$loglik,3)))
@@ -130,11 +143,7 @@ mllm.kalman.filter <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.v
 # use particle filter to estimate model states
 P <- 200
 eta.sim <- list()
-for (t in 1:T) {
-    eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
-    #u.sim[[t]]   <- matrix(runif(P*D, min=0, max=1), nrow=P, ncol=D) 
-    #for (d in 1:D) {u.sim[[t]][,d] <- sort( u.sim[[t]][,d] )}
-}
+for (t in 1:T) {eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D))}
 u.sim <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
 mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)

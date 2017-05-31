@@ -55,6 +55,7 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
     # compute log-likelihood
     loglik <- -T*d/2 * log(2*pi)
     for (t in 1:T) {
+        # TBD: add try-catch
         loglik <- loglik - 0.5 * (log(det(F[[t]])) + c(t(v[t,])) %*% solve(F[[t]]) %*% c(t(v[t,]))) 
     }
     

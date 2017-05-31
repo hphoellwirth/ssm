@@ -27,16 +27,19 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1)
     # initialize series and loglikelihood
     x.pr <- rep(0,T)
     x.up <- rep(0,T)
+    x.pr.particles <- matrix(nrow = P, ncol = T)
+    x.up.particles <- matrix(nrow = P, ncol = T)
     loglik <- 0 
     
     # initial state estimator
     x_up <- rnorm(P, mean=a1, sd=P1)
     
-    # estimate states (alphas) of state space model
+    # estimate states of state space model
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
         x_pr <- x_up + sqrt(cov.eta) * eta.sim[,t] 
+        x.pr.particles[,t] <- x_pr
         x.pr[t] <- mean(x_pr)
         
         # [2] (Update step)
@@ -45,15 +48,19 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1)
         log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
         
         # update likelihood
-        if (log.mean.lik == -Inf) break
+        if (log.mean.lik == -Inf) {
+            loglik <- -Inf
+            break
+        }
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
         x_up <- sir(x_pr, lik, u.sim[,t])
+        x.up.particles[,t] <- x_up
         x.up[t] <- mean(x_up) 
     }
     
-    return(list(x.pr=x.pr, x.up=x.up, loglik=loglik))
+    return(list(x.pr=x.pr, x.up=x.up, x.pr.particles=x.pr.particles, x.up.particles=x.up.particles, loglik=loglik))
 }
 
 # ----------------------------------------------------------------------
@@ -80,7 +87,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
         return(list(x.pr=NaN, x.up=NaN, loglik=-Inf))
     }
 
-    # estimate states (alphas) of state space model
+    # estimate states of state space model
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
@@ -114,7 +121,7 @@ sir <- function(x_pr_, x_wt, u) {
     P <- length(x_pr_)
     x_up <- rep(0,P)
     
-    # sorting and weighting
+    # sorting and weighting (leads to smoother log-likelihood curve)
     x_wt <- x_wt/sum(x_wt) # normalize weights
     x_sort <- cbind(seq(1,P,1),c(x_pr_)) 
     x_pr_idx <- x_sort[order(x_sort[,2]),]
