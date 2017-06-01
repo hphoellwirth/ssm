@@ -52,7 +52,7 @@ llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 # use particle filter to estimate model states
-P <- 200
+P <- 500
 eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
 u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}

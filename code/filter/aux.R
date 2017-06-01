@@ -37,8 +37,8 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
     # 
     for (t in 1:T) {
         # estimate likelihood and auxiliary likelihood
-        lik     <- dnorm( y[t,]*rep(1,P), mean=x.up[,t], sd=sqrt(var.eps)) * is.pr[,t]
-        lik.aux <- dnorm( y[t,]*rep(1,P), mean=x.up[,t], sd=sqrt(var.eps.aux)) 
+        lik     <- dnorm( y[t,]*rep(1,P), mean=x.pr[,t], sd=sqrt(var.eps)) * is.pr[,t]
+        lik.aux <- dnorm( y[t,]*rep(1,P), mean=x.pr[,t], sd=sqrt(var.eps.aux)) 
         
         log.mean.lik     <- tryCatch(log(mean(lik)), error=function(e)(-Inf))     
         log.mean.lik.aux <- tryCatch(log(mean(lik.aux)), error=function(e)(-Inf))
