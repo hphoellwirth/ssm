@@ -19,7 +19,7 @@ library(nloptr)
 # ----------------------------------------------------------------------
 # (Univariate) Particle filter
 # ----------------------------------------------------------------------
-particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1) {
+particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1)) {
     y <- data.frame(y)
     T <- nrow(y)
     P <- nrow(u.sim)
@@ -32,7 +32,7 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1)
     loglik <- 0 
     
     # initial state estimator
-    x_up <- rnorm(P, mean=a1, sd=P1)
+    x_up <- x_up.init
     
     # estimate states of state space model
     for (t in 1:T) {
@@ -66,7 +66,7 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1)
 # ----------------------------------------------------------------------
 # (Multivariate) Particle filter
 # ----------------------------------------------------------------------
-m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(D), eta.sim, u.sim, a1=rep(0,D), P1=diag(D)) {
+m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(D), eta.sim, u.sim, a1=rep(0,D), P1=diag(D), x_up.init=mvrnorm(P, mu=a1, Sigma=P1)) {
     y <- data.frame(y)
     T <- nrow(y)
     P <- nrow(u.sim)
@@ -78,7 +78,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
     loglik <- 0 
     
     # initial state estimator
-    x_pr <- x_up <- mvrnorm(P, mu=a1, Sigma=P1)
+    x_up <- x_up.init
     
     # compute Cholesky decomposition of cov.eta
     if (is.symmetric.matrix(cov.eta) && is.positive.definite(cov.eta)) {
@@ -186,7 +186,7 @@ particle.mle <- function(y, P) {
     lb <- 0.1
     ub <- 5
     theta_start <- 2
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim)$loglik ) } 
+    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) } 
     
     # run box-constrained optimization
     print('estimating model parameters...') 
@@ -219,7 +219,7 @@ m.particle.mle <- function(y, D, P) {
     lb <- c(rep(0.1,D), -1)
     ub <- c(rep(5,  D),  1)
     theta_start <- c(rep(1,D), 0)
-    obj <- function(theta){ return( -m.particle.filter(y, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), eta.sim=eta.sim, u.sim=u.sim)$loglik ) } 
+    obj <- function(theta){ return( -m.particle.filter(y, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) } 
     
     # run box-constrained optimization
     print('estimating model parameters...') 

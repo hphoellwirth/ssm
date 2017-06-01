@@ -77,7 +77,7 @@ aux.mle <- function(y, P) {
     eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
     u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
     for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
-    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim)
+    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
     
     # set optimization parameters
     lb <- 0.1

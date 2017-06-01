@@ -15,7 +15,7 @@
 # house cleaning
 rm(list = ls())
 par(mfrow=c(1,1))
-save.plots <- TRUE
+save.plots <- FALSE
 
 # load libraries
 # NONE
@@ -56,7 +56,7 @@ P <- 200
 eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
 u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
-llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim)
+llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
 
 # use auxiliary filter to compute true log-likelihood
 llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta)
@@ -78,7 +78,7 @@ ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
     ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
 }
 
@@ -95,7 +95,7 @@ ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim)$loglik 
+    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik 
     ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
     
 }
@@ -136,6 +136,7 @@ print(paste('Estimated parameters:', round(llm.aux.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.aux.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 
+# TBD: compare MLE standard errors and execution time
 
 # ----------------------------------------------------------------------
 # Test Kalman filter on trivariate local level model
@@ -158,7 +159,7 @@ eta.sim <- list()
 for (t in 1:T) {eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D))}
 u.sim <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
 for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
-mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)
+mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
 
 # plot observations, states, and estimates
 if(save.plots) png("../images/trivariate-local-level.png", width=1000, height=750, pointsize=20)
@@ -177,7 +178,7 @@ ll.kalman <- ll.particle <- rep(0,length(rho))
 for (i in 1:length(rho)) {
     cat('.')
     ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]), eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
 }
 
 if(save.plots) png("../images/trivariate-local-level-loglik-rho.png", width=1000, height=500, pointsize=14)
@@ -192,7 +193,7 @@ ll.kalman <- ll.particle <- rep(0,length(var1))
 for (i in 1:length(var1)) {
     cat('.')
     ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
 }
 
 if(save.plots) png("../images/trivariate-local-level-loglik-var1.png", width=1000, height=500, pointsize=14)
@@ -207,7 +208,7 @@ ll.kalman <- ll.particle <- rep(0,length(var2))
 for (i in 1:length(var2)) {
     cat('.')
     ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,var2[i],0.9), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,var2[i],0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,var2[i],0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
 }
 
 if(save.plots) png("../images/trivariate-local-level-loglik-var2.png", width=1000, height=500, pointsize=14)
@@ -222,7 +223,7 @@ ll.kalman <- ll.particle <- rep(0,length(var3))
 for (i in 1:length(var3)) {
     cat('.')
     ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
 }
 
 if(save.plots) png("../images/trivariate-local-level-loglik-var3.png", width=1000, height=500, pointsize=14)
