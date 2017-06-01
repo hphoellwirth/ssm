@@ -22,13 +22,13 @@ library(nloptr)
 particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1)) {
     y <- data.frame(y)
     T <- nrow(y)
-    P <- nrow(u.sim)
+    P <- ncol(u.sim)
     
     # initialize series and loglikelihood
     x.pr <- rep(0,T)
     x.up <- rep(0,T)
-    x.pr.particles <- matrix(nrow = P, ncol = T)
-    x.up.particles <- matrix(nrow = P, ncol = T)
+    x.pr.particles <- matrix(nrow = T, ncol = P)
+    x.up.particles <- matrix(nrow = T, ncol = P)
     loglik <- 0 
     
     # initial state estimator
@@ -38,8 +38,8 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1,
     for (t in 1:T) {
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
-        x_pr <- x_up + sqrt(cov.eta) * eta.sim[,t] 
-        x.pr.particles[,t] <- x_pr
+        x_pr <- x_up + sqrt(cov.eta) * eta.sim[t,] 
+        x.pr.particles[t,] <- x_pr
         x.pr[t] <- mean(x_pr)
         
         # [2] (Update step)
@@ -55,8 +55,8 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1,
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
-        x_up <- sir(x_pr, lik, u.sim[,t])
-        x.up.particles[,t] <- x_up
+        x_up <- sir(x_pr, lik, u.sim[t,])
+        x.up.particles[t,] <- x_up
         x.up[t] <- mean(x_up) 
     }
     
@@ -69,7 +69,7 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1,
 m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(D), eta.sim, u.sim, a1=rep(0,D), P1=diag(D), x_up.init=mvrnorm(P, mu=a1, Sigma=P1)) {
     y <- data.frame(y)
     T <- nrow(y)
-    P <- nrow(u.sim)
+    P <- ncol(u.sim)
     
     # initialize series and loglikelihood
     x.pr <- data.frame(matrix(ncol = D, nrow = T)) 
@@ -106,7 +106,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
-        x_up <- m.sir(x_pr, lik, u.sim[,t])
+        x_up <- m.sir(x_pr, lik, u.sim[t,])
         x.up[t] <- mean(x_up) 
     }
     
@@ -178,9 +178,9 @@ particle.mle <- function(y, P) {
     T <- length(y)
     
     # draw noise and particles
-    eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=P, ncol=T) 
-    u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
-    for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
+    eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
+    u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
+    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
     
     # set optimization parameters
     lb <- 0.1
@@ -212,8 +212,8 @@ m.particle.mle <- function(y, D, P) {
     for (t in 1:T) {
         eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
     }
-    u.sim <- matrix(runif(P*T, min=0, max=1), nrow=P, ncol=T)   
-    for (t in c(1:T)) {u.sim[,t] <- sort( u.sim[,t] )}
+    u.sim <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
+    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
     
     # set optimization parameters
     lb <- c(rep(0.1,D), -1)
