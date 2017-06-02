@@ -79,11 +79,7 @@ csir.c <- function(p, w, u) {
     s <- rep(0,P)
 
     # call C function
-    results <- .C("csir", alpha_up=as.double(s), 
-                  alpha_pr=as.double(p), 
-                  alpha_wt=as.double(w), 
-                  u=as.double(u), 
-                  len=as.integer(P))
-    return (results$alpha_up) 
+    results <- .C("csir", s=as.double(s), p=as.double(p), w=as.double(w), u=as.double(u), len=as.integer(P))
+    return (results$s)     
 }
 
