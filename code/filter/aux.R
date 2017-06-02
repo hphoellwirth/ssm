@@ -63,7 +63,7 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
         }
     }
     
-    return(list(loglik=loglik)) # TBD: return weights for plotting
+    return(list(is.pr=is.pr, is.up=is.up, loglik=loglik))
 }
 
 # ----------------------------------------------------------------------

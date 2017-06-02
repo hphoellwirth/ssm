@@ -15,9 +15,6 @@
 # load libraries
 # NONE
 
-
-
-
 # ----------------------------------------------------------------------
 # Likelihood plots
 # ----------------------------------------------------------------------
@@ -32,5 +29,14 @@ plot.loglik <- function(para, loglik, true.para, true.loglik, col='blue', xlab='
     abline(v=xticks , lty=3)
 }
 
+# ----------------------------------------------------------------------
+# Importance weight plot
+# ----------------------------------------------------------------------
+plot.weights <- function(weights, col='blue', xlab, ylab='weight') {
+    
+    plot(rowMeans(weights), type='l', col=col, xlab=xlab, ylab=ylab, xaxt="n", las=2)
+    xticks <- axis(side=1, at=(1:nrow(weights)))
+    abline(v=xticks , lty=3)
+}
 
 

@@ -55,14 +55,11 @@ llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 # use particle filter to estimate model states
-P <- 500
+P <- 50
 eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
 u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
 for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
 llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)
-
-# use auxiliary filter to compute true log-likelihood
-llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta)
 
 # plot observations, states, and estimates
 if(save.plots) png("../images/univariate-local-level.png", width=1000, height=600, pointsize=14)
@@ -74,6 +71,20 @@ lines(llm.particle.filter$x.pr, col="orange")
 legend(10,15, c('observation','state','kalman','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','green','orange'))
 if(save.plots) dev.off()
 
+
+# ----------------------------------------------------------------------
+# Evaluate the correctness of the auxiliary filter
+# ----------------------------------------------------------------------
+
+# use auxiliary filter to compute true log-likelihood
+llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=1)
+
+# plot importance weights over time
+if(save.plots) png("../images/ullm_aux_weights.png", width=1000, height=500, pointsize=14)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.weights(llm.aux.filter$is.up, xlab=paste0('time T (with P=',P,' particles)'), ylab='filtering weights')
+plot.weights(llm.aux.filter$is.pr, xlab=paste0('time T (with P=',P,' particles)'), ylab='predictive weights')
+if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
 # Produce log-likelihood plots to compare filters
