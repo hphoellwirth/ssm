@@ -16,10 +16,13 @@ library(matrixcalc)
 library(mvtnorm)
 library(nloptr)
 
+# load samplers
+source("sampler/sir.R")
+
 # ----------------------------------------------------------------------
 # (Univariate) Particle filter
 # ----------------------------------------------------------------------
-particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1)) {
+particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1), use.csir=TRUE) {
     y <- data.frame(y)
     T <- nrow(y)
     P <- ncol(u.sim)
@@ -55,7 +58,11 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1,
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
-        x_up <- sir(x_pr, lik, u.sim[t,])
+        if (use.csir)
+            x_up <- csir.c(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
+        else
+            x_up <- sir(x_pr, lik, u.sim[t,])
+
         x.up.particles[t,] <- x_up
         x.up[t] <- mean(x_up) 
     }
@@ -114,66 +121,8 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
 }
 
 # ----------------------------------------------------------------------
-# Univariate sequential importance resampling algorithm
-# ----------------------------------------------------------------------
-sir <- function(x_pr_, x_wt, u) {
-    
-    P <- length(x_pr_)
-    x_up <- rep(0,P)
-    
-    # sorting and weighting (leads to smoother log-likelihood curve)
-    x_wt <- x_wt/sum(x_wt) # normalize weights
-    x_sort <- cbind(seq(1,P,1),c(x_pr_)) 
-    x_pr_idx <- x_sort[order(x_sort[,2]),]
-    x_pr_ <- x_pr_idx[,2]
-    x_idx <- x_pr_idx[,1]
-    x_wt <- x_wt[x_idx]
-    x_cwt <- c(0, cumsum(x_wt))
-    
-    j <- 1
-    for (i in 1:P){
-        while((x_cwt[i] < u[j]) && (u[j] <= x_cwt[i+1])){
-            x_up[j] <- x_pr_[i]
-            if (j < P){
-                j <- j+1
-            }
-            else break
-        }
-    }
-    return(x_up)
-}
-
-# ----------------------------------------------------------------------
-# Multivariate sequential importance resampling algorithm
-# ----------------------------------------------------------------------
-m.sir <- function(x_pr_, x_wt, u) {
-    
-    D <- ncol(x_pr_)
-    P <- nrow(x_pr_)
-    
-    x_up <- matrix(0,P,D)
-    
-    # weighting
-    x_wt <- x_wt/sum(x_wt) # normalize weights
-    x_cwt <- c(0, cumsum(x_wt))
-    
-    j <- 1
-    for (i in 1:P){
-        while((x_cwt[i] < u[j]) && (u[j] <= x_cwt[i+1])){
-            x_up[j,] <- x_pr_[i,]
-            if (j < P) {
-                j <- j+1
-            }
-            else break
-        }
-    }
-    return(x_up)
-}
-
-# ----------------------------------------------------------------------
 # (Univariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
-# TBD: use continous SIR 
 particle.mle <- function(y, P) {
     T <- length(y)
     

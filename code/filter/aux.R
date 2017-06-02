@@ -63,7 +63,7 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
         }
     }
     
-    return(list(loglik=loglik))
+    return(list(loglik=loglik)) # TBD: return weights for plotting
 }
 
 # ----------------------------------------------------------------------
@@ -73,11 +73,11 @@ aux.mle <- function(y, P) {
     T <- length(y)
     
     # draw noise and particles
-    theta_aux = 1
+    theta_aux <- 1
     eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=T, ncol=P) 
     u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=T, ncol=P)   
     for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
+    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)
     
     # set optimization parameters
     lb <- 0.1

@@ -56,7 +56,7 @@ P <- 500
 eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
 u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
 for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
+llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)
 
 # use auxiliary filter to compute true log-likelihood
 llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=var.eta)
