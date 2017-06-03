@@ -74,10 +74,39 @@ m.sir <- function(p, w, u) {
 # ----------------------------------------------------------------------
 # Continous (univariate) sequential importance resampling algorithm
 # ----------------------------------------------------------------------
+csir <- function(p, w, u) {
+    P <- length(p)
+    s <- rep(0,P)
+    
+    # sorting and weighting
+    w <- w / sum(w)
+    p.sort <- cbind(seq(1,P,1),p)
+    p.idx <- p.sort[order(p.sort[,2]),]
+    p <- p.idx[,2]
+    alpha_idx <- 
+    w <- w[p.idx[,1]]
+    w.cum <- c(0, cumsum(w))
+    p  <- c(p[1], p)
+    
+    # importance resampling of particles
+    j <- 1
+    for (i in 1:P){
+        while((w.cum[i] < u[j]) & (u[j] <= w.cum[i+1])){
+            s[j] <- p[i] + ((p[i+1]-p[i])/(w.cum[i+1]-w.cum[i])) * (u[j]-w.cum[i])
+            if (j < P) {
+                j <- j + 1
+            }
+            else break
+        }
+    }
+    return(s)
+}
+
+# C implementation (crashes for low P<120 values)
 csir.c <- function(p, w, u) {
     P <- length(p)
     s <- rep(0,P)
-
+    
     # call C function
     results <- .C("csir", s=as.double(s), p=as.double(p), w=as.double(w), u=as.double(u), len=as.integer(P))
     return (results$s)     

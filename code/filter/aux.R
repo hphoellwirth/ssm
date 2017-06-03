@@ -22,7 +22,7 @@ library(nloptr)
 aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.eta.aux=1) {
     y <- data.frame(y)
     T <- nrow(y)
-    P <- ncol(u.sim)
+    P <- ncol(x.pr)
     
     # initialize importance weights and loglikelihood
     is.pr <- matrix(nrow = T, ncol = P)
@@ -69,7 +69,7 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
 # ----------------------------------------------------------------------
 # (Univariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
-aux.mle <- function(y, P) {
+aux.mle <- function(y, P, verbose=TRUE) {
     T <- length(y)
     
     # draw noise and particles
@@ -86,10 +86,10 @@ aux.mle <- function(y, P) {
     obj <- function(theta){ return( -aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta, cov.eta.aux=theta_aux)$loglik ) } 
     
     # run box-constrained optimization
-    print('estimating model parameters...') 
+    if (verbose) print('estimating model parameters...') 
     param <- nlminb( theta_start, obj, lower=lb, upper=ub )
     theta_mle <- param$par
-    print('... done!') 
+    if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
     loglik <- aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta_mle, cov.eta.aux=theta_aux)$loglik

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <R.h>
 
 double *array;
 
@@ -29,6 +30,7 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
     
     int P = len[0];
     int i; 
+    error("P = %d\n", P);
 
     // standardize w
     double sum_w = 0.0;    
@@ -37,9 +39,10 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
         
     for (i = 0; i < P; i++) 
         w[i] = w[i] / sum_w;
-    
+        
     // sort p index
-    int p_idx[P];
+    int * p_idx = malloc(P * sizeof(int));
+    //int p_idx[P];
     for (i = 0; i < P; i++) {
         p_idx[i] = i;
     } 
@@ -47,18 +50,19 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
     qsort(p_idx, P, sizeof(*p_idx), cmp);    
     
     // compute cumulated sum of w
-    double w_cum[(P+1)];
+    // double w_cum[(P+1)];
+    double * w_cum = malloc((P+1) * sizeof(double));
     w_cum[0] = 0.0;
     for (i = 1; i <= P; i++) {
         w_cum[i] = w_cum[i-1] + w[p_idx[i-1]];       
     }  
     
     // duplicate first element of p 
-    double * p_new = malloc(P * sizeof(p[0]));
-    memcpy(p_new, p, (P+1) * sizeof(p[0]));
+    double * p_new = malloc(P * sizeof(double));
+    memcpy(p_new, p, (P+1) * sizeof(double));
     p_new[0] = p[p_idx[0]];
     for (i = 0; i < P; i++)
-        p_new[i+1] = p[p_idx[i]];    
+        p_new[i+1] = p[p_idx[i]];  
 
     // compute s
     int j = 0;
@@ -71,15 +75,18 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
             else break;
         }
     }  
+    free(p_idx);
+    free(w_cum);
+    free(p_new);
 }
 
-/*
+
 // test function csir
 int main(void){
-    int P[] = {5};
-    double p[] = {1.737899, 2.247636, 2.813836, 2.521015, 2.959267};
-    double w[] = {0.02438808, 0.04078347, 0.05066587, 0.04691185, 0.05149138};
-    double u[]        = {0.01631192, 0.04410280, 0.05565297, 0.62613028, 0.79035955};
+    int P[] = {6};
+    double p[] = {1.737899, 2.247636, 2.813836, 2.521015, 2.959267, 3.122495};
+    double w[] = {0.02438808, 0.04078347, 0.05066587, 0.04691185, 0.05149138, 0.02384849};
+    double u[]        = {0.01631192, 0.04410280, 0.05565297, 0.62613028, 0.79035955, 0.88233483};
 
     double s[P[0]];    
     //double *s;
@@ -92,7 +99,7 @@ int main(void){
     
     return 0;
 }
-*/
+
 
 
 

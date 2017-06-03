@@ -22,10 +22,21 @@ source("sampler/sir.R")
 # ----------------------------------------------------------------------
 # (Univariate) Particle filter
 # ----------------------------------------------------------------------
-particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1), use.csir=TRUE) {
+#y=llm.data$y; cov.eta=var.eta; x_up.init=rep(0,P)
+#var.eps=1; eta.sim=NA; u.sim=NA; use.csir=TRUE
+
+particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim=NA, u.sim=NA, P=ncol(u.sim), a1=0, P1=1, x_up.init=rnorm(P, mean=a1, sd=P1), use.csir=TRUE) {
     y <- data.frame(y)
     T <- nrow(y)
-    P <- ncol(u.sim)
+    
+    # draw standard normal transition noise 
+    if (is.na(eta.sim)[1][1])
+        eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
+    # draw particles from standard uniform 
+    if (is.na(u.sim)[1][1]) {
+        u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
+        for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
+    }
     
     # initialize series and loglikelihood
     x.pr <- rep(0,T)
@@ -58,10 +69,11 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim, u.sim, a1=0, P1=1,
         loglik <- loglik + log.mean.lik
         
         # compute filtered estimator to update (a posteriori) state estimate
-        if (use.csir)
-            x_up <- csir.c(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
-        else
+        if (use.csir) {
+            x_up <- csir(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
+        } else {
             x_up <- sir(x_pr, lik, u.sim[t,])
+        }
 
         x.up.particles[t,] <- x_up
         x.up[t] <- mean(x_up) 
@@ -123,7 +135,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
 # ----------------------------------------------------------------------
 # (Univariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
-particle.mle <- function(y, P) {
+particle.mle <- function(y, P, verbose=TRUE) {
     T <- length(y)
     
     # draw noise and particles
@@ -135,13 +147,13 @@ particle.mle <- function(y, P) {
     lb <- 0.1
     ub <- 5
     theta_start <- 2
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) } 
+    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik ) } 
     
     # run box-constrained optimization
-    print('estimating model parameters...') 
+    if (verbose) print('estimating model parameters...') 
     param <- nlminb( theta_start, obj, lower=lb, upper=ub )
     theta_mle <- param$par
-    print('... done!') 
+    if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
     loglik <- particle.filter(y, cov.eta=theta_mle, eta.sim=eta.sim, u.sim=u.sim)$loglik
@@ -153,7 +165,7 @@ particle.mle <- function(y, P) {
 # (Multivariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
 # note: does not work properly for multivariate case
-m.particle.mle <- function(y, D, P) {
+m.particle.mle <- function(y, D, P, verbose=TRUE) {
     T <- nrow(y)
     
     # draw noise and particles
@@ -171,10 +183,10 @@ m.particle.mle <- function(y, D, P) {
     obj <- function(theta){ return( -m.particle.filter(y, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) } 
     
     # run box-constrained optimization
-    print('estimating model parameters...') 
+    if (verbose) print('estimating model parameters...') 
     param <- nlminb( theta_start, obj, lower=lb, upper=ub )
     theta_mle <- param$par
-    print('... done!') 
+    if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
     loglik <- m.particle.filter(y, cov.eta=construct.cov(theta_mle[1:D], theta_mle[D+1]), eta.sim=eta.sim, u.sim=u.sim)$loglik

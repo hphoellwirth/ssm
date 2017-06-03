@@ -65,7 +65,7 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
 # ----------------------------------------------------------------------
 # Maximum likelihood estimator
 # ----------------------------------------------------------------------
-kalman.mle <- function(y, D) {
+kalman.mle <- function(y, D, verbose=TRUE) {
     T <- length(y)
     
     # set optimization parameters
@@ -82,10 +82,10 @@ kalman.mle <- function(y, D) {
         obj <- function(theta){ return( -kalman.filter(y, cov.eta=construct.cov(theta[1:D], theta[D+1]))$loglik ) } 
     }
     # run box-constrained optimization
-    print('estimating model parameters...') 
+    if (verbose) print('estimating model parameters...') 
     param <- nlminb( theta_start, obj, lower=lb, upper=ub )
     theta_mle <- param$par
-    print('... done!') 
+    if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
     if (D == 1) 

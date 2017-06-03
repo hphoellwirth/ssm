@@ -21,7 +21,7 @@ save.plots <- FALSE
 # NONE
 
 # if interactive, during the development, set to TRUE
-interactive <- FALSE
+interactive <- TRUE
 if (interactive) {
     setwd("/Users/Hans-Peter/Documents/Masters/14D000/code")
 } 
@@ -55,11 +55,8 @@ llm.data <- gen.llm.data(n=T, var.eta=var.eta)
 llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 # use particle filter to estimate model states
-P <- 50
-eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
-u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
-for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)
+P <- 200
+llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, P=P, x_up.init=rep(0,P), use.csir=FALSE)
 
 # plot observations, states, and estimates
 if(save.plots) png("../images/univariate-local-level.png", width=1000, height=600, pointsize=14)
@@ -86,9 +83,15 @@ plot.weights(llm.aux.filter$is.up, xlab=paste0('time T (with P=',P,' particles)'
 plot.weights(llm.aux.filter$is.pr, xlab=paste0('time T (with P=',P,' particles)'), ylab='predictive weights')
 if(save.plots) dev.off()
 
+
 # ----------------------------------------------------------------------
 # Produce log-likelihood plots to compare filters
 # ----------------------------------------------------------------------
+
+# draw standard normal transition noise and particles for comparison of particle filter
+eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
+u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
+for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
 
 # compute log-likelihood for wide range of different var.eta values
 eta <- seq(0.5,2,0.1)
@@ -114,7 +117,7 @@ ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik 
+    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir = FALSE)$loglik 
     ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
     
 }
@@ -141,14 +144,14 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 
 # estimate model parameter, using Kalman filter
-llm.kalman.mle <- kalman.mle(llm.data$y, 1)
+llm.kalman.mle <- kalman.mle(llm.data$y, D=1)
 print(paste('     True parameters:', var.eta))
 print(paste('Estimated parameters:', round(llm.kalman.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.kalman.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(llm.kalman.mle$loglik,3)))
 
 # estimate model parameter, using particle filter
-llm.particle.mle <- particle.mle(llm.data$y, P=P)
+llm.particle.mle <- particle.mle(llm.data$y, P=100)
 print(paste('     True parameters:', var.eta))
 print(paste('Estimated parameters:', round(llm.particle.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.particle.filter$loglik,3)))
@@ -161,7 +164,67 @@ print(paste('Estimated parameters:', round(llm.aux.mle$theta_mle[1],3)))
 print(paste('     True log-likelihood:', round(llm.aux.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 
-# TBD: compare MLE standard errors and execution time
+
+# ----------------------------------------------------------------------
+# Compute MSE with different filters for different T and P
+# ----------------------------------------------------------------------
+Ts <- c(50,100,150,200,250)
+Ps <- c(100,200,300,400,500)
+R <- 5 # runs per combination
+
+mse <- function(target, pred) {
+    return(mean((target - pred)**2))
+}
+
+# compute MSE for Kalman filter
+mse.kalman <- rep(0,length(Ts))
+for (t in 1:length(Ts)) {
+    set.seed(1000)
+    mse.kalman.run <- rep(0,R)
+    
+    for (i in 1:R) {
+        llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
+        llm.kalman.mle <- kalman.mle(llm.data$y, D=1, verbose=FALSE)
+        llm.kalman.pred <- kalman.filter(llm.data$y, cov.eta=llm.kalman.mle$theta_mle)$a
+        mse.kalman.run[i] <- mse(llm.data$x, llm.kalman.pred)        
+    }
+    mse.kalman[t] <- mean(mse.kalman.run)
+    cat('.')
+} 
+
+if(save.plots) png("../images/ullm_mse_kalman.png", width=750, height=500, pointsize=15)
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+plot(Ts, mse.kalman, type='l', col='red', xlab='T', ylab='mse')
+if(save.plots) dev.off()  
+
+
+# compute MSE for particle filter
+mse.particle <- matrix(nrow=length(Ts), ncol=length(Ps))
+for (t in 1:length(Ts)) {
+    set.seed(1000)
+    llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
+    
+    for (p in 1:length(Ps)) {
+        llm.particle.mle <- particle.mle(llm.data$y, P=Ps[p], verbose=FALSE)
+        llm.particle.pred <- particle.filter(llm.data$y, cov.eta=llm.particle.mle$theta_mle, P=Ps[p], x_up.init=rep(0,Ps[p]))$x.pr
+        mse.particle[t,p] <- mse(llm.data$x, llm.particle.pred) 
+    }
+    cat('.')
+} 
+
+# compute MSE for auxiliary filter
+# mse.aux <- matrix(nrow=length(Ts), ncol=length(Ps))
+# for (t in 1:length(Ts)) {
+#     set.seed(1000)
+#     llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
+#     
+#     for (p in 1:length(Ps)) {
+#         llm.aux.mle  <- aux.mle(llm.data$y, P=Ps[p], verbose=FALSE)
+#         mse.aux[t,p] <- mse(llm.data$x, llm.aux.pred) 
+#     }
+#     cat('.')
+# } 
+
 
 
 
