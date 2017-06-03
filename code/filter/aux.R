@@ -34,7 +34,6 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
     p.aux <- dnorm( x.pr[1,], mean=0, sd=sqrt(cov.eta.aux))
     is.pr[1,] <- p / p.aux   
     
-    # 
     for (t in 1:T) {
         # estimate likelihood and auxiliary likelihood
         lik     <- dnorm( y[t,]*rep(1,P), mean=x.pr[t,], sd=sqrt(var.eps)) * is.pr[t,]
@@ -59,6 +58,58 @@ aux.filter <- function(y, x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=1, cov.e
         if (t < T) { 
             p     <- dnorm( x.pr[(t+1),], mean=x.up[t,], sd=sqrt(cov.eta))
             p.aux <- dnorm( x.pr[(t+1),], mean=x.up[t,], sd=sqrt(cov.eta.aux))
+            is.pr[(t+1),] <- p / p.aux * is.up[t,]   
+        }
+    }
+    
+    return(list(is.pr=is.pr, is.up=is.up, loglik=loglik))
+}
+
+# ----------------------------------------------------------------------
+# (Multivariate) Auxiliary filter
+# ----------------------------------------------------------------------
+m.aux.filter <- function(y, D=ncol(data.frame(y)), x.pr, x.up, var.eps=1, var.eps.aux=1, cov.eta=diag(D), cov.eta.aux=diag(D)) {
+    y <- data.frame(y)
+    T <- nrow(y)
+    P <- nrow(x.pr[[1]])
+    
+    cov.eps     <- var.eps * diag(D)
+    cov.eps.aux <- var.eps.aux * diag(D)
+    
+    # initialize importance weights and loglikelihood
+    is.pr <- matrix(nrow = T, ncol = P)
+    is.up <- matrix(nrow = T, ncol = P)     
+    loglik <- 0 
+    
+    # initial computation of predictive importance weights
+    p     <- sapply(1:P, function(p) dmvnorm(x.pr[[1]][p,], mean=rep(0,D), sigma=cov.eta)) 
+    p.aux <- sapply(1:P, function(p) dmvnorm(x.pr[[1]][p,], mean=rep(0,D), sigma=cov.eta.aux)) 
+    is.pr[1,] <- p / p.aux   
+    
+    for (t in 1:T) {
+        # estimate likelihood and auxiliary likelihood
+        lik     <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.pr[[t]][p,], sigma=cov.eps) * is.pr[t,p]) 
+        lik.aux <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.pr[[t]][p,], sigma=cov.eps.aux)) 
+        
+        log.mean.lik     <- tryCatch(log(mean(lik)), error=function(e)(-Inf))     
+        log.mean.lik.aux <- tryCatch(log(mean(lik.aux)), error=function(e)(-Inf))
+        
+        # update likelihood
+        if (log.mean.lik == -Inf) {
+            loglik <- -Inf
+            break
+        }
+        loglik <- loglik + log.mean.lik
+        
+        # [1] update filtering importance weights
+        m     <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.up[[t]][p,], sigma=cov.eps)) 
+        m.aux <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.up[[t]][p,], sigma=cov.eps.aux)) 
+        is.up[t,] <- (m / m.aux) * (mean(lik.aux) / mean(lik)) * is.pr[t,][match.rows(x.up[[t]], x.pr[[t]])] 
+        
+        # [2] update predictive importance weights
+        if (t < T) { 
+            p     <- sapply(1:P, function(p) dmvnorm(x.pr[[t+1]][p,], mean=x.up[[t]][p,], sigma=cov.eta)) 
+            p.aux <- sapply(1:P, function(p) dmvnorm(x.pr[[t+1]][p,], mean=x.up[[t]][p,], sigma=cov.eta.aux)) 
             is.pr[(t+1),] <- p / p.aux * is.up[t,]   
         }
     }

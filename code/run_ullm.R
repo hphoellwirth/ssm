@@ -36,6 +36,7 @@ source("filter/aux.R")
 
 # load utilities
 source("util/plots.R")
+source("util/misc.R")
 
 
 # ----------------------------------------------------------------------
@@ -171,10 +172,6 @@ print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 Ts <- c(50,100,150,200,250)
 Ps <- c(100,200,300,400,500)
 R <- 5 # runs per combination
-
-mse <- function(target, pred) {
-    return(mean((target - pred)**2))
-}
 
 # compute MSE for Kalman filter
 mse.kalman <- rep(0,length(Ts))

@@ -39,10 +39,8 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim=NA, u.sim=NA, P=nco
     }
     
     # initialize series and loglikelihood
-    x.pr <- rep(0,T)
-    x.up <- rep(0,T)
-    x.pr.particles <- matrix(nrow = T, ncol = P)
-    x.up.particles <- matrix(nrow = T, ncol = P)
+    x.pr <- x.up <- rep(0,T)
+    x.pr.particles <- x.up.particles <- matrix(nrow = T, ncol = P)
     loglik <- 0 
     
     # initial state estimator
@@ -91,9 +89,8 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
     P <- ncol(u.sim)
     
     # initialize series and loglikelihood
-    x.pr <- data.frame(matrix(ncol = D, nrow = T)) 
-    x.up <- data.frame(matrix(ncol = D, nrow = T)) 
-    lik <- rep(0, P)
+    x.pr <- x.up <- data.frame(matrix(ncol = D, nrow = T)) 
+    x.pr.particles <- x.up.particles <- list()
     loglik <- 0 
     
     # initial state estimator
@@ -111,10 +108,11 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
         # [1] (Prediction step) 
         # one-step ahead (a priori) prediction
         x_pr <- x_up + eta.sim[[t]] %*% uL
+        x.pr.particles[[t]] <- x_pr
         x.pr[t,] <- colMeans(x_pr)
         
         # [2] (Update step)
-        lik <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x_pr[p,], sigma=sqrt(var.eps * diag(D)))) 
+        lik <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x_pr[p,], sigma=(var.eps * diag(D)))) 
         log.mean.lik <- tryCatch(log(mean(lik)), error=function(e)(-Inf))
  
         # update likelihood
@@ -126,10 +124,11 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
         
         # compute filtered estimator to update (a posteriori) state estimate
         x_up <- m.sir(x_pr, lik, u.sim[t,])
+        x.up.particles[[t]] <- x_up
         x.up[t] <- mean(x_up) 
     }
     
-    return(list(x.pr=x.pr, x.up=x.up, loglik=loglik))
+    return(list(x.pr=x.pr, x.up=x.up, x.pr.particles=x.pr.particles, x.up.particles=x.up.particles, loglik=loglik))
 }
 
 # ----------------------------------------------------------------------

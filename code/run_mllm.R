@@ -36,6 +36,7 @@ source("filter/aux.R")
 
 # load utilities
 source("util/plots.R")
+source("util/misc.R")
 
 
 # ----------------------------------------------------------------------
@@ -43,7 +44,7 @@ source("util/plots.R")
 # ----------------------------------------------------------------------
 set.seed(1000)
 D <- 3
-T <- 100
+T <- 50
 cov.eta.var <- c(4.2,2.8,0.9)
 cov.eta.rho <- 0.7
 mllm.data <- gen.multi.llm.data(n=T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
@@ -73,6 +74,21 @@ for (d in 1:3) {
     lines(mllm.kalman.filter$a[,d], col="green")
     lines(mllm.particle.filter$x.pr[,d], col="orange")
 }
+if(save.plots) dev.off()
+
+
+# ----------------------------------------------------------------------
+# Evaluate the correctness of the multivariate auxiliary filter
+# ----------------------------------------------------------------------
+
+# use auxiliary filter to compute true log-likelihood
+mllm.aux.filter <- m.aux.filter(mllm.data$y, x.pr=mllm.particle.filter$x.pr.particles, x.up=mllm.particle.filter$x.up.particles, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), cov.eta.aux=diag(D))
+
+# plot importance weights over time
+if(save.plots) png("../images/ullm_aux_weights.png", width=1000, height=500, pointsize=14)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.weights(mllm.aux.filter$is.up, xlab=paste0('time T (with P=',P,' particles)'), ylab='filtering weights')
+plot.weights(mllm.aux.filter$is.pr, xlab=paste0('time T (with P=',P,' particles)'), ylab='predictive weights')
 if(save.plots) dev.off()
 
 
