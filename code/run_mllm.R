@@ -96,64 +96,82 @@ if(save.plots) dev.off()
 # Produce log-likelihood plots to compare filters
 # ----------------------------------------------------------------------
 
+# draw standard normal transition noise and particles for comparison of particle filter
+eta.sim <- list()
+for (t in 1:T) {eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D))}
+u.sim <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
+for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
+
 # plot log-likelihood for different rho values
 rho <- seq(-1.0,1,0.1)
-ll.kalman <- ll.particle <- rep(0,length(rho))
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(rho))
 for (i in 1:length(rho)) {
     cat('.')
-    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, rho[i]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    cov.eta        <- construct.cov(cov.eta.var, rho[i])
+    ll.kalman[i]   <- kalman.filter(mllm.data$y, cov.eta=cov.eta)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=cov.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    ll.aux[i]      <- m.aux.filter(mllm.data$y, x.pr=mllm.particle.filter$x.pr.particles, x.up=mllm.particle.filter$x.up.particles, cov.eta=cov.eta, cov.eta.aux=construct.cov(c(1,1,1),0))$loglik
 }
 
-if(save.plots) png("../images/trivariate-local-level-loglik-rho.png", width=1000, height=500, pointsize=14)
-par(mfrow=c(2,1), mar=c(4,4,1,1))
-plot.loglik(rho, ll.kalman, cov.eta.rho, mllm.kalman.filter$loglik, 'green', 'rho with Kalman filter')
-plot.loglik(rho, ll.particle, cov.eta.rho, mllm.particle.filter$loglik, 'orange', 'rho with particle filter')
+if(save.plots) png("../images/trivariate-local-level-loglik-rho.png", width=1000, height=750, pointsize=20)
+par(mfrow=c(3,1), mar=c(4,4,1,1))
+plot.loglik(rho, ll.kalman, cov.eta.rho, 'green', 'rho with Kalman filter')
+plot.loglik(rho, ll.particle, cov.eta.rho, 'orange', 'rho with particle filter')
+plot.loglik(rho, ll.aux, cov.eta.rho, 'magenta', 'rho with auxiliary filter')
 if(save.plots) dev.off()
 
 # plot log-likelihood for different eta.var1 values
 var1 <- seq(2,5.6,0.2)
-ll.kalman <- ll.particle <- rep(0,length(var1))
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(var1))
 for (i in 1:length(var1)) {
     cat('.')
-    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    cov.eta        <- construct.cov(c(var1[i],cov.eta.var[2],cov.eta.var[3]), cov.eta.rho)
+    ll.kalman[i]   <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(var1[i],2.8,0.9), cov.eta.rho))$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=cov.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    ll.aux[i]      <- m.aux.filter(mllm.data$y, x.pr=mllm.particle.filter$x.pr.particles, x.up=mllm.particle.filter$x.up.particles, cov.eta=cov.eta, cov.eta.aux=construct.cov(c(1,1,1),0))$loglik
 }
 
-if(save.plots) png("../images/trivariate-local-level-loglik-var1.png", width=1000, height=500, pointsize=14)
-par(mfrow=c(2,1), mar=c(4,4,1,1))
-plot.loglik(var1, ll.kalman, cov.eta.var[1], mllm.kalman.filter$loglik, 'green', 'eta.var1 with Kalman filter')
-plot.loglik(var1, ll.particle, cov.eta.var[1], mllm.particle.filter$loglik, 'orange', 'eta.var1 with particle filter')
+if(save.plots) png("../images/trivariate-local-level-loglik-var1.png", width=1000, height=750, pointsize=20)
+par(mfrow=c(3,1), mar=c(4,4,1,1))
+plot.loglik(var1, ll.kalman, cov.eta.var[1], 'green', 'eta.var1 with Kalman filter')
+plot.loglik(var1, ll.particle, cov.eta.var[1], 'orange', 'eta.var1 with particle filter')
+plot.loglik(var1, ll.aux, cov.eta.var[1], 'magenta', 'eta.var1 with auxiliary filter')
 if(save.plots) dev.off()
 
 # plot log-likelihood for different eta.var2 values
 var2 <- seq(1.6,4.6,0.2)
-ll.kalman <- ll.particle <- rep(0,length(var2))
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(var2))
 for (i in 1:length(var2)) {
     cat('.')
-    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,var2[i],0.9), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,var2[i],0.9), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    cov.eta        <- construct.cov(c(cov.eta.var[1],var2[i],cov.eta.var[3]), cov.eta.rho)
+    ll.kalman[i]   <- kalman.filter(mllm.data$y, cov.eta=cov.eta)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=cov.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    ll.aux[i]      <- m.aux.filter(mllm.data$y, x.pr=mllm.particle.filter$x.pr.particles, x.up=mllm.particle.filter$x.up.particles, cov.eta=cov.eta, cov.eta.aux=construct.cov(c(1,1,1),0))$loglik
 }
 
-if(save.plots) png("../images/trivariate-local-level-loglik-var2.png", width=1000, height=500, pointsize=14)
-par(mfrow=c(2,1), mar=c(4,4,1,1))
-plot.loglik(var2, ll.kalman, cov.eta.var[2], mllm.kalman.filter$loglik, 'green', 'eta.var2 with Kalman filter')
-plot.loglik(var2, ll.particle, cov.eta.var[2], mllm.particle.filter$loglik, 'orange', 'eta.var2 with particle filter')
+if(save.plots) png("../images/trivariate-local-level-loglik-var2.png", width=1000, height=750, pointsize=20)
+par(mfrow=c(3,1), mar=c(4,4,1,1))
+plot.loglik(var2, ll.kalman, cov.eta.var[2], 'green', 'eta.var2 with Kalman filter')
+plot.loglik(var2, ll.particle, cov.eta.var[2], 'orange', 'eta.var2 with particle filter')
+plot.loglik(var2, ll.aux, cov.eta.var[2], 'magenta', 'eta.var2 with auxiliary filter')
 if(save.plots) dev.off()
 
 # plot log-likelihood for different eta.var3 values
-var3 <- seq(0.2,4,0.2)
-ll.kalman <- ll.particle <- rep(0,length(var3))
+var3 <- seq(0.1,3.9,0.2)
+ll.kalman <- ll.particle <- ll.aux <- rep(0,length(var3))
 for (i in 1:length(var3)) {
     cat('.')
-    ll.kalman[i] <- kalman.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho))$loglik
-    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(c(4.2,2.8,var3[i]), cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    cov.eta        <- construct.cov(c(cov.eta.var[1],cov.eta.var[2],var3[i]), cov.eta.rho)
+    ll.kalman[i]   <- kalman.filter(mllm.data$y, cov.eta=cov.eta)$loglik
+    ll.particle[i] <- m.particle.filter(mllm.data$y, cov.eta=cov.eta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    ll.aux[i]      <- m.aux.filter(mllm.data$y, x.pr=mllm.particle.filter$x.pr.particles, x.up=mllm.particle.filter$x.up.particles, cov.eta=cov.eta, cov.eta.aux=construct.cov(c(1,1,1),0))$loglik
 }
 
-if(save.plots) png("../images/trivariate-local-level-loglik-var3.png", width=1000, height=500, pointsize=14)
-par(mfrow=c(2,1), mar=c(4,4,1,1))
-plot.loglik(var3, ll.kalman, cov.eta.var[3], mllm.kalman.filter$loglik, 'green', 'eta.var3 with Kalman filter')
-plot.loglik(var3, ll.particle, cov.eta.var[3], mllm.particle.filter$loglik, 'orange', 'eta.var3 with particle filter')
+if(save.plots) png("../images/trivariate-local-level-loglik-var3.png", width=1000, height=750, pointsize=20)
+par(mfrow=c(3,1), mar=c(4,4,1,1))
+plot.loglik(var3, ll.kalman, cov.eta.var[3], 'green', 'eta.var3 with Kalman filter')
+plot.loglik(var3, ll.particle, cov.eta.var[3], 'orange', 'eta.var3 with particle filter')
+plot.loglik(var3, ll.aux, cov.eta.var[3], 'magenta', 'eta.var3 with auxiliary filter')
 if(save.plots) dev.off()
 
 

@@ -18,13 +18,14 @@
 # ----------------------------------------------------------------------
 # Likelihood plots
 # ----------------------------------------------------------------------
-plot.loglik <- function(para, loglik, true.para, true.loglik, col='blue', xlab='parameter') {
-    # remove points further than 10% away from the median
+plot.loglik <- function(para, loglik, true.para, col='blue', xlab='parameter') {
+    # remove points further than 10% below the median
     medianll <- median(loglik, na.rm=TRUE)   
-    loglik <- replace(loglik, (loglik < 1.1*medianll | loglik > 0.9*medianll), NaN)
+    loglik <- replace(loglik, (loglik < 1.1*medianll), NaN)
     
     plot(para, loglik, type='b', col=col, xlab=xlab, ylab="log-likelihood", xaxt="n", las=2)
-    points(true.para, true.loglik) # highlight true parameter
+    elementwise.all.equal <- Vectorize(function(x, y) {isTRUE(all.equal(x, y))})
+    points(true.para, loglik[elementwise.all.equal(para, true.para)]) # highlight true parameter
     xticks <- axis(side=1, at=para)
     abline(v=xticks , lty=3)
 }
