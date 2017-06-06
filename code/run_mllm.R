@@ -193,6 +193,17 @@ print(paste('Estimated parameters:', round(mllm.particle.mle$theta_mle[1],2), ro
 print(paste('     True log-likelihood:', round(mllm.particle.filter$loglik,3)))
 print(paste('Estimated log-likelihood:', round(mllm.particle.mle$loglik,3)))
 
+# estimate model parameters, using auxiliary filter
+mllm.aux.mle <- m.aux.mle(mllm.data$y, D=D, P=200)
+print(paste('     True parameters:', round(cov.eta.var[1],2), round(cov.eta.var[2],2), round(cov.eta.var[3],2), round(cov.eta.rho,2)))
+print(paste('Estimated parameters:', round(mllm.aux.mle$theta_mle[1],2), round(mllm.aux.mle$theta_mle[2],2), round(mllm.aux.mle$theta_mle[3],2), round(mllm.aux.mle$theta_mle[4],2)))
+print(paste('     True log-likelihood:', round(mllm.aux.filter$loglik,3)))
+print(paste('Estimated log-likelihood:', round(mllm.aux.mle$loglik,3)))
+
+# ----------------------------------------------------------------------
+# Compare filters with true and estimated (MLE) parameters
+# ----------------------------------------------------------------------
+
 # plot Kalman filter with true and estimated parameters
 if(save.plots) png("../images/trivariate-local-level-est-kalman.png", width=1000, height=750, pointsize=20)
 mllm.kalman.est <- kalman.filter(mllm.data$y, cov.eta=construct.cov(mllm.kalman.mle$theta_mle[1:3], mllm.kalman.mle$theta_mle[4]))
@@ -203,11 +214,6 @@ for (d in 1:3) {
     lines(mllm.kalman.est$a[,d], col="purple")
 }
 if(save.plots) dev.off()
-
-
-# ----------------------------------------------------------------------
-# Compare filters with true and estimated (MLE) parameters
-# ----------------------------------------------------------------------
 
 # plot particle filter with true and estimated parameters
 if(save.plots) png("../images/trivariate-local-level-est-particle.png", width=1000, height=750, pointsize=20)

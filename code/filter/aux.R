@@ -147,3 +147,37 @@ aux.mle <- function(y, P, verbose=TRUE) {
     
     return(list(loglik = loglik, theta_mle = theta_mle))
 }
+
+# ----------------------------------------------------------------------
+# (Multivariate) maximum likelihood estimator
+# ----------------------------------------------------------------------
+m.aux.mle <- function(y, D, P, verbose=TRUE) {
+    T <- nrow(y)
+    
+    # draw noise and particles
+    theta_aux <- c(rep(1,D),0)
+    eta.sim <- list()
+    for (t in 1:T) {
+        eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
+    }    
+    u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=T, ncol=P)   
+    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
+    pf <- m.particle.filter(y, cov.eta=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
+    
+    # set optimization parameters
+    lb <- c(rep(0.1,D), -1)
+    ub <- c(rep(5,  D),  1)
+    theta_start <- c(rep(1,D), 0)
+    obj <- function(theta){ return( -m.aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), cov.eta.aux=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]))$loglik ) } 
+    
+    # run box-constrained optimization
+    if (verbose) print('estimating model parameters...') 
+    param <- nlminb( theta_start, obj, lower=lb, upper=ub )
+    theta_mle <- param$par
+    if (verbose) print('... done!') 
+    
+    # compute log-liklihood of MLE parameters
+    loglik <- m.aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=construct.cov(c(theta_mle[1:D]), theta_mle[D+1]), cov.eta.aux=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]))$loglik
+    
+    return(list(loglik = loglik, theta_mle = theta_mle))
+}
