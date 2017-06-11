@@ -97,6 +97,7 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 
 # draw standard normal transition noise and particles for comparison of particle filter
+P <- 200
 eta.sim <- list()
 for (t in 1:T) {eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D))}
 u.sim <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   

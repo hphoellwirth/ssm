@@ -92,7 +92,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
     x.pr <- x.up <- data.frame(matrix(ncol = D, nrow = T)) 
     x.pr.particles <- x.up.particles <- list()
     loglik <- 0 
-    
+
     # initial state estimator
     x_up <- x_up.init
     
@@ -125,7 +125,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
         # compute filtered estimator to update (a posteriori) state estimate
         x_up <- m.sir(x_pr, lik, u.sim[t,])
         x.up.particles[[t]] <- x_up
-        x.up[t] <- mean(x_up) 
+        x.up[t,] <- colMeans(x_up) 
     }
     
     return(list(x.pr=x.pr, x.up=x.up, x.pr.particles=x.pr.particles, x.up.particles=x.up.particles, loglik=loglik))
