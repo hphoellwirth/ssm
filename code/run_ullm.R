@@ -16,6 +16,7 @@
 rm(list = ls())
 par(mfrow=c(1,1))
 save.plots <- FALSE
+save.results <- FALSE
 
 # load libraries
 # NONE
@@ -166,27 +167,43 @@ print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 
 
 # ----------------------------------------------------------------------
-# Compute MSE with different filters for different T and P
+# Compute filter MLE statistics for different T and P
 # ----------------------------------------------------------------------
-Ts <- c(50,100,150,200,250)
+Ts <- c(50,100,150,200,250,300,400,500)
 Ps <- c(100,200,300,400,500)
-R <- 5 # runs per combination
+R <- 10 # runs per combination
 
-# compute MSE for Kalman filter
-mse.kalman <- rep(0,length(Ts))
+# generate R local level observations for each length T
+var.eta <- 1.4
+set.seed(1000)
+llm.data <- list()
 for (t in 1:length(Ts)) {
-    set.seed(1000)
-    mse.kalman.run <- rep(0,R)
-    
+    llm.data[[t]] <- matrix(nrow=R, ncol=Ts[t])
     for (i in 1:R) {
-        llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
-        llm.kalman.mle <- kalman.mle(llm.data$y, D=1, verbose=FALSE)
-        llm.kalman.pred <- kalman.filter(llm.data$y, cov.eta=llm.kalman.mle$theta_mle)$a
-        mse.kalman.run[i] <- mse(llm.data$x, llm.kalman.pred)        
+        llm.data[[t]][i,] <- gen.llm.data(n=Ts[t], var.eta)$y
     }
-    mse.kalman[t] <- mean(mse.kalman.run)
+}
+
+# compute MSE for Kalman filter (over parameters)
+bias.kalman <- se.kalman <- mse.kalman <- rep(0,length(Ts))
+for (t in 1:length(Ts)) {
+    
+    kalman.est <- rep(0,R)
+    for (i in 1:R) {
+        kalman.est[i] <- kalman.mle(llm.data[[t]][i,], D=1, verbose=FALSE)$theta_mle
+    }
+    
+    bias.kalman[t] <- mean(kalman.est) - var.eta
+    se.kalman[t] <- sd(kalman.est) / sqrt(R)
+    mse.kalman[t] <- mse(kalman.est, rep(var.eta,R)) 
     cat('.')
 } 
+
+if(save.results) {
+    save(bias.kalman, file="../results/ullm.kalman.bias.Rda")
+    save(se.kalman,   file="../results/ullm.kalman.se.Rda")
+    save(mse.kalman,  file="../results/ullm.kalman.mse.Rda")
+}
 
 if(save.plots) png("../images/ullm_mse_kalman.png", width=750, height=500, pointsize=15)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
@@ -194,32 +211,54 @@ plot(Ts, mse.kalman, type='l', col='red', xlab='T', ylab='mse')
 if(save.plots) dev.off()  
 
 
-# compute MSE for particle filter
-mse.particle <- matrix(nrow=length(Ts), ncol=length(Ps))
+# compute MSE for particle filter (over parameters)
+Ts <- c(50,100,150,200,250)
+bias.particle <- se.particle <- mse.particle <- data.frame(matrix(nrow=length(Ts), ncol=length(Ps)), row.names = paste0('T',Ts))
+colnames(bias.particle) <- colnames(se.particle) <- colnames(mse.particle) <- paste0('P',Ps)
 for (t in 1:length(Ts)) {
-    set.seed(1000)
-    llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
-    
     for (p in 1:length(Ps)) {
-        llm.particle.mle <- particle.mle(llm.data$y, P=Ps[p], verbose=FALSE)
-        llm.particle.pred <- particle.filter(llm.data$y, cov.eta=llm.particle.mle$theta_mle, P=Ps[p], x_up.init=rep(0,Ps[p]))$x.pr
-        mse.particle[t,p] <- mse(llm.data$x, llm.particle.pred) 
+        
+        particle.est <- rep(0,R)
+        for (i in 1:R) {
+            particle.est[i] <- particle.mle(llm.data[[t]][i,], P=Ps[p], verbose=FALSE)$theta_mle
+        }
+        
+        bias.particle[t,p] <- mean(particle.est) - var.eta
+        se.particle[t,p] <- sd(particle.est) / sqrt(R)        
+        mse.particle[t,p] <- mse(particle.est, rep(var.eta,R)) 
+        cat('.')        
     }
-    cat('.')
 } 
 
-# compute MSE for auxiliary filter
-# mse.aux <- matrix(nrow=length(Ts), ncol=length(Ps))
-# for (t in 1:length(Ts)) {
-#     set.seed(1000)
-#     llm.data <- gen.llm.data(n=Ts[t], var.eta=1.4)  
-#     
-#     for (p in 1:length(Ps)) {
-#         llm.aux.mle  <- aux.mle(llm.data$y, P=Ps[p], verbose=FALSE)
-#         mse.aux[t,p] <- mse(llm.data$x, llm.aux.pred) 
-#     }
-#     cat('.')
-# } 
+if(save.results) {
+    save(bias.particle, file="../results/ullm.particle.bias.Rda")
+    save(se.particle,   file="../results/ullm.particle.se.Rda")
+    save(mse.particle,  file="../results/ullm.particle.mse.Rda")
+}
+
+# compute MSE for auxiliary filter (over parameters)
+bias.aux <- se.aux <- mse.aux <- data.frame(matrix(nrow=length(Ts), ncol=length(Ps)), row.names = paste0('T',Ts))
+colnames(bias.aux) <- colnames(se.aux) <- colnames(mse.aux) <- paste0('P',Ps)
+for (t in 1:length(Ts)) {
+    for (p in 1:length(Ps)) {
+        
+        aux.est <- rep(0,R)
+        for (i in 1:R) {
+            aux.est[i] <- aux.mle(llm.data[[t]][i,], P=Ps[p], verbose=FALSE)$theta_mle 
+        }
+        
+        bias.aux[t,p] <- mean(aux.est) - var.eta
+        se.aux[t,p] <- sd(aux.est) / sqrt(R)     
+        mse.aux[t,p] <- mse(aux.est, rep(var.eta,R)) 
+        cat('.')        
+    }
+} 
+
+if(save.results) {
+    save(bias.aux, file="../results/ullm.aux.bias.Rda")
+    save(se.aux,   file="../results/ullm.aux.se.Rda")
+    save(mse.aux,  file="../results/ullm.aux.mse.Rda")
+}
 
 
 
