@@ -146,7 +146,7 @@ particle.mle <- function(y, P, verbose=TRUE) {
     lb <- 0.1
     ub <- 5
     theta_start <- 2
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik ) } 
+    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=TRUE)$loglik ) } 
     
     # run box-constrained optimization
     if (verbose) print('estimating model parameters...') 
