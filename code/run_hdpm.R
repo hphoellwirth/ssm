@@ -44,7 +44,7 @@ source("util/plots.R")
 
 # generate hierarchical dynamic Poisson data
 set.seed(1000)
-hdpm.data <- gen.hdpm.data(n=5, m=20, D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=1, I.var=1, a1=0, P1=1)
+hdpm.data <- gen.hdpm.data(N=5, M=20, D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=1, I.var=1, a1=0, P1=1)
 
 # plot data and parameter (components)
 if(save.plots) png("../images/dyn-poisson.png", width=1000, height=500, pointsize=14)
