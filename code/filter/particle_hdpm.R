@@ -51,20 +51,21 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
     
     # estimate states of state space model
     for (n in 1:N) {    
-        # [1] (Prediction step) 
-        # one-step ahead (a priori) prediction
-        x_pr.D <- theta$D.phi0 + theta$D.phi1 * x_up.D + sqrt(theta$D.var) * noise.sim$D[n,]
-        
         for (m in 1:M) {
             t <- (n-1)*M + m
-            
+  
+            # [1] (Prediction step) 
+            # one-step ahead (a priori) prediction          
+            x_pr.D <- theta$D.phi0 + theta$D.phi1 * x_up.D + sqrt(theta$D.var) * noise.sim$D[n,]
             x_pr.P <- sin(pi*(m-1)/M) * theta$P.int
             x_pr.I <- theta$I.phi1 * x_up.I + sqrt(theta$I.var) * noise.sim$I[t,]
             x_pr   <- x_pr.D + x_pr.P + x_pr.I
         
             x.pr.particles[t,] <- exp(x_pr)
-            x.pr[t] <- mean(exp(x_pr))
-        
+            #x.pr[t] <- mean(exp(x_pr))
+            x.pr[t] <- exp(mean(x_pr))
+            
+            
             # [2] (Update step)
             # compute importance weights
             lik <- dpois( y[n,m]*rep(1,P), lambda=exp(x_pr))
@@ -86,7 +87,8 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
             
             x_up <- x_up.D + x_up.P + x_up.I
             x.up.particles[t,] <- exp(x_up)
-            x.up[t] <- mean(exp(x_up)) 
+            #x.up[t] <- mean(exp(x_up)) 
+            x.up[t] <- exp(mean(x_up)) 
         }
     }
     

@@ -68,7 +68,7 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 # Use filters with true parameters to estimate model states
 # ----------------------------------------------------------------------
-set.seed(1012)
+set.seed(2000)
 P <- 200 
 hdpm.particle.filter <- particle.filter.hdpm(hdpm.data$x, theta, P=P, x_up.init=rep(0,P))
 
@@ -78,7 +78,7 @@ par(mfrow=c(1,1), mar=c(4,4,1,1))
 plot(as.vector(t(as.matrix(hdpm.data$x))), type='p', pch=19, col="red", xlab="time", ylab="counts & parameter")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="blue")
 lines(hdpm.particle.filter$x.pr, col="orange")
-#legend(10,15, c('observation','state','kalman','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','green','orange'))
+#legend(2,33, c('observation','state','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','orange'))
 if(save.plots) dev.off()
 
 
