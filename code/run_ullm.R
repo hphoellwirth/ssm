@@ -143,28 +143,44 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 # Compute MLE with different filters
 # ----------------------------------------------------------------------
+llm.mle.result <- data.frame(matrix(nrow=2, ncol=2), row.names=c('True','MLE'))
+colnames(llm.mle.result) <- c('log-lik','var.eta')
 
 # estimate model parameter, using Kalman filter
 llm.kalman.mle <- kalman.mle(llm.data$y, D=1)
-print(paste('     True parameters:', var.eta))
-print(paste('Estimated parameters:', round(llm.kalman.mle$theta_mle[1],3)))
-print(paste('     True log-likelihood:', round(llm.kalman.filter$loglik,3)))
-print(paste('Estimated log-likelihood:', round(llm.kalman.mle$loglik,3)))
+
+llm.kalman.mle.result <- llm.mle.result
+llm.kalman.mle.result['True','log-lik'] <- round(llm.kalman.filter$loglik,3)
+llm.kalman.mle.result['MLE', 'log-lik'] <- round(llm.kalman.mle$loglik,3)
+llm.kalman.mle.result['True','var.eta'] <- round(var.eta,2)
+llm.kalman.mle.result['MLE', 'var.eta'] <- round(llm.kalman.mle$theta_mle,2)
+llm.kalman.mle.result
 
 # estimate model parameter, using particle filter
 llm.particle.mle <- particle.mle(llm.data$y, P=100)
-print(paste('     True parameters:', var.eta))
-print(paste('Estimated parameters:', round(llm.particle.mle$theta_mle[1],3)))
-print(paste('     True log-likelihood:', round(llm.particle.filter$loglik,3)))
-print(paste('Estimated log-likelihood:', round(llm.particle.mle$loglik,3)))
+
+llm.particle.mle.result <- llm.mle.result
+llm.particle.mle.result['True','log-lik'] <- round(llm.particle.filter$loglik,3)
+llm.particle.mle.result['MLE', 'log-lik'] <- round(llm.particle.mle$loglik,3)
+llm.particle.mle.result['True','var.eta'] <- round(var.eta,2)
+llm.particle.mle.result['MLE', 'var.eta'] <- round(llm.particle.mle$theta_mle,2)
+llm.particle.mle.result
 
 # estimate model parameter, using auxiliary filter
 llm.aux.mle <- aux.mle(llm.data$y, P=P)
-print(paste('     True parameters:', var.eta))
-print(paste('Estimated parameters:', round(llm.aux.mle$theta_mle[1],3)))
-print(paste('     True log-likelihood:', round(llm.aux.filter$loglik,3)))
-print(paste('Estimated log-likelihood:', round(llm.aux.mle$loglik,3)))
 
+llm.aux.mle.result <- llm.mle.result
+llm.aux.mle.result['True','log-lik'] <- round(llm.aux.filter$loglik,3)
+llm.aux.mle.result['MLE', 'log-lik'] <- round(llm.aux.mle$loglik,3)
+llm.aux.mle.result['True','var.eta'] <- round(var.eta,2)
+llm.aux.mle.result['MLE', 'var.eta'] <- round(llm.aux.mle$theta_mle,2)
+llm.aux.mle.result
+
+if(save.results) {
+    save(llm.kalman.mle.result,   file="../results/ullm.kalman.mle.result.Rda")
+    save(llm.particle.mle.result, file="../results/ullm.particle.mle.result.Rda")
+    save(llm.aux.mle.result,      file="../results/ullm.aux.mle.result.Rda")
+}
 
 # ----------------------------------------------------------------------
 # Compute filter MLE statistics for different T and P
