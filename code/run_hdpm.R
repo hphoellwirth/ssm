@@ -110,75 +110,103 @@ for (nm in c(1:(N*M))) {u.sim[nm,] <- sort( u.sim[nm,] )}
 # compute log-likelihood for wide range of different D.phi0 values
 D.phi0 <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.D.phi0 <- rep(0,length(D.phi0))
+hdpm.particle.D.phi0 <- hdpm.aux.D.phi0 <- rep(0,length(D.phi0))
 for (i in 1:length(D.phi0)) {
     cat('.')
     theta.i$D.phi0 <- D.phi0[i]
-    hdpm.particle.D.phi0[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.particle.D.phi0[i] <- particle.filter.hdpm( hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.phi0[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
+
+if(save.plots) png("../images/hdpm-loglik-Dphi0.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.loglik(D.phi0, hdpm.particle.D.phi0, theta$D.phi0, 'orange', 'D.phi0 with particle filter')
+plot.loglik(D.phi0, hdpm.aux.D.phi0, theta$D.phi0, 'magenta', 'D.phi0 with auxiliary filter')
+if(save.plots) dev.off()
 
 # compute log-likelihood for wide range of different D.phi1 values
 D.phi1 <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.D.phi1 <- rep(0,length(D.phi1))
+hdpm.particle.D.phi1 <- hdpm.aux.D.phi1 <- rep(0,length(D.phi1))
 for (i in 1:length(D.phi1)) {
     cat('.')
     theta.i$D.phi1 <- D.phi1[i]
-    hdpm.particle.D.phi1[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.particle.D.phi1[i] <- particle.filter.hdpm( hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.phi1[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
+
+if(save.plots) png("../images/hdpm-loglik-Dphi1.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.loglik(D.phi1, hdpm.particle.D.phi1, theta$D.phi1, 'orange', 'D.phi1 with particle filter')
+plot.loglik(D.phi1, hdpm.aux.D.phi1, theta$D.phi1, 'magenta', 'D.phi1 with auxiliary filter')
+if(save.plots) dev.off()
 
 # compute log-likelihood for wide range of different I.phi1 values
 I.phi1 <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.I.phi1 <- rep(0,length(I.phi1))
+hdpm.particle.I.phi1 <- hdpm.aux.I.phi1 <- rep(0,length(I.phi1))
 for (i in 1:length(I.phi1)) {
     cat('.')
     theta.i$I.phi1 <- I.phi1[i]
     hdpm.particle.I.phi1[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.I.phi1[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
+
+if(save.plots) png("../images/hdpm-loglik-Iphi1.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.loglik(I.phi1, hdpm.particle.I.phi1, theta$I.phi1, 'orange', 'I.phi1 with particle filter')
+plot.loglik(I.phi1, hdpm.aux.I.phi1, theta$I.phi1, 'magenta', 'I.phi1 with auxiliary filter')
+if(save.plots) dev.off()
 
 # compute log-likelihood for wide range of different I.phi1 values
 P.int <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.P.int <- rep(0,length(P.int))
+hdpm.particle.P.int <- hdpm.aux.P.int <- rep(0,length(P.int))
 for (i in 1:length(P.int)) {
     cat('.')
     theta.i$P.int <- P.int[i]
     hdpm.particle.P.int[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.P.int[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
+
+if(save.plots) png("../images/hdpm-loglik-Pint.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.loglik(P.int, hdpm.particle.P.int, theta$P.int, 'orange', 'P.int with particle filter')
+plot.loglik(P.int, hdpm.aux.P.int, theta$P.int, 'magenta', 'P.int with auxiliary filter')
+if(save.plots) dev.off()
 
 # compute log-likelihood for wide range of different D.var values
 D.var <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.D.var <- rep(0,length(D.var))
+hdpm.particle.D.var <- hdpm.aux.D.var <- rep(0,length(D.var))
 for (i in 1:length(D.var)) {
     cat('.')
     theta.i$D.var <- D.var[i]
     hdpm.particle.D.var[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.var[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
+
+if(save.plots) png("../images/hdpm-loglik-Dvar.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.loglik(D.var, hdpm.particle.D.var, theta$D.var, 'orange', 'D.var with particle filter')
+plot.loglik(D.var, hdpm.aux.D.var, theta$D.var, 'magenta', 'D.var with auxiliary filter')
+if(save.plots) dev.off()
 
 # compute log-likelihood for wide range of different I.var values
 I.var <- seq(0.1,2,0.1)
 theta.i <- theta
-hdpm.particle.I.var <- rep(0,length(I.var))
+hdpm.particle.I.var <- hdpm.aux.I.var <- rep(0,length(I.var))
 for (i in 1:length(D.var)) {
     cat('.')
     theta.i$I.var <- I.var[i]
     hdpm.particle.I.var[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.I.var[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
-if(save.plots) png("../images/hdpm-loglik-1.png", width=1000, height=750, pointsize=20)
-par(mfrow=c(3,1), mar=c(4,4,1,1))
-plot.loglik(D.phi0, hdpm.particle.D.phi0, theta$D.phi0, 'orange', 'D.phi0 with particle filter')
-plot.loglik(D.phi1, hdpm.particle.D.phi1, theta$D.phi1, 'orange', 'D.phi1 with particle filter')
-plot.loglik(I.phi1, hdpm.particle.I.phi1, theta$I.phi1, 'orange', 'I.phi1 with particle filter')
-if(save.plots) dev.off()
-
-if(save.plots) png("../images/hdpm-loglik-2.png", width=1000, height=750, pointsize=20)
-par(mfrow=c(3,1), mar=c(4,4,1,1))
-plot.loglik(P.int, hdpm.particle.P.int, theta$P.int, 'orange', 'P.int with particle filter')
-plot.loglik(D.var, hdpm.particle.D.var, theta$D.var, 'orange', 'D.var with particle filter')
+if(save.plots) png("../images/hdpm-loglik-Ivar.png", width=1000, height=500, pointsize=15)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
 plot.loglik(I.var, hdpm.particle.I.var, theta$I.var, 'orange', 'I.var with particle filter')
+plot.loglik(I.var, hdpm.aux.I.var, theta$I.var, 'magenta', 'I.var with auxiliary filter')
 if(save.plots) dev.off()
 
 
