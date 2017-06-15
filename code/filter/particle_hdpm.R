@@ -96,21 +96,31 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
 }
 
 # ----------------------------------------------------------------------
-# (Univariate) maximum likelihood estimator
+# Maximum likelihood estimator
 # ----------------------------------------------------------------------
-particle.mle <- function(y, P, verbose=TRUE) {
-    T <- length(y)
+particle.mle.hdpm <- function(y, P, verbose=TRUE) {
+    N <- nrow(y)
+    M <- ncol(y)
     
-    # draw noise and particles
-    eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
-    u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
-    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
+    # draw standard normal transition noise 
+    noise.sim <- list()
+    noise.sim$D <- matrix(rnorm(N*P, mean=0, sd=1), nrow=N, ncol=P)
+    noise.sim$I <- matrix(rnorm(N*M*P, mean=0, sd=1), nrow=N*M, ncol=P)
+    
+    # draw particles from standard uniform 
+    u.sim   <- matrix(runif(N*M*P, min=0, max=1), nrow=N*M, ncol=P)   
+    for (nm in c(1:(N*M))) {u.sim[nm,] <- sort( u.sim[nm,] )}
     
     # set optimization parameters
-    lb <- 0.1
-    ub <- 5
-    theta_start <- 2
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik ) } 
+    # (D.phi0, D.phi1, I.phi1, P.int, D.var, I.var)
+    lb <- c(0, 0, 0, 0, 0.1, 0.1)
+    ub <- c(1, 1, 1, 1, 5, 5)
+    theta_start <- c(0, 0, 0, 0, 1, 1)
+    #theta_start <- list(D.phi0=0, D.phi1=0, I.phi1=0, P.int=0, D.var=1, I.var=1)
+    obj <- function(theta) { 
+        theta.l <- list(D.phi0=theta[1], D.phi1=theta[2], I.phi1=theta[3], P.int=theta[4], D.var=theta[5], I.var=theta[6])
+        return( -particle.filter.hdpm(y, theta=theta.l, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) 
+    } 
     
     # run box-constrained optimization
     if (verbose) print('estimating model parameters...') 
@@ -119,40 +129,8 @@ particle.mle <- function(y, P, verbose=TRUE) {
     if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
-    loglik <- particle.filter(y, cov.eta=theta_mle, eta.sim=eta.sim, u.sim=u.sim)$loglik
+    theta_mle.l <- list(D.phi0=theta_mle[1], D.phi1=theta_mle[2], I.phi1=theta_mle[3], P.int=theta_mle[4], D.var=theta_mle[5], I.var=theta_mle[6])
+    loglik <- particle.filter.hdpm(y, theta=theta_mle.l, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
     
-    return(list(loglik = loglik, theta_mle = theta_mle))
-}
-
-# ----------------------------------------------------------------------
-# (Multivariate) maximum likelihood estimator
-# ----------------------------------------------------------------------
-# note: does not work properly for multivariate case
-m.particle.mle <- function(y, D, P, verbose=TRUE) {
-    T <- nrow(y)
-    
-    # draw noise and particles
-    eta.sim <- list()
-    for (t in 1:T) {
-        eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
-    }
-    u.sim <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
-    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-    
-    # set optimization parameters
-    lb <- c(rep(0.1,D), -1)
-    ub <- c(rep(5,  D),  1)
-    theta_start <- c(rep(1,D), 0)
-    obj <- function(theta){ return( -m.particle.filter(y, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik ) } 
-    
-    # run box-constrained optimization
-    if (verbose) print('estimating model parameters...') 
-    param <- nlminb( theta_start, obj, lower=lb, upper=ub )
-    theta_mle <- param$par
-    if (verbose) print('... done!') 
-    
-    # compute log-liklihood of MLE parameters
-    loglik <- m.particle.filter(y, cov.eta=construct.cov(theta_mle[1:D], theta_mle[D+1]), eta.sim=eta.sim, u.sim=u.sim)$loglik
-    
-    return(list(loglik = loglik, theta_mle = theta_mle))
+    return(list(loglik = loglik, theta_mle = theta_mle.l))
 }
