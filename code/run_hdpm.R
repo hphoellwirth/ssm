@@ -31,7 +31,7 @@ source("models/hierarchDynPoisson.R")
 
 # load filters
 source("filter/particle_hdpm.R")
-source("filter/aux.R")
+source("filter/aux_hdpm.R")
 
 # load utilities
 source("util/plots.R")
@@ -66,7 +66,7 @@ lines(log(hdpm.data$I), type='l', col="blue")
 if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
-# Use filters with true parameters to estimate model states
+# Use particle filter with true parameters to estimate model states
 # ----------------------------------------------------------------------
 set.seed(2000)
 P <- 200 
@@ -81,6 +81,20 @@ lines(hdpm.particle.filter$x.pr, col="orange")
 #legend(2,33, c('observation','state','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','orange'))
 if(save.plots) dev.off()
 
+# ----------------------------------------------------------------------
+# Evaluate the correctness of the auxiliary filter
+# ----------------------------------------------------------------------
+
+# use auxiliary filter to compute true log-likelihood
+theta.aux <- list(D.phi0=0.5, D.phi1=0.5, I.phi1=0.5, P.int=1, D.var=1, I.var=1)
+hdpm.aux.filter <- aux.filter.hdpm(hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta, theta.aux=theta.aux)
+
+# plot importance weights over time
+if(save.plots) png("../images/hdpm_aux_weights.png", width=1000, height=500, pointsize=14)
+par(mfrow=c(2,1), mar=c(4,4,1,1))
+plot.weights(hdpm.aux.filter$is.up, xlab=paste0('time T (with P=',P,' particles)'), ylab='filtering weights')
+plot.weights(hdpm.aux.filter$is.pr, xlab=paste0('time T (with P=',P,' particles)'), ylab='predictive weights')
+if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
 # Produce log-likelihood plots to validate and compare filters

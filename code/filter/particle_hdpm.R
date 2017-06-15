@@ -42,7 +42,8 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
     
     # initialize series and loglikelihood
     x.pr <- x.up <- rep(0,N*M)
-    x.pr.particles <- x.up.particles <- matrix(nrow = N*M, ncol = P)
+    #x.pr.particles <- x.up.particles <- matrix(nrow = N*M, ncol = P)
+    x.pr.particles <- x.up.particles <- list()
     loglik <- 0 
     
     # initial state estimator
@@ -61,7 +62,8 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
             x_pr.I <- theta$I.phi1 * x_up.I + sqrt(theta$I.var) * noise.sim$I[t,]
             x_pr   <- x_pr.D + x_pr.P + x_pr.I
         
-            x.pr.particles[t,] <- exp(x_pr)
+            #x.pr.particles[t,] <- exp(x_pr)
+            x.pr.particles[[t]] <- cbind(x_pr.D, rep(x_pr.P,P), x_pr.I)
             #x.pr[t] <- mean(exp(x_pr))
             x.pr[t] <- exp(mean(x_pr))
             
@@ -86,7 +88,8 @@ particle.filter.hdpm <- function(y, theta, noise.sim=NA, u.sim=NA, P=ncol(u.sim)
             x_up.P <- sin(pi*(m-1)/M) * theta$P.int
             
             x_up <- x_up.D + x_up.P + x_up.I
-            x.up.particles[t,] <- exp(x_up)
+            #x.up.particles[t,] <- exp(x_up)
+            x.up.particles[[t]] <- cbind(x_up.D, rep(x_up.P,P), x_up.I)
             #x.up[t] <- mean(exp(x_up)) 
             x.up[t] <- exp(mean(x_up)) 
         }
