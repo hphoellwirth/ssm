@@ -185,17 +185,32 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 # Compute MLE with different filters
 # ----------------------------------------------------------------------
+hdpm.mle.result <- data.frame(matrix(nrow=2, ncol=7), row.names=c('True','MLE'))
+colnames(hdpm.mle.result) <- c('log-lik','D.phi0','D.phi1','I.phi1','P.int','D.var','I.var')
 
 # estimate model parameters, using particle filter
 hdpm.particle.mle <- particle.mle.hdpm(hdpm.data$x, P=200)
 theta_mle <- hdpm.particle.mle$theta_mle
 
-hdpm.particle.mle.result <- data.frame(matrix(nrow=2, ncol=7), row.names=c('True','MLE'))
-colnames(hdpm.particle.mle.result) <- c('log-lik','D.phi0','D.phi1','I.phi1','P.int','D.var','I.var')
+hdpm.particle.mle.result <- hdpm.mle.result
 hdpm.particle.mle.result['True','log-lik'] <- round(hdpm.particle.filter$loglik,3)
 hdpm.particle.mle.result['MLE', 'log-lik'] <- round(hdpm.particle.mle$loglik,3)
 hdpm.particle.mle.result['True',2:7] <- round(c(theta$D.phi0, theta$D.phi1, theta$I.phi1, theta$P.int, theta$D.var, theta$I.var),2)
 hdpm.particle.mle.result['MLE', 2:7] <- round(c(theta_mle$D.phi0, theta_mle$D.phi1, theta_mle$I.phi1, theta_mle$P.int, theta_mle$D.var, theta_mle$I.var),2)
 hdpm.particle.mle.result
 
+# estimate model parameters, using auxiliary filter
+hdpm.aux.mle <- aux.mle.hdpm(hdpm.data$x, P=200)
+theta_mle <- hdpm.aux.mle$theta_mle
 
+hdpm.aux.mle.result <- hdpm.mle.result
+hdpm.aux.mle.result['True','log-lik'] <- round(hdpm.aux.filter$loglik,3)
+hdpm.aux.mle.result['MLE', 'log-lik'] <- round(hdpm.aux.mle$loglik,3)
+hdpm.aux.mle.result['True',2:7] <- round(c(theta$D.phi0, theta$D.phi1, theta$I.phi1, theta$P.int, theta$D.var, theta$I.var),2)
+hdpm.aux.mle.result['MLE', 2:7] <- round(c(theta_mle$D.phi0, theta_mle$D.phi1, theta_mle$I.phi1, theta_mle$P.int, theta_mle$D.var, theta_mle$I.var),2)
+hdpm.aux.mle.result
+
+if(save.results) {
+    save(hdpm.particle.mle.result, file="../results/hdpm.particle.mle.result.Rda")
+    save(hdpm.aux.mle.result,      file="../results/hdpm.aux.mle.result.Rda")
+}

@@ -2,10 +2,10 @@
 # Information
 # ----------------------------------------------------------------------
 
-# Auxiliary filter (for multivariate local level model)
+# Auxiliary filter (for hierarchical dynamic Poisson model)
 #
 # (Author) Hans-Peter Höllwirth
-# (Date)   30.05.2017
+# (Date)   06.2017
 
 # ----------------------------------------------------------------------
 # Setup
@@ -93,23 +93,35 @@ aux.filter.hdpm <- function(y, x.pr, x.up, theta, theta.aux) {
 }
 
 # ----------------------------------------------------------------------
-# (Univariate) maximum likelihood estimator
+# Maximum likelihood estimator
 # ----------------------------------------------------------------------
-aux.mle <- function(y, P, verbose=TRUE) {
-    T <- length(y)
+aux.mle.hdpm <- function(y, P, verbose=TRUE) {
+    N <- nrow(y)
+    M <- ncol(y)
     
-    # draw noise and particles
+    # draw standard normal transition noise 
+    noise.sim <- list()
+    noise.sim$D <- matrix(rnorm(N*P, mean=0, sd=1), nrow=N, ncol=P)
+    noise.sim$I <- matrix(rnorm(N*M*P, mean=0, sd=1), nrow=N*M, ncol=P)
+    
+    # draw particles from standard uniform 
+    u.sim   <- matrix(runif(N*M*P, min=0, max=1), nrow=N*M, ncol=P)   
+    for (nm in c(1:(N*M))) {u.sim[nm,] <- sort( u.sim[nm,] )}    
     theta_aux <- 1
     eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=T, ncol=P) 
-    u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=T, ncol=P)   
-    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-    pf <- particle.filter(y, cov.eta=theta_aux, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)
+
+    theta_aux <- list(D.phi0=0.5, D.phi1=0.5, I.phi1=0.5, P.int=1, D.var=1, I.var=1)
+    pf <- particle.filter.hdpm(y, theta_aux, P=P, x_up.init=rep(0,P))
     
     # set optimization parameters
-    lb <- 0.1
-    ub <- 5
-    theta_start <- 1
-    obj <- function(theta){ return( -aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta, cov.eta.aux=theta_aux)$loglik ) } 
+    # (D.phi0, D.phi1, I.phi1, P.int, D.var, I.var)
+    lb <- c(0, 0, 0, 0, 0.1, 0.1)
+    ub <- c(1, 1, 1, 1, 5, 5)
+    theta_start <- c(0, 0, 0, 0, 1, 1)
+    obj <- function(theta) { 
+        theta.l <- list(D.phi0=theta[1], D.phi1=theta[2], I.phi1=theta[3], P.int=theta[4], D.var=theta[5], I.var=theta[6])
+        return( -aux.filter.hdpm(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, theta=theta.l, theta.aux=theta_aux)$loglik ) 
+    } 
     
     # run box-constrained optimization
     if (verbose) print('estimating model parameters...') 
@@ -118,41 +130,10 @@ aux.mle <- function(y, P, verbose=TRUE) {
     if (verbose) print('... done!') 
     
     # compute log-liklihood of MLE parameters
-    loglik <- aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=theta_mle, cov.eta.aux=theta_aux)$loglik
+    theta_mle.l <- list(D.phi0=theta_mle[1], D.phi1=theta_mle[2], I.phi1=theta_mle[3], P.int=theta_mle[4], D.var=theta_mle[5], I.var=theta_mle[6])
+    loglik <- aux.filter.hdpm(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, theta=theta_mle.l, theta.aux=theta_aux)$loglik
     
-    return(list(loglik = loglik, theta_mle = theta_mle))
+    return(list(loglik = loglik, theta_mle = theta_mle.l))
 }
 
-# ----------------------------------------------------------------------
-# (Multivariate) maximum likelihood estimator
-# ----------------------------------------------------------------------
-m.aux.mle <- function(y, D, P, verbose=TRUE) {
-    T <- nrow(y)
-    
-    # draw noise and particles
-    theta_aux <- c(rep(1,D),0)
-    eta.sim <- list()
-    for (t in 1:T) {
-        eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
-    }    
-    u.sim   <- matrix(runif(P*T, min=0, max=1), nrow=T, ncol=P)   
-    for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
-    pf <- m.particle.filter(y, cov.eta=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
-    
-    # set optimization parameters
-    lb <- c(rep(0.1,D), -1)
-    ub <- c(rep(5,  D),  1)
-    theta_start <- c(rep(1,D), 0)
-    obj <- function(theta){ return( -m.aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), cov.eta.aux=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]))$loglik ) } 
-    
-    # run box-constrained optimization
-    if (verbose) print('estimating model parameters...') 
-    param <- nlminb( theta_start, obj, lower=lb, upper=ub )
-    theta_mle <- param$par
-    if (verbose) print('... done!') 
-    
-    # compute log-liklihood of MLE parameters
-    loglik <- m.aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=construct.cov(c(theta_mle[1:D]), theta_mle[D+1]), cov.eta.aux=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]))$loglik
-    
-    return(list(loglik = loglik, theta_mle = theta_mle))
-}
+
