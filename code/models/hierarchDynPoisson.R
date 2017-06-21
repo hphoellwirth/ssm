@@ -40,15 +40,15 @@ gen.hdpm.data <- function(N, M, theta, a1=0, P1=1) {
     }
     
     # compute states
-    x <- data.frame(matrix(ncol = M, nrow = N))   
+    y <- data.frame(matrix(ncol = M, nrow = N))   
     log.lambda <- data.frame(matrix(ncol = M, nrow = N)) 
     for (n in 1:N) {
         for (m in 1:M) {
             log.lambda[n,m] <- log.lambda.D[n] + log.lambda.P[m] + log.lambda.I[(n-1)*M+m] # state
-            x[n,m] <- rpois(1, lambda=exp(log.lambda[n,m])) # observation
+            y[n,m] <- rpois(1, lambda=exp(log.lambda[n,m])) # observation
         }
     }
-    return(list(x=x, lambda=exp(log.lambda), D=exp(rep(log.lambda.D,each=M)), P=exp(rep(log.lambda.P,N)), I=exp(log.lambda.I)))
+    return(list(y=y, lambda=exp(log.lambda), D=exp(rep(log.lambda.D,each=M)), P=exp(rep(log.lambda.P,N)), I=exp(log.lambda.I)))
 }
 
 

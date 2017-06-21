@@ -48,13 +48,14 @@ theta <- list(D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=0.6, I.var=0.
 hdpm.data <- gen.hdpm.data(N=N, M=M, theta, a1=0, P1=1)
 
 # plot data and parameter (components)
-if(save.plots) png("../images/dyn-poisson.png", width=1000, height=500, pointsize=14)
+if(save.plots) png("../images/hdpm-realization.png", width=1000, height=500, pointsize=14)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-plot(as.vector(t(as.matrix(hdpm.data$x))), type='p', pch=19, col="red", xlab="time", ylab="counts / parameter (components)")
+plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col="red", xlab="time", ylab="counts / parameter (components)")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
-lines(hdpm.data$D, type='l', col="orange")
-lines(hdpm.data$P, type='l', col="green")
-lines(hdpm.data$I, type='l', col="blue")
+#lines(hdpm.data$D, type='l', col="orange")
+#lines(hdpm.data$P, type='l', col="green")
+#lines(hdpm.data$I, type='l', col="blue")
+legend(5,32, legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
 if(save.plots) dev.off()
 
 # plot log parameter (components)
@@ -70,12 +71,12 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 set.seed(2000)
 P <- 200 
-hdpm.particle.filter <- particle.filter.hdpm(hdpm.data$x, theta, P=P, x_up.init=rep(0,P))
+hdpm.particle.filter <- particle.filter.hdpm(hdpm.data$y, theta, P=P, x_up.init=rep(0,P))
 
 # plot observations, states, and estimates
 if(save.plots) png("../images/hdpm_est.png", width=1000, height=600, pointsize=14)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-plot(as.vector(t(as.matrix(hdpm.data$x))), type='p', pch=19, col="red", xlab="time", ylab="counts & parameter")
+plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col="red", xlab="time", ylab="counts & parameter")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="blue")
 lines(hdpm.particle.filter$x.pr, col="orange")
 #legend(2,33, c('observation','state','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','orange'))
@@ -87,7 +88,7 @@ if(save.plots) dev.off()
 
 # use auxiliary filter to compute true log-likelihood
 theta.aux <- list(D.phi0=0.5, D.phi1=0.5, I.phi1=0.5, P.int=1, D.var=1, I.var=1)
-hdpm.aux.filter <- aux.filter.hdpm(hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta, theta.aux=theta.aux)
+hdpm.aux.filter <- aux.filter.hdpm(hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta, theta.aux=theta.aux)
 
 # plot importance weights over time
 if(save.plots) png("../images/hdpm_aux_weights.png", width=1000, height=500, pointsize=14)
@@ -114,8 +115,8 @@ hdpm.particle.D.phi0 <- hdpm.aux.D.phi0 <- rep(0,length(D.phi0))
 for (i in 1:length(D.phi0)) {
     cat('.')
     theta.i$D.phi0 <- D.phi0[i]
-    hdpm.particle.D.phi0[i] <- particle.filter.hdpm( hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.D.phi0[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.D.phi0[i] <- particle.filter.hdpm( hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.phi0[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Dphi0.png", width=1000, height=500, pointsize=15)
@@ -131,8 +132,8 @@ hdpm.particle.D.phi1 <- hdpm.aux.D.phi1 <- rep(0,length(D.phi1))
 for (i in 1:length(D.phi1)) {
     cat('.')
     theta.i$D.phi1 <- D.phi1[i]
-    hdpm.particle.D.phi1[i] <- particle.filter.hdpm( hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.D.phi1[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.D.phi1[i] <- particle.filter.hdpm( hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.phi1[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Dphi1.png", width=1000, height=500, pointsize=15)
@@ -148,8 +149,8 @@ hdpm.particle.I.phi1 <- hdpm.aux.I.phi1 <- rep(0,length(I.phi1))
 for (i in 1:length(I.phi1)) {
     cat('.')
     theta.i$I.phi1 <- I.phi1[i]
-    hdpm.particle.I.phi1[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.I.phi1[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.I.phi1[i] <- particle.filter.hdpm(hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.I.phi1[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Iphi1.png", width=1000, height=500, pointsize=15)
@@ -165,8 +166,8 @@ hdpm.particle.P.int <- hdpm.aux.P.int <- rep(0,length(P.int))
 for (i in 1:length(P.int)) {
     cat('.')
     theta.i$P.int <- P.int[i]
-    hdpm.particle.P.int[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.P.int[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.P.int[i] <- particle.filter.hdpm(hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.P.int[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Pint.png", width=1000, height=500, pointsize=15)
@@ -182,8 +183,8 @@ hdpm.particle.D.var <- hdpm.aux.D.var <- rep(0,length(D.var))
 for (i in 1:length(D.var)) {
     cat('.')
     theta.i$D.var <- D.var[i]
-    hdpm.particle.D.var[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.D.var[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.D.var[i] <- particle.filter.hdpm(hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.D.var[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Dvar.png", width=1000, height=500, pointsize=15)
@@ -199,8 +200,8 @@ hdpm.particle.I.var <- hdpm.aux.I.var <- rep(0,length(I.var))
 for (i in 1:length(D.var)) {
     cat('.')
     theta.i$I.var <- I.var[i]
-    hdpm.particle.I.var[i] <- particle.filter.hdpm(hdpm.data$x, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
-    hdpm.aux.I.var[i]      <- aux.filter.hdpm( hdpm.data$x, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
+    hdpm.particle.I.var[i] <- particle.filter.hdpm(hdpm.data$y, theta.i, noise.sim=noise.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    hdpm.aux.I.var[i]      <- aux.filter.hdpm( hdpm.data$y, x.pr=hdpm.particle.filter$x.pr.particles, x.up=hdpm.particle.filter$x.up.particles, theta=theta.i, theta.aux=theta.aux)$loglik
 }
 
 if(save.plots) png("../images/hdpm-loglik-Ivar.png", width=1000, height=500, pointsize=15)
@@ -217,7 +218,7 @@ hdpm.mle.result <- data.frame(matrix(nrow=2, ncol=7), row.names=c('True','MLE'))
 colnames(hdpm.mle.result) <- c('log-lik','D.phi0','D.phi1','I.phi1','P.int','D.var','I.var')
 
 # estimate model parameters, using particle filter
-hdpm.particle.mle <- particle.mle.hdpm(hdpm.data$x, P=200)
+hdpm.particle.mle <- particle.mle.hdpm(hdpm.data$y, P=200)
 theta_mle <- hdpm.particle.mle$theta_mle
 
 hdpm.particle.mle.result <- hdpm.mle.result
@@ -228,7 +229,7 @@ hdpm.particle.mle.result['MLE', 2:7] <- round(c(theta_mle$D.phi0, theta_mle$D.ph
 hdpm.particle.mle.result
 
 # estimate model parameters, using auxiliary filter
-hdpm.aux.mle <- aux.mle.hdpm(hdpm.data$x, P=200)
+hdpm.aux.mle <- aux.mle.hdpm(hdpm.data$y, P=200)
 theta_mle <- hdpm.aux.mle$theta_mle
 
 hdpm.aux.mle.result <- hdpm.mle.result
