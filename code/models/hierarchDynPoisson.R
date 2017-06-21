@@ -17,8 +17,8 @@ gen.hdpm.data <- function(N, M, theta, a1=0, P1=1) {
     log.lambda.I <- rep(0,N*M)
     
     # draw disturbances
-    eps.D <- rnorm(N, mean=0, sd=sqrt(theta$D.var))
-    eps.I <- rnorm(N*M, mean=0, sd=sqrt(theta$I.var))
+    eta.D <- rnorm(N, mean=0, sd=sqrt(theta$D.var))
+    eta.I <- rnorm(N*M, mean=0, sd=sqrt(theta$I.var))
 
     # draw intial state
     log.lambda.D[1] <- rnorm(1, mean=a1, sd=sqrt(P1))
@@ -26,7 +26,7 @@ gen.hdpm.data <- function(N, M, theta, a1=0, P1=1) {
         
     # compute daily component
     for (n in 1:(N-1)) {
-        log.lambda.D[n+1] <- theta$D.phi0 + theta$D.phi1 * log.lambda.D[n] + eps.D[n+1] 
+        log.lambda.D[n+1] <- theta$D.phi0 + theta$D.phi1 * log.lambda.D[n] + eta.D[n+1] 
     }
     
     # compute periodic component
@@ -36,7 +36,7 @@ gen.hdpm.data <- function(N, M, theta, a1=0, P1=1) {
     
     # compute intra-daily component
     for (nm in 1:(N*M-1)) {
-        log.lambda.I[nm+1] <- theta$I.phi1 * log.lambda.I[nm] + eps.I[nm+1] 
+        log.lambda.I[nm+1] <- theta$I.phi1 * log.lambda.I[nm] + eta.I[nm+1] 
     }
     
     # compute states
