@@ -45,11 +45,20 @@ source("util/misc.R")
 # ----------------------------------------------------------------------
 set.seed(1000)
 D <- 3
-T <- 50
+T <- 100
 cov.eta.var <- c(4.2,2.8,0.9)
 cov.eta.rho <- 0.7
 mllm.data <- gen.multi.llm.data(n=T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
+# plot observations and states
+if(save.plots) png("../images/mllm-realization.png", width=1000, height=750, pointsize=20)
+par(mfrow=c(3,1), mar=c(2,2,1,1))
+for (d in 1:3) {
+    plot(mllm.data$y[,d], type='l', col="red", ylim=c(min(mllm.data$y), max(mllm.data$y)))
+    lines(mllm.data$x[,d], col="black")
+    if (d == D) legend('bottomright', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(1,1), lwd=c(2,2))
+}
+if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
 # Use filters with true parameters to estimate model states
