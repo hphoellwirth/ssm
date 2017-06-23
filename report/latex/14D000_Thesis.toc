@@ -1,18 +1,21 @@
 \contentsline {chapter}{\numberline {1}Introduction}{3}
 \contentsline {chapter}{\numberline {2}State Space Models}{4}
 \contentsline {section}{\numberline {2.1}Local Level Model}{4}
-\contentsline {chapter}{\numberline {3}Filtering}{5}
-\contentsline {section}{\numberline {3.1}Kalman Filter}{5}
-\contentsline {subsection}{\numberline {3.1.1}Likelihood evaluation}{5}
-\contentsline {section}{\numberline {3.2}Particle Filter}{5}
-\contentsline {section}{\numberline {3.3}Importance Sampling Particle Filter}{5}
-\contentsline {chapter}{\numberline {4}Illustration}{6}
-\contentsline {section}{\numberline {4.1}Trivariate Local Level Model}{6}
-\contentsline {subsection}{\numberline {4.1.1}The Model}{6}
-\contentsline {subsection}{\numberline {4.1.2}Realization}{6}
-\contentsline {section}{\numberline {4.2}Hierarchical Dynamic Poisson Model}{7}
-\contentsline {subsection}{\numberline {4.2.1}The Model}{7}
-\contentsline {subsection}{\numberline {4.2.2}Realization}{8}
-\contentsline {subsection}{\numberline {4.2.3}Densities}{8}
-\contentsline {subsection}{\numberline {4.2.4}Maximum Likelihood Estimation}{8}
-\contentsline {chapter}{\numberline {5}Conclusion}{10}
+\contentsline {section}{\numberline {2.2}Latent State Inference}{5}
+\contentsline {section}{\numberline {2.3}Parameter Inference}{5}
+\contentsline {chapter}{\numberline {3}Filtering}{7}
+\contentsline {section}{\numberline {3.1}Kalman Filter}{7}
+\contentsline {subsection}{\numberline {3.1.1}Algorithm}{7}
+\contentsline {subsection}{\numberline {3.1.2}Likelihood evaluation}{7}
+\contentsline {section}{\numberline {3.2}Particle Filter}{7}
+\contentsline {section}{\numberline {3.3}Importance Sampling Particle Filter}{7}
+\contentsline {chapter}{\numberline {4}Illustration}{8}
+\contentsline {section}{\numberline {4.1}Trivariate Local Level Model}{8}
+\contentsline {subsection}{\numberline {4.1.1}The Model}{8}
+\contentsline {subsection}{\numberline {4.1.2}Realization}{8}
+\contentsline {section}{\numberline {4.2}Hierarchical Dynamic Poisson Model}{9}
+\contentsline {subsection}{\numberline {4.2.1}The Model}{9}
+\contentsline {subsection}{\numberline {4.2.2}Realization}{10}
+\contentsline {subsection}{\numberline {4.2.3}Densities}{10}
+\contentsline {subsection}{\numberline {4.2.4}Maximum Likelihood Estimation}{10}
+\contentsline {chapter}{\numberline {5}Conclusion}{12}

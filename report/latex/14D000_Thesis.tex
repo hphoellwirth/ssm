@@ -46,16 +46,24 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 %%%%%%%%
 \chapter{State Space Models}
 \label{chp:models}
-State space models consist of two series of data:
+State space models consist of two set of data:
 \begin{enumerate}
-	\item A series of latent \textbf{states} $\{x_t\}$ forming a Markov chain. Thus, $x_t$ is independent of all past states but $x_{t-1}$.
-	\item A series of \textbf{observations} $\{y_t\}$ where $y_t$ only depends on $x_t$.
+	\item A series of \textbf{latent states} $\{x_t\}_{t=1}^T$ (with $x_t \in \mathcal{X}$) that forms a Markov chain. Thus, $x_t$ is independent of all past states but $x_{t-1}$.
+	\item A set of \textbf{observations} $\{y_t\}_{t=1}^T$ (with $y_t \in \mathcal{Y}$) where any observation $y_t$ only depends on its latent state $x_t$. In other words, an observation is a noisy representation of its underlying state.
 \end{enumerate}
+Note that if the state space $\mathcal{X}$ and the observation state $\mathcal{Y}$ are both discrete sets, the state space model reduces to a Hidden Markov Model.\\
+
+The relation between the latent states and observations can be summarized by two probability distributions:
+\begin{enumerate}
+	\item The \textbf{transition density} from the current state to a new state $p(x_{t+1} | x_t, \boldsymbol{\theta})$.
+	\item The \textbf{measurement density} for an observation given the latent state $p(y_t | x_t, \boldsymbol{\theta})$.
+\end{enumerate}
+Here, $\boldsymbol{\theta} \in \Theta$ denotes the parameter vector of a state space model. 
 
 
 %%%%  Local Level Model  %%%%
 \section{Local Level Model}
-The arguably simplest state space model is the (univariate) local level. It has the following form:
+Arguably, the simplest state space model is the (univariate) local level model. It has the following form:
 
 \begin{center}
 \begin{tabular}{ r r l }
@@ -64,10 +72,51 @@ The arguably simplest state space model is the (univariate) local level. It has 
 \end{tabular}
 \end{center}
 \bigskip
-with some initial state $x_1 \sim N(a_1, P_1)$.
+with some initial state $x_1 \sim N(a_1, P_1)$. All noise elements, i.e. all $\epsilon_t$'s and $\eta_t$'s, are both mutually independent and independent from the initial state $x_1$. Assuming that we know $a_1$ and $P_1$, the model is fully specified by the following vector of parameters:
+$$
+\boldsymbol{\theta} = [\sigma_{\eta}^2,  \sigma_{\epsilon}^2]^T
+$$
+Note that in the case of noise-free observations (i.e. $\sigma_{\eta}^2 = 0$), the model reduces to a pure random-walk. Likewise, if $\sigma_{\epsilon}^2 = 0$, the observations $\{y_t\}_{t=1}^T$ are a white noise representation of a some value $x_1$.\\
+The transition and measurement density of the local level model are simple to deduce:
+\begin{center}
+\begin{tabular}{ r l }
+  $p(x_{t+1} | x_t, \boldsymbol{\theta})$ & $\sim N(x_t,\sigma_{\epsilon}^2)$ \\
+  $p(y_t | x_t, \boldsymbol{\theta})$ & $\sim N(x_t,\sigma_{\eta}^2)$ \\
+\end{tabular}
+\end{center}
+\bigskip
 
+%%%%  Latent State Inference  %%%%
+\section{Latent State Inference}
+Often, the main objective in state space models is to infer the latent state from observations. Let $\mathcal{I}_t$ denote the set of observed values up to time $t$:
+$$
+\mathcal{I}_t = \{y_1, y_2, \ldots, y_t\}
+$$ 
+Then information about the latent state $x_t$ can be summarized by the following two probability distributions:
+\begin{enumerate}
+	\item The \textbf{prediction density}, $p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta})$, gives the probability of $x_t$ given past observations  $\mathcal{I}_{t-1}$.
+	\item The \textbf{filtering density}, $p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta})$, gives the probability of $x_t$ given the current and past observations  $\mathcal{I}_{t}$.
+\end{enumerate}	
+The prediction and filtering densities are recursively related. Given the filtering density for state $x_{t-1}$, the prediction density for state $x_t$ is
+$$
+p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) = \int p(x_t | x_{t-1}, \boldsymbol{\theta}) p(x_{t-1} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) dx_{t-1}
+$$
+where the first term in the integral is the transition density from $x_{t-1}$ to $x_t$, and the second term is the filtering density from before. Likewise, given the prediction density for state $x_t$, the filtering density for $x_t$ is
+$$
+p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) = \int p(x_t | x_{t-1}, \boldsymbol{\theta}) p(x_{t-1} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) dx_{t-1}
+$$
 
-
+%%%%  Parameter Inference  %%%%
+\section{Parameter Inference}
+Assuming a particular state space model, another common objective is is to infer the model parameters from observations. This is usually achieved via \textbf{maximum likelihood estimation}. The log-likelihood of the observations for a given parameter vector $\boldsymbol{\theta}$ is the product of the conditional densities of observations, given all previous observations:
+\begin{align} 
+\begin{split}
+\log \mathcal{L}(\boldsymbol{\theta}) &= \log \prod_{t=1}^T p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})\\
+&= \sum_{t=1}^T \log  p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})\\
+&= \sum_{t=1}^T \log  \int p(y_t | x_{t}, \boldsymbol{\theta}) p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d x_t\\
+\end{split}					
+\end{align} 
+The decomposition of the observation densities into measurement density and prediction density, however, makes the maximization problem analytically intractable.
 
 
 
@@ -76,10 +125,15 @@ with some initial state $x_1 \sim N(a_1, P_1)$.
 %%%%%%%
 \chapter{Filtering}
 \label{chp:filtering}
-The object of filtering is to update our knowledge of the system each time a new observation $y_t$ is brought in.
+The objective of filtering is to update our knowledge of the system each time a new observation $y_t$ is brought in. That is, we want to compute $x_t | y_t$
+
 
 %%%%  Kalman Filter   %%%%
 \section{Kalman Filter}
+The Kalman filter calculates the mean and variance of the unobserved state, given the observations.
+
+\subsection{Algorithm}
+The filter is a recursive algorithm. The current best estimate is updated whenever a new observation is obtained. To start the recursion, we need an initial state which is drawn with $a_1$ and $P_1$. We assume $a_1$ and $P_1$ to be known. There are various ways to initialize the algorithm when $a_1$ and $P_1$ are unknown, however, these methods are beyond the scope of this project.
 
 \subsection{Likelihood evaluation}
 $$
@@ -142,7 +196,7 @@ The initial state parameters $\boldsymbol{a}_1$ and $P_1$ are assumed to be know
 $$
 \boldsymbol{\theta} = [\rho = 0.7, \sigma_{\eta 1}^2 = 4.2, \sigma_{\eta 2}^2 = 2.8, \sigma_{\eta 3}^2 = 0.9, \sigma_{\epsilon}^2 = 1.0]^T
 $$
-The initial daily and intra-daily state components where drawn from a standard normal.
+The initial state $x_1$ is drawn from a standard normal.
 
 \begin{figure}[h!]
 \centering
@@ -196,7 +250,7 @@ Again, the initial state parameters $a_1$ and $P_1$ are assumed to be known.
 $$
 \boldsymbol{\theta} = [ \phi_0^{(D)} = 0.7,  \phi_1^{(D)} = 0.6, \sigma^2_{(D)} = 0.6, \phi_1^{(I)} = 0.3, \sigma^2_{(I)} = 0.2, \phi_1^{(P)} = 0.8]^T
 $$
-The initial daily and intra-daily state components where drawn from a standard normal.
+The initial daily and intra-daily state components were drawn from a standard normal.
 
 \begin{figure}[h!]
 \centering
