@@ -9,7 +9,7 @@
 
 
 # ----------------------------------------------------------------------
-# Generate hierarchical dynamic Poisson model
+# Generate hierarchical dynamic Poisson model realization
 # ----------------------------------------------------------------------
 gen.hdpm.data <- function(N, M, theta, a1=0, P1=1) {
     log.lambda.D <- rep(0,N)

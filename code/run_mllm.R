@@ -48,7 +48,7 @@ D <- 3
 T <- 100
 cov.eta.var <- c(4.2,2.8,0.9)
 cov.eta.rho <- 0.7
-mllm.data <- gen.multi.llm.data(n=T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
+mllm.data <- gen.multi.llm.data(T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
 # plot observations and states
 if(save.plots) png("../images/mllm-realization.png", width=1000, height=750, pointsize=20)

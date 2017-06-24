@@ -47,7 +47,7 @@ source("util/misc.R")
 set.seed(1000)
 T <- 100
 var.eta <- 1.4
-llm.data <- gen.llm.data(n=T, var.eta=var.eta)
+llm.data <- gen.llm.data(T, var.eta=var.eta)
 
 # plot system
 if(save.plots) png("../images/ullm-realization.png", width=600, height=450, pointsize=14)
