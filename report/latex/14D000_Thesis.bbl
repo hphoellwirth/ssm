@@ -1,0 +1,26 @@
+\begin{thebibliography}{1}
+
+\bibitem{brownlees2017}
+C.~T. Brownlees and D.~Kristensen.
+\newblock An importance sampling particle filtering algorithm for the
+  estimation of dynamic latent variable models.
+\newblock {\em Working paper}, 2017.
+
+\bibitem{doucet2008}
+A.~Doucet and A.~M. Johansen.
+\newblock A tutorial on particle filtering and smoothing: Fifteen years later.
+\newblock {\em Technical report}, 2008.
+
+\bibitem{gordon1993}
+N.~Gordon, D.~Salmond, and A.~Smith.
+\newblock Novel approach to nonlinear/non-gaussian bayesian state estimation.
+\newblock {\em Radar and Signal Processing, IEE Proceedings F},
+  140(2):107--113, 1993.
+
+\bibitem{kalman1960}
+R.~E. Kalman.
+\newblock A new approach to linear filtering and prediction problems.
+\newblock {\em Transactions of the ASME–Journal of Basic Engineering},
+  82(Series D):35--45, 1960.
+
+\end{thebibliography}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  24 JUN 2017 11:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  25 JUN 2017 01:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -471,7 +471,7 @@ Class scrreprt Warning: \float@addtolists detected!
 ]
 Chapter 2.
 
-Underfull \hbox (badness 10000) in paragraph at lines 61--62
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
 
  []
 
@@ -480,78 +480,157 @@ Underfull \hbox (badness 10000) in paragraph at lines 61--62
 ] [5] [6]
 Chapter 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 149--151
+Underfull \hbox (badness 10000) in paragraph at lines 154--156
 
  []
 
 [7
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 210--213
+Underfull \hbox (badness 10000) in paragraph at lines 191--192
 
  []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--219
+
+ []
+
+<../../images/ullm-realization.png, id=37, 602.25pt x 451.6875pt>
+File: ../../images/ullm-realization.png Graphic file (type png)
+
+<use ../../images/ullm-realization.png>
+Package pdftex.def Info: ../../images/ullm-realization.png used on input line 2
+29.
+(pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
+
+<../../images/ullm-estimate-kalman.png, id=39, 602.25pt x 451.6875pt>
+File: ../../images/ullm-estimate-kalman.png Graphic file (type png)
+
+<use ../../images/ullm-estimate-kalman.png>
+Package pdftex.def Info: ../../images/ullm-estimate-kalman.png used on input li
+ne 233.
+(pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 228--229
+Underfull \hbox (badness 10000) in paragraph at lines 249--250
 
  []
 
-[9] [10]
+[9 <../../images/ullm-realization.png> <../../images/ullm-estimate-kalman.png>]
+
+Underfull \hbox (badness 10000) in paragraph at lines 274--275
+
+ []
+
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 313--315
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 318--319
+
+ []
+
+[11] <../../images/ullm-estimate-particle.png, id=57, 602.25pt x 451.6875pt>
+File: ../../images/ullm-estimate-particle.png Graphic file (type png)
+
+<use ../../images/ullm-estimate-particle.png>
+Package pdftex.def Info: ../../images/ullm-estimate-particle.png used on input 
+line 325.
+(pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
+
+<../../images/ullm-filter-comparison.png, id=58, 602.25pt x 451.6875pt>
+File: ../../images/ullm-filter-comparison.png Graphic file (type png)
+
+<use ../../images/ullm-filter-comparison.png>
+Package pdftex.def Info: ../../images/ullm-filter-comparison.png used on input 
+line 329.
+(pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
+ [12 <../../images/ullm-estimate-particle.png> <../../images/ullm-filter-compar
+ison.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 363--364
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--376
+
+ []
+
+[13] [14]
 Chapter 4.
-<../../images/mllm-realization.png, id=49, 1003.75pt x 752.8125pt>
+<../../images/mllm-realization.png, id=71, 1003.75pt x 752.8125pt>
 File: ../../images/mllm-realization.png Graphic file (type png)
 
 <use ../../images/mllm-realization.png>
-Package pdftex.def Info: ../../images/mllm-realization.png used on input line 3
-29.
+Package pdftex.def Info: ../../images/mllm-realization.png used on input line 4
+67.
 (pdftex.def)             Requested size: 327.20668pt x 245.4078pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[11
+[15
 
-] [12 <../../images/mllm-realization.png>]
-<../../images/hdpm-realization.png, id=58, 1003.75pt x 501.875pt>
+] [16 <../../images/mllm-realization.png>]
+<../../images/hdpm-realization.png, id=79, 1003.75pt x 501.875pt>
 File: ../../images/hdpm-realization.png Graphic file (type png)
 
 <use ../../images/hdpm-realization.png>
-Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 3
-83.
+Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 5
+21.
 (pdftex.def)             Requested size: 327.20668pt x 163.60521pt.
 
-<../../images/hdpm-loglik-Dphi0.png, id=59, 1003.75pt x 501.875pt>
+<../../images/hdpm-loglik-Dphi0.png, id=80, 1003.75pt x 501.875pt>
 File: ../../images/hdpm-loglik-Dphi0.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi0.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi0.png used on input line 
-399.
+537.
 (pdftex.def)             Requested size: 199.16928pt x 99.58444pt.
 
-<../../images/hdpm-loglik-Dphi1.png, id=60, 1003.75pt x 501.875pt>
+<../../images/hdpm-loglik-Dphi1.png, id=81, 1003.75pt x 501.875pt>
 File: ../../images/hdpm-loglik-Dphi1.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi1.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi1.png used on input line 
-403.
+541.
 (pdftex.def)             Requested size: 199.16928pt x 99.58444pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[13 <../../images/hdpm-realization.png>] [14 <../../images/hdpm-loglik-Dphi0.pn
+[17 <../../images/hdpm-realization.png>] [18 <../../images/hdpm-loglik-Dphi0.pn
 g> <../../images/hdpm-loglik-Dphi1.png>]
 Chapter 5.
-[15
+[19
 
 ]
 Chapter 6.
 
-LaTeX Warning: Citation `etessami2014_2' on page 16 undefined on input line 423
+LaTeX Warning: Citation `etessami2014_2' on page 20 undefined on input line 571
 .
 
-No file 14D000_Thesis.bbl.
-[16
+(./14D000_Thesis.bbl [20
+
+]
+Missing character: There is no â in font cmti10!
+Missing character: There is no € in font cmti10!
+Missing character: There is no “ in font cmti10!
+) [21
 
 ] (./14D000_Thesis.aux)
 
@@ -560,15 +639,18 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 6386 strings out of 493089
- 99941 string characters out of 6134842
- 236364 words of memory out of 5000000
- 9761 multiletter control sequences out of 15000+600000
+ 6427 strings out of 493089
+ 101029 string characters out of 6134842
+ 239408 words of memory out of 5000000
+ 9796 multiletter control sequences out of 15000+600000
  19013 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,14n,52p,594b,413s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 48i,18n,52p,791b,429s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
@@ -584,10 +666,10 @@ texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
 live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texl
 ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on 14D000_Thesis.pdf (16 pages, 405115 bytes).
+Output written on 14D000_Thesis.pdf (21 pages, 623980 bytes).
 PDF statistics:
- 125 PDF objects out of 1000 (max. 8388607)
- 83 compressed objects within 1 object stream
+ 149 PDF objects out of 1000 (max. 8388607)
+ 94 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 
