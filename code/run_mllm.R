@@ -76,13 +76,14 @@ for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
 mllm.particle.filter <- m.particle.filter(mllm.data$y, cov.eta=construct.cov(cov.eta.var, cov.eta.rho), eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))
 
 # plot observations, states, and estimates
-if(save.plots) png("../images/trivariate-local-level.png", width=1000, height=750, pointsize=20)
+if(save.plots) png("../images/mllm-predictions.png", width=1000, height=750, pointsize=20)
 par(mfrow=c(3,1), mar=c(2,2,1,1))
 for (d in 1:3) {
-    plot(mllm.data$y[,d], type='l', col="red")
-    lines(mllm.data$x[,d], col="blue")
+    plot(mllm.data$y[,d], type='l', col="red", ylim=c(min(mllm.data$y), max(mllm.data$y)))
+    lines(mllm.data$x[,d], col="black")
     lines(mllm.kalman.filter$a[,d], col="green")
     lines(mllm.particle.filter$x.pr[,d], col="orange")
+    if (d == D) legend('bottomright', legend=c('observation','state','Kalman filter', 'particle filter'), col=c('red','black','green','orange'), cex=1.0, lty=rep(1,4), lwd=rep(2,4))
 }
 if(save.plots) dev.off()
 
