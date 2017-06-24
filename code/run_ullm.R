@@ -19,7 +19,8 @@ save.plots <- FALSE
 save.results <- FALSE
 
 # load libraries
-# NONE
+library(matrixStats)
+library(scales)
 
 # if interactive, during the development, set to TRUE
 interactive <- TRUE
@@ -62,9 +63,9 @@ llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 if(save.plots) png("../images/ullm-estimate-kalman.png", width=600, height=450, pointsize=14)
 plot.estimate(llm.data$y, llm.kalman.filter$x.up, 
-              upperCL=(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
-              lowerCL=(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
-              ylab='Kalman estimate', col='blue')
+              upperCL=(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
+              lowerCL=(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
+              ylab='Kalman estimate', col='green')
 if(save.plots) dev.off()
 
 # use particle filter to estimate model states
@@ -72,22 +73,34 @@ P <- 200
 llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, P=P, x_up.init=rep(0,P), use.csir=TRUE)
 
 if(save.plots) png("../images/ullm-estimate-particle.png", width=600, height=450, pointsize=14)
-plot.estimate(llm.data$y, llm.kalman.filter$a, 
-              upperCL=(llm.kalman.filter$a - 2*sqrt(unlist(llm.kalman.filter$P))), 
-              lowerCL=(llm.kalman.filter$a + 2*sqrt(unlist(llm.kalman.filter$P))), 
-              ylab='Kalman estimate', col='blue')
+plot.estimate(llm.data$y, llm.particle.filter$x.up, 
+              upperCL=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.95)), 
+              lowerCL=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.05)),  
+              ylab='SIR particle estimate', col='orange')
+if(save.plots) dev.off()
+
+# plot comparison of Kalman and particle filter
+if(save.plots) png("../images/ullm-filter-comparison.png", width=600, height=450, pointsize=14)
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+plot(llm.data$x, type='l', col="black", xlab="time", ylab='estimates')
+lines(llm.kalman.filter$x.up, col='green')
+lines(llm.particle.filter$x.up, col='orange')
+lines(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
+lines(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
+lines(rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.95)), col=alpha('orange',0.7), lty=2)
+lines(rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.05)), col=alpha('orange',0.7), lty=2)
+legend('topleft', legend=c('latent states','Kalman estimate', 'Kalman 95% CL', 'SIR estimate', 'SIR 95% CL'), col=c('black','green','green','orange','orange'), cex=1.0, lty=c(1,1,2,1,2), lwd=2.5)
 if(save.plots) dev.off()
 
 # plot observations, states, and predictions
 if(save.plots) png("../images/ullm-predictions.png", width=1000, height=600, pointsize=14)
 par(mfrow=c(1,1), mar=c(2,2,1,1))
-plot(llm.data$y, type='p', col="red")
+plot(llm.data$y, type='p', pch=19, col="red")
 lines(llm.data$x, col="black")
 lines(llm.kalman.filter$x.pr, col="green")
 lines(llm.particle.filter$x.pr, col="orange")
 legend(10,15, c('observation','state','kalman','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','black','green','orange'))
 if(save.plots) dev.off()
-
 
 # ----------------------------------------------------------------------
 # Evaluate the correctness of the auxiliary filter
