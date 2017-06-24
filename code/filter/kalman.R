@@ -59,7 +59,7 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
         loglik <- loglik - 0.5 * (log(det(F[[t]])) + c(t(v[t,])) %*% solve(F[[t]]) %*% c(t(v[t,]))) 
     }
     
-    return(list(a=a[1:T,], P=P, loglik=loglik))
+    return(list(x.pr=a[1:T,], x.up=a.t, x.pr.cov=P, x.up.cov=P.t, loglik=loglik))
 }
 
 # ----------------------------------------------------------------------

@@ -61,9 +61,9 @@ if(save.plots) dev.off()
 llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 if(save.plots) png("../images/ullm-estimate-kalman.png", width=600, height=450, pointsize=14)
-plot.estimate(llm.data$y, llm.kalman.filter$a, 
-              upperCL=(llm.kalman.filter$a - 2*sqrt(unlist(llm.kalman.filter$P))), 
-              lowerCL=(llm.kalman.filter$a + 2*sqrt(unlist(llm.kalman.filter$P))), 
+plot.estimate(llm.data$y, llm.kalman.filter$x.up, 
+              upperCL=(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
+              lowerCL=(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
               ylab='Kalman estimate', col='blue')
 if(save.plots) dev.off()
 
@@ -71,12 +71,19 @@ if(save.plots) dev.off()
 P <- 200
 llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, P=P, x_up.init=rep(0,P), use.csir=TRUE)
 
-# plot observations, states, and estimates
-if(save.plots) png("../images/univariate-local-level.png", width=1000, height=600, pointsize=14)
+if(save.plots) png("../images/ullm-estimate-particle.png", width=600, height=450, pointsize=14)
+plot.estimate(llm.data$y, llm.kalman.filter$a, 
+              upperCL=(llm.kalman.filter$a - 2*sqrt(unlist(llm.kalman.filter$P))), 
+              lowerCL=(llm.kalman.filter$a + 2*sqrt(unlist(llm.kalman.filter$P))), 
+              ylab='Kalman estimate', col='blue')
+if(save.plots) dev.off()
+
+# plot observations, states, and predictions
+if(save.plots) png("../images/ullm-predictions.png", width=1000, height=600, pointsize=14)
 par(mfrow=c(1,1), mar=c(2,2,1,1))
 plot(llm.data$y, type='p', col="red")
 lines(llm.data$x, col="black")
-lines(llm.kalman.filter$a, col="green")
+lines(llm.kalman.filter$x.pr, col="green")
 lines(llm.particle.filter$x.pr, col="orange")
 legend(10,15, c('observation','state','kalman','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','black','green','orange'))
 if(save.plots) dev.off()
