@@ -9,9 +9,16 @@
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 \usepackage{bm}
 \usepackage{subcaption}
+%\usepackage{algorithm2e}
+%\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
 
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
 
 %%%%%%%%
 %    Cover     %
@@ -63,6 +70,7 @@ Here, $\boldsymbol{\theta} \in \Theta$ denotes the parameter vector of a state s
 
 %%%%  Local Level Model  %%%%
 \section{Local Level Model}
+% replace a and P with mu and Sigma
 Arguably, the simplest state space model is the (univariate) local level model. It has the following form:
 
 \begin{center}
@@ -116,7 +124,7 @@ Assuming a particular state space model, another common objective is is to infer
 &= \sum_{t=1}^T \log  \int p(y_t | x_{t}, \boldsymbol{\theta}) p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d x_t\\
 \end{split}					
 \end{align} 
-The decomposition of the observation densities into measurement density and prediction density, however, makes the maximization problem analytically intractable.
+The decomposition of the observation densities into measurement density and prediction density, however, makes the maximization problem analytically intractable for most state space models.
 
 
 
@@ -125,39 +133,157 @@ The decomposition of the observation densities into measurement density and pred
 %%%%%%%
 \chapter{Filtering}
 \label{chp:filtering}
-The objective of filtering is to update our knowledge of the system each time a new observation $y_t$ is brought in. That is, we want to compute $x_t | y_t$
-
+% add parameter
+The objective of filtering is to update our knowledge of the system each time a new observation $y_t$ is brought in. That is, we want to find an estimate of the latent process $x_{0:t}$, given all observations $\mathcal{I}_t = y_{0:t}$:
+$$
+x_{0:t} | \mathcal{I}_t
+$$
+Note that the joint distribution of the latent process conditioned on the observations can be decomposed in a recursive form:
+$$
+p(x_{0:t} | \mathcal{I}_t) = \Big[ \frac{p(y_t | x_t) p(x_t | x_{t-1})}{p(y_t | \mathcal{I}_{t-1})} \Big] p(x_{0:(t-1)} | \mathcal{I}_{t-1)} 
+$$
+This form allows for updating our knowledge of the system in an online fashion. This has significant computational advantages: We do not need to keep the whole time series in memory and we can simply update our knowledge once we observe a new $y_t$. Unfortunately, in many state space models the normalization term $p(y_t | \mathcal{I}_{t-1})$ is analytically intractable. One notable exception are linear Gaussian state space models such as the local level model.
 
 %%%%  Kalman Filter   %%%%
 \section{Kalman Filter}
-The Kalman filter calculates the mean and variance of the unobserved state, given the observations.
+State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the observations $\{y_t\}_{t=1}^T$ have linear dependencies and are normally distributed, the joint distribution and of the latent process $p(x_{0:t} | y_{0:t})$ is also Gaussian (and so are the prediction and filtering density). 
+The inference problem can be analytically solved by using standard results of multivariate Gaussian marginal and conditional distributions.\\
+
+The Kalman filter, however, uses a more efficient way to infer the latent states. 
+The filter recursively computes the Gaussian prediction density $p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) = N(\mu_{t | t-1}, \Sigma_{t | t-1})$ and filtering density $p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) = N(\mu_{t | t}, \Sigma_{t | t})$ by obtaining their respective mean and covariance. 
+This method has the big advantage that it does not need all observations to be kept in memory and can easily update the system whenever a new observation is made.
+Consider the multivariate generalization of the univariate local level model from before:
+\bigskip
+\begin{center}
+\begin{tabular}{ r r l }
+  observation: & $\boldsymbol{y}_t = \boldsymbol{x}_t + \boldsymbol{\epsilon}_t$, & $\boldsymbol{\epsilon}_t \sim N(\textbf{0}, \Sigma_{\epsilon})$ \\
+  state: & $\boldsymbol{x}_{t+1} = \boldsymbol{x}_t + \boldsymbol{\eta}_t$, & $\boldsymbol{\eta}_t \sim N(\textbf{0}, \Sigma_{\eta})$ \\
+\end{tabular}
+\end{center}
+\bigskip
+For the case of this model, the mean and (co)variance of the prediction and filtering density are updated as follows:
+\begin{enumerate}
+	\item The \textbf{prediction step} obtains the \textit{a priori} estimate of $\boldsymbol{x}_t$, given $\mathcal{I}_{t-1}$ (using the \textit{a posteriori} estimate with $t-1$).
+		\begin{align} 
+		\begin{split}
+		\boldsymbol{\mu}_{t | t-1} &= \boldsymbol{\mu}_{t-1 | t-1}\\
+		\Sigma_{t | t-1} &= \Sigma_{t-1 | t-1} + \Sigma_{\eta}\\
+		\end{split}					
+		\end{align} 
+	\item The \textbf{update step} combines a new observation $\boldsymbol{y}_t$ with the \textit{a priori} estimate to obtain an improved \textit{a posteriori} estimate. 
+		\begin{align} 
+		\begin{split}
+		\boldsymbol{\mu}_{t | t} &= \boldsymbol{\mu}_{t | t-1} + K_t \boldsymbol{v}_t\\
+		\Sigma_{t | t} &= \Sigma_{t | t-1}(1 - K_t)\\
+		\end{split}					
+		\end{align} 
+		where $\boldsymbol{v}_t = \boldsymbol{y}_t - \boldsymbol{\mu}_{t | t-1}$ denotes the difference between prediction and observation and $K_t = \Sigma_{t | t-1} (\Sigma_{t | t-1} + \Sigma_{\epsilon})^{-1}$ denotes the \textit{Kalman gain}. It determines how much the new observation affects the updated prediction.	
+\end{enumerate}
+Note that to start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$.
 
 \subsection{Algorithm}
-The filter is a recursive algorithm. The current best estimate is updated whenever a new observation is obtained. To start the recursion, we need an initial state which is drawn with $a_1$ and $P_1$. We assume $a_1$ and $P_1$ to be known. There are various ways to initialize the algorithm when $a_1$ and $P_1$ are unknown, however, these methods are beyond the scope of this project.
+In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.
+%The filter is a recursive algorithm. The current best estimate is updated whenever a new observation is obtained. To start the recursion, we need an initial state which is drawn with $a_1$ and $P_1$. We assume $a_1$ and $P_1$ to be known. There are various ways to initialize the algorithm when $a_1$ and $P_1$ are unknown, however, these methods are beyond the scope of this project.
+
+\begin{algorithm}
+\caption{(Local Level) Kalman filter}
+\label{alg:kalman}
+  \begin{algorithmic}[1]
+    \Procedure{KalmanFilter}{$\mathcal{I}_T, \boldsymbol{\theta}, \boldsymbol{\mu}_1,\Sigma_1$}
+      \State $\boldsymbol{\mu}_{1 | 0}\gets \boldsymbol{\mu}_1$\Comment{initialization}
+      \State $\Sigma_{1 | 0}\gets \Sigma_1$
+      \smallskip
+      \For{\texttt{$t$ in $1:T$}}
+      	\State $\boldsymbol{v}_t = \boldsymbol{y}_t - \boldsymbol{\mu}_{t | t-1}$
+      	\State $K_t = \Sigma_{t | t-1} (\Sigma_{t | t-1} + \Sigma_{\epsilon})^{-1}$
+	\smallskip
+      	\State $\boldsymbol{\mu}_{t | t} = \boldsymbol{\mu}_{t | t-1} + K_t \boldsymbol{v}_t$\Comment{update step}
+      	\State $\Sigma_{t | t} = \Sigma_{t | t-1}(1 - K_t)$
+	\smallskip
+      	\State $\boldsymbol{\mu}_{t+1 | t}\gets \boldsymbol{\mu}_{t | t}$\Comment{prediction step}
+      	\State $\Sigma_{t+1 | t}\gets \Sigma_{t | t} + \Sigma_{\eta}$
+      \EndFor
+      \State \textbf{return} $\{\boldsymbol{\mu}_{t | t}\}$, $\{\Sigma_{t | t}\}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+\textit{Algorithm \ref{alg:kalman}} describes the recursive update of the prediction and filtering density.  For our purpose, the algorithm returns the filtering densities. 
+The sequence of filtering means $\{\boldsymbol{\mu}_{t | t}\}$ is the best possible prediction for the latent states $\{\boldsymbol{x}_t\}$. 
+The sequence of covariances $\{\Sigma_{t | t}\}$ can be used to obtain confidence intervals for these estimates. \\  
+
+Note that the algorithm needs to invert the matrix $F_t = \Sigma_{t | t-1} + \Sigma_{\epsilon}$ at each iteration. For large dimensions of the states/observations, this can slow down this version of the Kalman filter significantly.
 
 \subsection{Likelihood evaluation}
+The log-likelihood function for the linear Gaussian space model has the following (\textit{prediction error decomposition}) form:
 $$
-\log L(Y_n) = -\frac{nd}{2} \log(2 \pi) - \frac{1}{2} \sum_{t=1}^T (\log |F_t| + v_t^TF_t^{-1} v_t)
+\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\frac{Td}{2} \log(2 \pi) - \frac{1}{2} \sum_{t=1}^T (\log |F_t| + v_t^TF_t^{-1} v_t)
 $$
+Its elements $F_t$ and $v_t$ are routinely calculated by the Kalman filter and so the log-likelihood can be directly evaluated in the Kalman function. Note that $F_t$ might not be singular for all $t=1,\ldots, T$ for particular $\boldsymbol{\theta}$ values. Setting $\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\infty$ in this case suffices for the purpose of maximum likelihood estimation.
 
-%\begin{align} 
-%\begin{split}
-%|m-M| &= |\mathbb{E}(X)-M|\\
-%\end{split}					
-%\end{align} 
-
+\subsection{Example}
+% local level example plotting both prediction and confidence level
 
 %%%%  Particle Filter   %%%%
 \section{Particle Filter}
+If the state space model is not linear and Gaussian, both the joint distribution $p(x_{0:t} | \mathcal{I}_t)$ and the marginal distribution $p(x_{t} | \mathcal{I}_t)$ are usually not analytically solvable due to the intractability of the normalization constant $p(y_t | \mathcal{I}_{t-1})$. In this case we can only resort to sampling techniques to approximate these distribution densities. \\
 
+\textit{Particle filtering} methods (constituting a sub-class of \textit{Sequential Monto Carlo} methods) approximate the prediction density $p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta})$ and filtering density $p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta})$ sequentially by using importance sampling techniques. There exist many different method variants, all of which involve two basic steps: simulating from the transition density $p(x_{t+1} | x_t, \boldsymbol{\theta})$ and evaluating the measurement density $p(y_t | x_t, \boldsymbol{\theta})$. 
+
+\subsection{Sequential Importance Resampling (SIR)}
+One of the best-known particle filter methods is the \textit{Sequential Importance Resampling (SIR)} algorithm by Gordon et al. (1993). Let $P$ be the number of particles (= samples) per state. The algorithm recursively computes prediction and filtering particles:
+\begin{enumerate}
+	\item The \textbf{prediction step} obtains a new prediction particle for each filtering particle by propagating the system, using the transition density:
+	$$
+	x_{t | t-1}^i \sim p(x_t | x_{t-1 | t-1}^i, \theta) \quad \text{for } i=1, \ldots, P
+	$$
+	\item The \textbf{filtering step} (or update step) computes the importance weight $w_t^i$ of each prediction particle 
+	$$
+	w_{t}^i = \frac{p(y_t | x_{t | t-1}^i, \theta)}{\sum_{j=1}^P p(y_t | x_{t | t-1}^j, \theta)} \quad \text{for } i=1, \ldots, P
+	$$
+	and then picks the filtering particles via multinomial sampling, using the computed importance weights as respective probabilities:	
+	$$
+	x_{t | t }^j \sim MN(w_t^1, \ldots, w_t^P) \quad \text{for } j=1, \ldots, P
+	$$
+\end{enumerate}
+The algorithm's main characteristic is the resampling within the filtering step which removes particles with small weights with high probability while likely copying particles with high weights multiple times. While this step increases the immediate Monte Carlo variance, it gives better stability for future steps by reducing the risk of weight degeneracy (Doucet and Johansen, 2008). 
+
+
+\subsection{Algorithm}
+
+\begin{algorithm}
+\caption{(Local Level) Particle filter}
+\label{alg:particle}
+  \begin{algorithmic}[1]
+    \Procedure{ParticleFilter}{$\mathcal{I}_T, \boldsymbol{\theta}, \boldsymbol{\mu}_1,\Sigma_1$}
+      \State $\boldsymbol{\mu}_{1 | 0}\gets \boldsymbol{\mu}_1$\Comment{initialization}
+      \State $\Sigma_{1 | 0}\gets \Sigma_1$
+      \smallskip
+      \For{\texttt{$t$ in $1:T$}}
+      	\State $\boldsymbol{v}_t = \boldsymbol{y}_t - \boldsymbol{\mu}_{t | t-1}$
+      	\State $K_t = \Sigma_{t | t-1} (\Sigma_{t | t-1} + \Sigma_{\epsilon})^{-1}$
+	\smallskip
+      	\State $\boldsymbol{\mu}_{t | t} = \boldsymbol{\mu}_{t | t-1} + K_t \boldsymbol{v}_t$\Comment{update step}
+      	\State $\Sigma_{t | t} = \Sigma_{t | t-1}(1 - K_t)$
+	\smallskip
+      	\State $\boldsymbol{\mu}_{t+1 | t}\gets \boldsymbol{\mu}_{t | t}$\Comment{prediction step}
+      	\State $\Sigma_{t+1 | t}\gets \Sigma_{t | t} + \Sigma_{\eta}$
+      \EndFor
+      \State \textbf{return} $\{\boldsymbol{\mu}_{t | t}\}$, $\{\Sigma_{t | t}\}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Likelihood evaluation}
+The likelihood 
 
 %%%%  Importance Sampling Particle Filter   %%%%
 \section{Importance Sampling Particle Filter}
 
 
-%%%%%%%
+%%%%%%%%
 %  Illustration %
-%%%%%%%
+%%%%%%%%
 \chapter{Illustration}
 \label{chp:Illustration}
 
@@ -280,6 +406,14 @@ Show log-likelihood plots
 \label{fig:conv_nomisinfo}
 \end{figure}
 
+%%%%%%%%%%
+%    Evaluation   %
+%%%%%%%%%%
+\chapter{Evaluation}
+\label{chp:evaluation}
+Particle filtering suffers from propagation error.
+Current approximations errors are related to past approximation errors. 
+The number of particles $P$ should increase with the sample size $T$ to guarantee a good degree of approximation.
 
 %%%%%%%%%%
 %    Conclusion   %
