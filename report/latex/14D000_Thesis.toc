@@ -15,17 +15,18 @@
 \contentsline {subsection}{\nonumberline Likelihood evaluation}{12}
 \contentsline {section}{\numberline {3.3}Importance Sampling Particle Filter}{13}
 \contentsline {subsection}{\nonumberline Algorithm}{14}
-\contentsline {subsection}{\nonumberline Likelihood evaluation}{14}
-\contentsline {chapter}{\numberline {4}Illustration}{15}
-\contentsline {section}{\numberline {4.1}Trivariate Local Level Model}{15}
-\contentsline {subsection}{\nonumberline The Model}{15}
-\contentsline {subsection}{\nonumberline Realization}{15}
-\contentsline {section}{\numberline {4.2}Hierarchical Dynamic Poisson Model}{16}
-\contentsline {subsection}{\nonumberline The Model}{16}
-\contentsline {subsection}{\nonumberline Realization}{17}
-\contentsline {subsection}{\nonumberline Densities}{17}
-\contentsline {subsection}{\nonumberline Maximum Likelihood Estimation}{17}
-\contentsline {chapter}{\numberline {5}Evaluation}{19}
-\contentsline {section}{\numberline {5.1}Method Comparison}{19}
-\contentsline {section}{\numberline {5.2}Parameter Inference}{19}
-\contentsline {chapter}{\numberline {6}Conclusion}{20}
+\contentsline {subsection}{\nonumberline Example: Local Level Model}{15}
+\contentsline {subsection}{\nonumberline Likelihood evaluation}{15}
+\contentsline {chapter}{\numberline {4}Illustration}{18}
+\contentsline {section}{\numberline {4.1}Trivariate Local Level Model}{18}
+\contentsline {subsection}{\nonumberline The Model}{18}
+\contentsline {subsection}{\nonumberline Realization}{18}
+\contentsline {section}{\numberline {4.2}Hierarchical Dynamic Poisson Model}{19}
+\contentsline {subsection}{\nonumberline The Model}{19}
+\contentsline {subsection}{\nonumberline Realization}{20}
+\contentsline {subsection}{\nonumberline Densities}{20}
+\contentsline {subsection}{\nonumberline Maximum Likelihood Estimation}{20}
+\contentsline {chapter}{\numberline {5}Evaluation}{22}
+\contentsline {section}{\numberline {5.1}Method Comparison}{22}
+\contentsline {section}{\numberline {5.2}Parameter Inference}{22}
+\contentsline {chapter}{\numberline {6}Conclusion}{23}

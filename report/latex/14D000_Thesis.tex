@@ -184,11 +184,10 @@ For the case of this model, the mean and (co)variance of the prediction and filt
 		\end{align} 
 		where $\boldsymbol{v}_t = \boldsymbol{y}_t - \boldsymbol{\mu}_{t | t-1}$ denotes the difference between prediction and observation and $K_t = \Sigma_{t | t-1} (\Sigma_{t | t-1} + \Sigma_{\epsilon})^{-1}$ denotes the \textit{Kalman gain}. It determines how much the new observation affects the updated prediction.	
 \end{enumerate}
-Note that to start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$.
 
 %  Algorithm    %
 \subsection{Algorithm}
-In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
+Note that to start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$. In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
 
 \begin{algorithm}[h!]
 \caption{(Local Level) Kalman filter}
@@ -372,7 +371,7 @@ p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \bo
 
 %  Algorithm    %
 \subsection{Algorithm}
-As input the algorithm takes the predictive and filter particles of a misspecified model with parameter vector $\boldsymbol{\tilde{\theta}}$. \\
+\textit{Algorithm \ref{alg:is}} takes the predictive and filter particles of a misspecified model with parameter vector $\boldsymbol{\tilde{\theta}}$ as input. That means that we can run the sequential importance sampling (SIR) algorithm with any sensible choice of parameter values $\boldsymbol{\tilde{\theta}}$ and keep its predictive and filter particles to use them as input to the importance sampling particle filter. Note that the algorithm does not work with particles produced from the continuous sequential importance sampling (CSIR) algorithm.\\
 
 \begin{algorithm}[h!]
 \caption{Importance Sampling Particle Filter}
@@ -380,22 +379,24 @@ As input the algorithm takes the predictive and filter particles of a misspecifi
 \begin{algorithmic}[1]
 	\Procedure{ISParticleFilter}{$\mathcal{I}_T, \{\{\boldsymbol{\tilde{x}}_{t | t}^i\}_{i=1}^P\}_{t=1}^T, \{\{\boldsymbol{\tilde{x}}_{t | t-1}^i\}_{i=1}^P\}_{t=1}^T, \boldsymbol{\theta}, \boldsymbol{\tilde{\theta}}$}
       	\smallskip
+	\State $loglik \gets 0$
 	\For{\texttt{$i$ in $1:P$}}
 		\State $is_{1 | 0 }^i \gets p(\tilde{x}_{1 | 0 } | \boldsymbol{\theta}) / p(\tilde{x}_{1 | 0 } | \boldsymbol{\tilde{\theta}})$ \Comment{initialize predictive importance weights}
 	\EndFor
       	\smallskip
       	\For{\texttt{$t$ in $1:T$}}
-		\State $w \gets \tilde{w} \gets 0$
+		\State $w_t \gets \tilde{w}_t \gets 0$
       		\For{\texttt{$i$ in $1:P$}} \Comment{estimate likelihoods}
-      			\State $w \gets \tilde{w} + p(y_t | \tilde{x}_{t | t-1}^i, \boldsymbol{\theta})is_{t | t-1 }^i$ 
-      			\State $\tilde{w} \gets \widehat{\tilde{w}} + p(y_t | \tilde{x}_{t | t-1}^i, \boldsymbol{\tilde{\theta}})$ 
+      			\State $w_t \gets \tilde{w} + p(y_t | \tilde{x}_{t | t-1}^i, \boldsymbol{\theta})is_{t | t-1 }^i / P$ 
+      			\State $\tilde{w}_t \gets \widehat{\tilde{w}} + p(y_t | \tilde{x}_{t | t-1}^i, \boldsymbol{\tilde{\theta}}) / P$ 
 		\EndFor	
+		\State $loglik \gets loglik + \log w_t$
 		\smallskip
 		\For{\texttt{$i$ in $1:P$}} \Comment{update filtering importance weights}
 			\State $f \gets p(y_t | \tilde{x}_{t | t}^i, \boldsymbol{\theta})$ 
 			\State $\tilde{f} \gets p(y_t | \tilde{x}_{t | t}^i, \boldsymbol{\tilde{\theta}})$ 
 			\smallskip
-			\State $is_{t | t }^i \gets (\tilde{w} / w) (f / \tilde{f}) is_{t | t-1 }^j$ \Comment{where $j$ is such that $\tilde{x}_{t | t}^i = \tilde{x}_{t | t-1}^j$}
+			\State $is_{t | t }^i \gets (\tilde{w}_t / w_t) (f / \tilde{f}) is_{t | t-1 }^j$ \Comment{where $j$ is such that $\tilde{x}_{t | t}^i = \tilde{x}_{t | t-1}^j$}
 		\EndFor	
 		\smallskip
 		\If{$t < T$}
@@ -408,16 +409,78 @@ As input the algorithm takes the predictive and filter particles of a misspecifi
 		\EndIf
       \EndFor
       \smallskip
-      \State \textbf{return} $\{\{\boldsymbol{x}_{t | t}^i\}_{i=1}^P\}_{t=1}^T$
+      \State \textbf{return} $loglik$
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
-Importantly, the algorithm does not produce latent state estimates and predictions. The only object of interest the algorithm returns is the likelihood of the model with $\boldsymbol{\theta}$ for parameter inference where this method has been shown to smooth the (log-)likelihood with respect to $\boldsymbol{\theta}$. The algorithm can not be used for latent state inference.
+Importantly, the algorithm does not produce any estimates or predictions on the latent states. The only object of interest the algorithm returns is the (log-)likelihood of the model with $\boldsymbol{\theta}$. This allows us to use the algorithm for parameter inference where it smoothes the (log-)likelihood with respect to $\boldsymbol{\theta}$. The algorithm can not be used for latent state inference.
+
+%  Example    %
+\subsection{Example: Local Level Model}
+We consider the realization of an univariate local model with parameters plotted in \textit{Figure \ref{fig:ullm-kalman}} and take as input the filtering and prediction particles produced by the SIR algorithm whose latent state estimates have been plotted in \textit{Figure \ref{fig:ullm-particle}}. Note again that the importance sampling particle filter does not produce estimates of the latent state.\\
+
+\textit{Figure \ref{fig:ullm_is-particle}} shows the mean filtering and predictive importance weights when we run the importance sampling particle filter with the true parameters $\boldsymbol{\theta} = [\sigma_{\eta}^2=1.4, \sigma_{\epsilon}^2=1.0]^T$, using auxiliary parameters $\boldsymbol{\tilde{\theta}} = [\tilde{\sigma}_{\eta}^2=1.0, \tilde{\sigma}_{\epsilon}^2=1.0]^T$. Observe that the weights all stay in a rather narrow bandwidth around 1. Note that the importance weights are all necessarily exactly $1$ if $\boldsymbol{\theta}=\boldsymbol{\tilde{\theta}}$.
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{1\textwidth}
+  \centering
+  \includegraphics[width=150mm]{../../images/ullm_is_filt_weights_P200.png}
+\end{subfigure}%
+\\
+\begin{subfigure}{1\textwidth}
+  \centering
+  \includegraphics[width=150mm]{../../images/ullm_is_pred_weights_P200.png}
+\end{subfigure}
+\caption{Importance weights with $P=200$ particles}
+\label{fig:ullm_is-particle}
+\end{figure}
+
 
 %  Likelihood    %
 \subsection{Likelihood evaluation}
+% add CSIR?
+As explained earlier, the likelihood is directly evaluated by the importance sampling particle filter algorithm and is actually its main output. 
+The algorithm approximates the log-likelihood via importance sampling. 
+Its main attractive feature is that the log-likelihood is smooth with respect to $\boldsymbol{\theta}$. 
+That claim is supported by the plots in in \textit{Figure \ref{fig:ullm_loglik}} which compare the log-likelihood of different methods for different values of $\sigma_{\eta}^2$ as $\sigma_{\epsilon}^2$ is kept at its true value ($1.0$): the Kalman filter (green), the SIR particle filter (orange), and the importance sampling particle filter (magenta).\\ 
 
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{0.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/ullm-loglik-eta.png}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/ullm-loglik-detail.png}
+\end{subfigure}
+\caption{Log-likelihood as a function of $\sigma_{\eta}^2$ with different filters}
+\label{fig:ullm_loglik}
+\end{figure}
 
+The left plots show the log-likelihood for larger step sizes ($0.1$) of $\sigma_{\eta}^2$. The function with respect to $\sigma_{\eta}^2$ appears to be smooth for all three filters. However, as the right plots show, the picture changes when we decrease the step size to $0.001$ around the true $\sigma_{\eta}^2$. While both the Kalman and the IS particle filter still produce a smooth, concave log-likelihood curve, the log-likelihood plot of the SIR particle filter reveals many local optima. The log-likelihood for the true parameter $\sigma_{\eta}^2 = 1.4$ is highlighted with a black point.\\   
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{0.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/ullm-loglik-aux-eta.png}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/ullm-loglik-aux-eta-2.png}
+\end{subfigure}
+\caption{Impact of choice of $\tilde{\sigma}_{\eta}^2$ on log-likelihood of IS particle filter}
+\label{fig:ullm_theta_aux}
+\end{figure}
+
+In the simulation of the importance sampling particle filter, the auxiliary parameters $\boldsymbol{\tilde{\theta}}=[\tilde{\sigma}_{\eta}^2, \tilde{\sigma}_{\epsilon}^2]^T$ have been set to the true parameters $\tilde{\sigma}_{\eta}^2=1.4$ and $\tilde{\sigma}_{\epsilon}^2=1.0$. \textit{Figure \ref{fig:ullm_theta_aux}} shows how the choice of the auxiliary parameters impact the log-likelihood values of the IS particle filter. The left plot shows the log-likelihood evaluated for the true parameters as a function of the auxiliary parameter $\tilde{\sigma}_{\eta}^2$ (meanwhile, $\tilde{\sigma}_{\epsilon}^2$ is kept fixed at $\sigma_{\epsilon}^2=1.0$). The log-likelihood is smallest close to $\tilde{\sigma}_{\eta}^2=\sigma_{\eta}^2=1.4$ and smoothly increases as $\tilde{\sigma}_{\eta}^2$ moves further away. The graph shows that the value of the log-likelihood of the IS particle filter depends on the choice of the auxiliary parameters.\\
+
+The right graph in \textit{Figure \ref{fig:ullm_theta_aux}} plots the log-likelihood for the same filtering and predictive particles as a function of $\sigma_{\eta}^2$ for 3 choices of $\tilde{\sigma}_{\eta}^2$: $0.8$, $1.4$, and $2.8$. We see that the shape of the curves are similar (in particular, concave), but do not peak at the same value of $\sigma_{\eta}^2$. 
+
+%The plots in \textit{Figure \ref{fig:ullm_loglik}} support the claim that the importance sampling particle filter is better suited for parameter inference than the SIR algorithm is.
+%Note that the log-likelihood equals the log-likelihood of the particle filter if $\boldsymbol{\theta} = \boldsymbol{\tilde{\theta}}$ since all importance weights (both predictive and filtering) are $1$ in that case. What happens as the parameters get further apart? \\
 
 %%%%%%%%
 %  Illustration %
