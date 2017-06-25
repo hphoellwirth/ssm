@@ -52,9 +52,9 @@ plot.loglik <- function(para, loglik, true.para, col='blue', xlab='parameter') {
 # ----------------------------------------------------------------------
 # Importance weight plot
 # ----------------------------------------------------------------------
-plot.weights <- function(weights, col='blue', xlab, ylab='weight') {
+plot.weights <- function(weights, col='blue', xlab, ylab='weight', ylim=NA) {
     
-    plot(rowMeans(weights), type='l', col=col, xlab=xlab, ylab=ylab, xaxt="n", las=2)
+    plot(rowMeans(weights), type='l', col=col, xlab=xlab, ylab=ylab, ylim=ylim, xaxt="n", las=2)
     xticks <- axis(side=1, at=(1:nrow(weights)))
     abline(v=xticks , lty=3)
 }
