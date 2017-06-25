@@ -107,7 +107,7 @@ if(save.plots) dev.off()
 # ----------------------------------------------------------------------
 
 # use auxiliary filter to compute true log-likelihood
-llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=1)
+llm.aux.filter <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=1.0)
 
 # plot importance weights over time
 ylim <- c(min(rowMeans(llm.aux.filter$is.up), rowMeans(llm.aux.filter$is.pr)), max(rowMeans(llm.aux.filter$is.up), rowMeans(llm.aux.filter$is.pr)))
@@ -121,13 +121,41 @@ par(mfrow=c(1,1), mar=c(4,4,1,1))
 plot.weights(llm.aux.filter$is.pr, xlab='time t', ylab='predictive weights', ylim=ylim)
 if(save.plots) dev.off()
 
+# observe change in log-likelihood as auxiliary parameter changes
+eta <- seq(0.8,3,0.1)
+ll.aux <- rep(0,length(eta))
+for (i in 1:length(eta)) {
+    cat('.')
+    ll.aux[i] <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=var.eta, cov.eta.aux=eta[i])$loglik
+}
 
+if(save.plots) png("../images/ullm-loglik-aux-eta.png", width=500, height=300, pointsize=14)
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+plot.loglik(eta, ll.aux, var.eta, 'magenta', 'var.eta.aux')
+if(save.plots) dev.off()
+
+# plot log-likelihood of auxiliary filter for different auxiliary parameters
+eta.aux <- c(0.8,1.4,2.8)
+eta <- seq(0.8,2,0.1)
+ll.aux <- matrix(nrow=3, ncol=length(eta))
+for (i in 1:length(eta)) {
+    cat('.')
+    ll.aux[1,i]  <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=eta.aux[1])$loglik
+    ll.aux[2,i]  <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=eta.aux[2])$loglik
+    ll.aux[3,i]  <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=eta.aux[3])$loglik
+}
+
+if(save.plots) png("../images/ullm-loglik-aux-eta-2.png", width=500, height=300, pointsize=14)
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+plot.loglik.multi(eta, ll.aux, var.eta, col=c('red', 'magenta','brown'), 'var.eta', legend=eta.aux, legend.title='var.eta.aux')
+if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
 # Produce log-likelihood plots to compare filters
 # ----------------------------------------------------------------------
 
 # draw standard normal transition noise and particles for comparison of particle filter
+set.seed(1000)
 eta.sim <- matrix(rnorm(T*P, mean=0, sd=1), nrow=T, ncol=P) 
 u.sim   <- matrix(runif(T*P, min=0, max=1), nrow=T, ncol=P)   
 for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
@@ -142,39 +170,47 @@ for (i in 1:length(eta)) {
     ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
 }
 
+
 # plot log-likelihood
-if(save.plots) png("../images/univariate-loglik.png", width=1000, height=750, pointsize=20)
-par(mfrow=c(3,1), mar=c(4,4,1,1))
+if(save.plots) png("../images/ullm-loglik-eta.png", width=500, height=450, pointsize=20)
+par(mfrow=c(3,1), mar=c(2,4,1,1))
 plot.loglik(eta, ll.kalman, var.eta, 'green', 'var.eta with Kalman filter')
-plot.loglik(eta, ll.particle, var.eta, 'orange', 'var.eta with particle filter')
-plot.loglik(eta, ll.aux, var.eta, 'magenta', 'var.eta with auxiliary filter')
+plot.loglik(eta, ll.particle, var.eta, 'orange', 'var.eta with SIR filter')
+plot.loglik(eta, ll.aux, var.eta, 'magenta', 'var.eta with IS particle filter')
 if(save.plots) dev.off()
 
 # plot log-likelihood for different var.eta values zoomed around true value
-eta <- seq(1.350,1.450,0.001)
-ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
-for (i in 1:length(eta)) {
+eta.det <- seq(1.350,1.450,0.001)
+ll.kalman.det <- ll.particle.det <- ll.aux.det <- rep(0,length(eta.det))
+for (i in 1:length(eta.det)) {
     cat('.')
-    ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir = FALSE)$loglik 
-    ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
+    ll.kalman.det[i]   <- kalman.filter(llm.data$y, cov.eta=eta.det[i])$loglik
+    ll.particle.det[i] <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir = FALSE)$loglik 
+    ll.aux.det[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta.det[i], cov.eta.aux=var.eta)$loglik
 }
 
-ll.kalman   <- ll.kalman / T
-ll.particle <- ll.particle / T
-ll.aux      <- ll.aux / T
-ll.kalman   <- ll.kalman / abs( ll.kalman[ which(round(eta,3)==var.eta)] )
-ll.particle <- ll.particle / abs( ll.particle[ which(round(eta,3)==var.eta)] )
-ll.aux      <- ll.aux / abs( ll.aux[ which(round(eta,3)==var.eta)] )
+ll.kalman.det   <- ll.kalman.det / T
+ll.particle.det <- ll.particle.det / T
+ll.aux.det      <- ll.aux.det / T
+ll.kalman.det   <- ll.kalman.det / abs( ll.kalman.det[ which(round(eta.det,3)==var.eta)] )
+ll.particle.det <- ll.particle.det / abs( ll.particle.det[ which(round(eta.det,3)==var.eta)] )
+ll.aux.det      <- ll.aux.det / abs( ll.aux.det[ which(round(eta.det,3)==var.eta)] )
 
 # plot zoomed log-likelihood
-if(save.plots) png("../images/univariate-loglik-detail.png", width=750, height=500, pointsize=15)
-par(mfrow=c(1,1), mar=c(4,4,1,1))
-matplot(eta, cbind(ll.kalman,ll.particle,ll.aux), type='b', col=c("green","orange","magenta") , ylab="log-likelihood", xaxt="n", las=2)
-points(var.eta, -1 ) # highlight true parameter
-xticks <- axis(side=1, at=eta)
-abline(v=xticks , lty=3)
+if(save.plots) png("../images/ullm-loglik-detail.png", width=500, height=450, pointsize=20)
+par(mfrow=c(3,1), mar=c(2,1,1,1))
+plot.loglik.detail(eta.det, ll.kalman.det, var.eta, 'green', 'var.eta with Kalman filter', 'Kalman')
+plot.loglik.detail(eta.det, ll.particle.det, var.eta, 'orange', 'var.eta with SIR filter', 'SIR')
+plot.loglik.detail(eta.det, ll.aux.det, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
 if(save.plots) dev.off()
+
+#if(save.plots) png("../images/ullm-loglik-detail.png", width=750, height=500, pointsize=15)
+#par(mfrow=c(1,1), mar=c(4,4,1,1))
+#matplot(eta, cbind(ll.kalman,ll.particle,ll.aux), type='b', col=c("green","orange","magenta") , ylab="log-likelihood", xaxt="n", las=2)
+#points(var.eta, -1 ) # highlight true parameter
+#xticks <- axis(side=1, at=eta)
+#abline(v=xticks , lty=3)
+#if(save.plots) dev.off()
 
 
 # ----------------------------------------------------------------------
