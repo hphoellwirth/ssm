@@ -27,10 +27,10 @@
 \contentsline {subsection}{\nonumberline Realization}{21}
 \contentsline {subsection}{\nonumberline Latent State Inference}{21}
 \contentsline {subsection}{\nonumberline Parameter Inference}{22}
-\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{23}
-\contentsline {subsection}{\nonumberline The Model}{23}
-\contentsline {subsection}{\nonumberline Model Densities}{24}
-\contentsline {subsection}{\nonumberline Realization}{24}
-\contentsline {subsection}{\nonumberline Latent State Inference}{25}
-\contentsline {subsection}{\nonumberline Parameter Inference}{25}
-\contentsline {chapter}{\numberline {6}Conclusion}{27}
+\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{24}
+\contentsline {subsection}{\nonumberline The Model}{24}
+\contentsline {subsection}{\nonumberline Model Densities}{25}
+\contentsline {subsection}{\nonumberline Realization}{25}
+\contentsline {subsection}{\nonumberline Latent State Inference}{26}
+\contentsline {subsection}{\nonumberline Parameter Inference}{26}
+\contentsline {chapter}{\numberline {6}Conclusion}{28}

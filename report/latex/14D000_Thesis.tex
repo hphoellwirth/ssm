@@ -656,6 +656,40 @@ We estimate the latent states in each dimension with both the Kalman filter and 
 
 %  Parameter Inference    %
 \subsection{Parameter Inference}
+Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we consider the Kalman filter, the sequential importance resampling (SIR) method, and the novel importance sampling (IS) particle filter. We use box-constrained optimization with the variances $\sigma_{\eta 1}^2$,  $\sigma_{\eta 2}^2$, and $\sigma_{\eta 3}^2$ bounded by $[0.1,5.0]$ and  $\rho$ constrained to lie between $[-1.0, 1.0]$. We assume $\sigma_{\epsilon}^2$ to be fixed at $1.0$. The result is summarized in \textit{Table \ref{tab:mllm_param_inference}}.\\  
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l r r r r r r}
+\hline
+& $\sigma_{\eta 1}^2$ &  $\sigma_{\eta 2}^2$ & $\sigma_{\eta 3}^2$ & $\rho$ & true $\log \mathcal{L} $ & MLE $\log \mathcal{L} $ \\
+\hline
+True        & 4.20  & 2.80 &  0.90 & 0.70&  &  \\
+Kalman   & 4.96  & 3.10  & 1.01 & 0.73 & -307.712 & -307.459 \\
+SIR         & 2.46  & 2.32  & 1.15 & 0.47 & -313.466 & -339.068 \\
+IS            & 2.69  & 2.09  & 1.06 & 0.42 &  & \\
+\hline
+\end{tabular}
+\caption{MLE parameters with different filters}
+\label{tab:mllm_param_inference}
+\end{table}
+Both the SIR and the IS particle filter have been tested with a rather small number of only $P=50$ particles. The reason is that both algorithms rely on observing the multivariate normal density of each particle at each iteration which can considerably slow down the algorithms if $P$ is large. \\                              
+    
+Note that the Kalman filter produced the best parameter estimates. The IS particle filter also gave reasonable estimates while the SIR estimates are far off the true parameter values. The reason for this bad performance is the lack of smoothness of the log-likelihood with respect to the parameters as discussed earlier which makes the SIR algorithm an inappropriate filter method for parameter inference. The argument is backed by the log-likelihood plots in \textit{Figure \ref{fig:mllm_loglik}} with respect to $\sigma_{\eta 1}^2$ and $\rho$. While the SIR plot with respect to $\rho$ still looks reasonable, the plot for $\sigma_{\eta 1}^2$ does not exhibit a concave shape.\\
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/mllm-loglik-var2.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/mllm-loglik-rho.png}
+\end{subfigure}
+\caption{Log-likelihood as a function of $\sigma_{\eta 1}^2$ and $\rho$ with different filters}
+\label{fig:mllm_loglik}
+\end{figure}
 
 
 %%%%  Hierarchical Dynamic Poisson Model   %%%%
@@ -801,9 +835,6 @@ The table compares the estimated parameters with both methods to the true parame
 \caption{Log-likelihood as a function of $\sigma_{(D)}^2$ with different filters}
 \label{fig:hdpm_loglik_Dvar}
 \end{figure}
-
-
-
 
 
 %%%%%%%%%%
