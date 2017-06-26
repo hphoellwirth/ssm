@@ -580,10 +580,11 @@ T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
 \chapter{Illustration}
 \label{chp:Illustration}
 
-
 %%%%  Trivariate Local Level Model  %%%%
 \section{Trivariate Local Level Model}
+First, we test the latent state and parameter inference with different filters on a trivariate local level model with restricted covariance matrices to reduce the number of parameters. 
 
+%  Model    %
 \subsection{The Model}
 Consider a time series of length $T$ with each observation $\boldsymbol{y}_t=[y_{1t}, y_{2t}, y_{3t}]^T$ and each state $\boldsymbol{x}_t=[x_{1t}, x_{2t}, x_{3t}]^T$ being described by a 3-dimensional vector.
 
@@ -610,6 +611,17 @@ $$
 $$
 The initial state parameters $\boldsymbol{\mu}_1$ and $\Sigma_1$ are assumed to be known.
 
+%  Model Densities    %
+\subsection{Model Densities}
+The transition and measurement density of the trivariate local level from above can be easily derived from the model formulation:
+\begin{center}
+\begin{tabular}{ r l }
+  $p(\boldsymbol{x}_{t+1} | \boldsymbol{x}_t, \boldsymbol{\theta})$ & $\sim N(\boldsymbol{x}_t, \sigma_{\epsilon}^2 I_3)$ \\
+  $p(\boldsymbol{y}_t | \boldsymbol{x}_t, \boldsymbol{\theta})$ & $\sim N(\boldsymbol{x}_t, \Sigma_{\eta})$ \\
+\end{tabular}
+\end{center}
+
+%  Realization    %
 \subsection{Realization}
 \textit{Figure \ref{fig:mllm_realization}} plots the states and observations for a realization of the trivariate local level model with length $T=100$. The model parameters are 
 $$
@@ -619,13 +631,31 @@ The initial state $x_1$ is drawn from a standard normal.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=115mm]{../../images/mllm-realization.png}
-\caption{Realization of the model with $T=100$}
+\includegraphics[width=155mm]{../../images/mllm-realization-v2.png}
+\caption{Realization of the model with $T=50$}
 \label{fig:mllm_realization}
 \end{figure}
 
 %  Latent State Inference    %
 \subsection{Latent State Inference}
+We estimate the latent states in each dimension with both the Kalman filter and the sequential importance resampling (SIR) method and plot the result in \textit{Figure \ref{fig:mllm_estimate_kalman}} and \textit{Figure \ref{fig:mllm_estimate_sir}}, respectively. Note that the estimates of the two filters are almost identical because $P=200$ was is sufficiently large for the number of observations $T=50$.\\
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=155mm]{../../images/mllm-estimate-kalman.png}
+\caption{State estimates with Kalman filter}
+\label{fig:mllm_estimate_kalman}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=155mm]{../../images/mllm-estimate-sir.png}
+\caption{State estimates with SIR filter ($P=200$)}
+\label{fig:mllm_estimate_sir}
+\end{figure}
+
+%  Parameter Inference    %
+\subsection{Parameter Inference}
 
 
 %%%%  Hierarchical Dynamic Poisson Model   %%%%
@@ -707,7 +737,7 @@ The initial daily and intra-daily state components were drawn from a standard no
 
 %  Latent State Inference    %
 \subsection{Latent State Inference}
-We estimate the latent state of the realization in \textit{Figure \ref{fig:hdpm_realization}} with the implementation of the sequential importance resampling (SIR) algorithm which uses the transition and measurement densities we derived before. The estimates of the latent states, together with the $90\%$ confidence interval (estimated by the $5\%$ and $95\%$ quantile of the $P=200$ particles) are plotted in \textit{Figure \ref{fig:hdpm_est}}.
+We estimate the latent states of the realization in \textit{Figure \ref{fig:hdpm_realization}} with the implementation of the sequential importance resampling (SIR) algorithm which uses the transition and measurement densities we derived before. The estimates of the latent states, together with the $90\%$ confidence interval (estimated by the $5\%$ and $95\%$ quantile of the $P=200$ particles) are plotted in \textit{Figure \ref{fig:hdpm_est}}.
 
 \begin{figure}[h!]
 \centering
@@ -720,7 +750,13 @@ Note that neither the Kalman filter nor the continuous SIR method can be used fo
 
 %  Parameter Inference    %
 \subsection{Parameter Inference}
-Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we compare the sequential importance resampling (SIR) method with the novel importance sampling (IS) particle filter. The result is summarized in \textit{Table \ref{tab:hdpm_param_inference}}.\\  
+Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we compare the sequential importance resampling (SIR) method with the novel importance sampling (IS) particle filter. We use box-constrained optimization with the parameters $\phi_0^{(D)}$,  $\phi_1^{(D)}$, $\phi_1^{(I)}$, and $\phi_1^{(P)}$ bounded between $[0,1]$ and the variances $\sigma^2_{(D)}$ and $\sigma^2_{(I)}$ constrained to lie between $[0.1, 5.0]$. The auxiliary parameter vector used for the IS particle filter is 
+$$
+\boldsymbol{\tilde{\theta}} = [ \tilde{\phi}_0^{(D)} = 0.5,  \tilde{\phi}_1^{(D)} = 0.5, \tilde{\sigma}^2_{(D)} = 1.0, \tilde{\phi}_1^{(I)} = 0.5, \tilde{\sigma}^2_{(I)} = 1.0, \tilde{\phi}_1^{(P)} = 1.0]^T
+$$
+
+
+The result is summarized in \textit{Table \ref{tab:hdpm_param_inference}}.\\  
 
 \begin{table}[h!]
 \centering
@@ -736,28 +772,34 @@ IS            & 0.65  & 0.59  & 0.40 & 0.63 & 0.35 & 0.31 & -273.295 & -287.333\
 \caption{MLE parameters with different filters}
 \label{tab:hdpm_param_inference}
 \end{table}
-The table compares the estimated parameters with both methods to the true parameters. 
-
-We used box-constrained optimization with the parameters $\phi_0^{(D)}$,  $\phi_1^{(D)}$, $\phi_1^{(I)}$, and $\phi_1^{(P)}$ bounded between $[0,1]$ and the variances $\sigma^2_{(D)}$ and $\sigma^2_{(I)}$ constrained to lie 
-between $[0.1, 5.0]$.
-
-$$
-\boldsymbol{\tilde{\theta}} = [ \tilde{\phi}_0^{(D)} = 0.5,  \tilde{\phi}_1^{(D)} = 0.5, \tilde{\sigma}^2_{(D)} = 1.0, \tilde{\phi}_1^{(I)} = 0.5, \tilde{\sigma}^2_{(I)} = 1.0, \tilde{\phi}_1^{(P)} = 1.0]^T
-$$
-
+The table compares the estimated parameters with both methods to the true parameters. Note that the estimates of the IS particle filter are indeed closer to the true parameters. The lack of smoothness of the log-likelihood with respect to the parameters makes the SIR method likely to get stuck in a local optimum. The difference in the log-likelihood between the SIR algorithm and the IS particle filter is illustrated with respect to parameters $\phi_1^{(D)}$ and $\sigma_{(D)}^2$ in \textit{Figure \ref{fig:hdpm_loglik_Dphi1}} and \textit{Figure \ref{fig:hdpm_loglik_Dvar}}, respectively. In both cases, the shape of the log-likelihood looks very similar when considering larger intervals of the parameter. But when we zoom in, we observe that the log-likelihood for the SIR method lacks smoothness. 
 
 \begin{figure}[h!]
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=70mm]{../../images/hdpm-loglik-Dphi0.png}
+  \includegraphics[width=75mm]{../../images/hdpm-loglik-Dphi1.png}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=70mm]{../../images/hdpm-loglik-Dphi1.png}
+  \includegraphics[width=75mm]{../../images/hdpm-loglik-Dphi1-zoom.png}
 \end{subfigure}
-\caption{Belief convergence without misinformation after 300 and 2000 iterations}
-\label{fig:conv_nomisinfo}
+\caption{Log-likelihood as a function of $\phi_1^{(D)}$ with different filters}
+\label{fig:hdpm_loglik_Dphi1}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/hdpm-loglik-Dvar.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=75mm]{../../images/hdpm-loglik-Dvar-zoom.png}
+\end{subfigure}
+\caption{Log-likelihood as a function of $\sigma_{(D)}^2$ with different filters}
+\label{fig:hdpm_loglik_Dvar}
 \end{figure}
 
 

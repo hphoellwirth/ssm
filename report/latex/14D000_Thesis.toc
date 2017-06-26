@@ -23,12 +23,14 @@
 \contentsline {chapter}{\numberline {5}Illustration}{20}
 \contentsline {section}{\numberline {5.1}Trivariate Local Level Model}{20}
 \contentsline {subsection}{\nonumberline The Model}{20}
-\contentsline {subsection}{\nonumberline Realization}{20}
-\contentsline {subsection}{\nonumberline Latent State Inference}{20}
-\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{21}
-\contentsline {subsection}{\nonumberline The Model}{21}
-\contentsline {subsection}{\nonumberline Model Densities}{22}
-\contentsline {subsection}{\nonumberline Realization}{22}
-\contentsline {subsection}{\nonumberline Latent State Inference}{23}
-\contentsline {subsection}{\nonumberline Parameter Inference}{24}
-\contentsline {chapter}{\numberline {6}Conclusion}{25}
+\contentsline {subsection}{\nonumberline Model Densities}{20}
+\contentsline {subsection}{\nonumberline Realization}{21}
+\contentsline {subsection}{\nonumberline Latent State Inference}{21}
+\contentsline {subsection}{\nonumberline Parameter Inference}{22}
+\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{23}
+\contentsline {subsection}{\nonumberline The Model}{23}
+\contentsline {subsection}{\nonumberline Model Densities}{24}
+\contentsline {subsection}{\nonumberline Realization}{24}
+\contentsline {subsection}{\nonumberline Latent State Inference}{25}
+\contentsline {subsection}{\nonumberline Parameter Inference}{25}
+\contentsline {chapter}{\numberline {6}Conclusion}{27}
