@@ -199,9 +199,9 @@ ll.aux.det      <- ll.aux.det / abs( ll.aux.det[ which(round(eta.det,3)==var.eta
 # plot zoomed log-likelihood
 if(save.plots) png("../images/ullm-loglik-detail.png", width=500, height=450, pointsize=20)
 par(mfrow=c(3,1), mar=c(2,1,1,1))
-plot.loglik.detail(eta.det, ll.kalman.det, var.eta, 'green', 'var.eta with Kalman filter', 'Kalman')
-plot.loglik.detail(eta.det, ll.particle.det, var.eta, 'orange', 'var.eta with SIR filter', 'SIR')
-plot.loglik.detail(eta.det, ll.aux.det, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
+plot.loglik.zoom(eta.det, ll.kalman.det, var.eta, 'green', 'var.eta with Kalman filter', 'Kalman')
+plot.loglik.zoom(eta.det, ll.particle.det, var.eta, 'orange', 'var.eta with SIR filter', 'SIR')
+plot.loglik.zoom(eta.det, ll.aux.det, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
 if(save.plots) dev.off()
 
 #if(save.plots) png("../images/ullm-loglik-detail.png", width=750, height=500, pointsize=15)

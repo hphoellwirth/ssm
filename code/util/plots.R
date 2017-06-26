@@ -18,9 +18,9 @@ library(scales)
 # ----------------------------------------------------------------------
 # State/observation plots
 # ----------------------------------------------------------------------
-plot.realization <- function(observations, states, ylab='values') {
+plot.realization <- function(observations, states, ylab='values', ylim=NULL, title=NULL) {
     par(mfrow=c(1,1), mar=c(4,4,1,1))
-    plot(observations, type='p', pch=19, col="red", xlab="time", ylab=ylab)
+    plot(observations, type='p', pch=19, col=alpha("red",0.7), main=title, xlab="time", ylab=ylab, ylim=ylim)
     lines(states, col="black")
     legend('topleft', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
 }
@@ -49,7 +49,7 @@ plot.loglik <- function(para, loglik, true.para, col='blue', xlab='parameter') {
     abline(v=xticks , lty=3)
 }
 
-plot.loglik.detail <- function(para, loglik, true.para, col='blue', xlab='parameter', ylab=NA) {
+plot.loglik.zoom <- function(para, loglik, true.para, col='blue', xlab='parameter', ylab=NA) {
     # remove points further than 10% below the median
     medianll <- median(loglik, na.rm=TRUE)   
     loglik <- replace(loglik, (loglik < 1.1*medianll), NaN)
@@ -82,7 +82,7 @@ plot.loglik.multi <- function(para, loglik, true.para, col=rep('blue',nrow(logli
 # ----------------------------------------------------------------------
 # Importance weight plot
 # ----------------------------------------------------------------------
-plot.weights <- function(weights, col='blue', xlab, ylab='weight', ylim=NA) {
+plot.weights <- function(weights, col='blue', xlab, ylab='weight', ylim=NULL) {
     
     plot(rowMeans(weights), type='l', col=col, xlab=xlab, ylab=ylab, ylim=ylim, xaxt="n", las=2)
     xticks <- axis(side=1, at=(1:nrow(weights)))

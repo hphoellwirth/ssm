@@ -45,18 +45,28 @@ source("util/misc.R")
 # ----------------------------------------------------------------------
 set.seed(1000)
 D <- 3
-T <- 100
+T <- 50
 cov.eta.var <- c(4.2,2.8,0.9)
 cov.eta.rho <- 0.7
 mllm.data <- gen.multi.llm.data(T, d=D, cov.eta=construct.cov(cov.eta.var, cov.eta.rho))
 
-# plot observations and states
+# plot observations and states (vertical)
 if(save.plots) png("../images/mllm-realization.png", width=1000, height=750, pointsize=20)
 par(mfrow=c(3,1), mar=c(2,2,1,1))
 for (d in 1:3) {
     plot(mllm.data$y[,d], type='l', col="red", ylim=c(min(mllm.data$y), max(mllm.data$y)))
     lines(mllm.data$x[,d], col="black")
     if (d == D) legend('bottomright', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(1,1), lwd=c(2,2))
+}
+if(save.plots) dev.off()
+
+# plot observations and states (horizontal)
+if(save.plots) png("../images/mllm-realization-v2.png", width=1000, height=300, pointsize=20)
+par(mfrow=c(1,3), mar=c(2,2,1,1))
+for (d in 1:D) {
+    plot(mllm.data$y[,d], type='p', pch=19, col=alpha("red",0.7), main=paste('d',d), xlab="time", ylab=NULL, ylim=c(min(mllm.data$y), max(mllm.data$y)))
+    lines(mllm.data$x[,d], col="black")
+    if (d==1) legend('topleft', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
 }
 if(save.plots) dev.off()
 
@@ -86,6 +96,34 @@ for (d in 1:3) {
     if (d == D) legend('bottomright', legend=c('observation','state','Kalman filter', 'particle filter'), col=c('red','black','green','orange'), cex=1.0, lty=rep(1,4), lwd=rep(2,4))
 }
 if(save.plots) dev.off()
+
+# plot Kalman predictions (with confidence interval)
+if(save.plots) png("../images/mllm-estimate-kalman.png", width=1000, height=300, pointsize=20)
+par(mfrow=c(1,3), mar=c(2,2,1,1))
+for (d in 1:D) {
+    plot(mllm.data$y[,d], type='p', pch=19, col=alpha("red",0.7), main=paste('d',d), xlab="time", ylab=NULL, ylim=c(min(mllm.data$y), max(mllm.data$y)))
+    lines(mllm.particle.filter$x.pr[,d], col='green', lwd=1.5)
+    lines(mllm.kalman.filter$x.up[,d] + 2*sqrt(unlist(lapply(mllm.kalman.filter$x.up.cov, '[[', (1 + (d-1)*4)))), col='black', lty=2)
+    lines(mllm.kalman.filter$x.up[,d] - 2*sqrt(unlist(lapply(mllm.kalman.filter$x.up.cov, '[[', (1 + (d-1)*4)))), col='black', lty=2)
+    if (d==1) legend('topleft', legend=c('observation','estimate', '90% CI'), col=c('red','green','black'), cex=1.0, lty=c(0,1,2), lwd=c(0,2.5,2.5), pch=c(19,NA,NA))
+}
+if(save.plots) dev.off()
+
+# plot SIR predictions (with confidence interval)
+if(save.plots) png("../images/mllm-estimate-sir.png", width=1000, height=300, pointsize=20)
+par(mfrow=c(1,3), mar=c(2,2,1,1))
+for (d in 1:D) {
+    states <- matrix(nrow=T, ncol=P)
+    for (t in 1:(T)) {states[t,] <- mllm.particle.filter$x.up.particles[[t]][,d]}
+    
+    plot(mllm.data$y[,d], type='p', pch=19, col=alpha("red",0.7), main=paste('d',d), xlab="time", ylab=NULL, ylim=c(min(mllm.data$y), max(mllm.data$y)))
+    lines(mllm.kalman.filter$x.up[,d], col='orange', lwd=1.5)
+    lines(rowQuantiles(states, probs=c(0.95)), col='black', lty=2)
+    lines(rowQuantiles(states, probs=c(0.05)), col='black', lty=2)
+    if (d==1) legend('topleft', legend=c('observation','estimate', '90% CI'), col=c('red','orange','black'), cex=1.0, lty=c(0,1,2), lwd=c(0,2.5,2.5), pch=c(19,NA,NA))
+}
+if(save.plots) dev.off()
+
 
 
 # ----------------------------------------------------------------------

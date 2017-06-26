@@ -23,8 +23,8 @@ kalman.filter <- function(y, d=ncol(data.frame(y)), var.eps=1, cov.eta=diag(d), 
     
     # initialize series and loglikelihood
     v <- data.frame(matrix(ncol = d, nrow = T))
-    a.t <- data.frame(matrix(ncol = d, nrow = T+1)) 
-    a <- data.frame(matrix(ncol = d, nrow = T)) 
+    a.t <- data.frame(matrix(ncol = d, nrow = T)) 
+    a <- data.frame(matrix(ncol = d, nrow = T+1)) 
     F <- K <- P <- P.t <- list()
     
     # initial state estimator
