@@ -23,7 +23,7 @@
 %%%%%%%%
 %    Cover     %
 %%%%%%%%
-\title{\textit{}\\\textit{}\\State Space Models}
+\title{\textit{}\\\textit{}\\Time Series Analysis with\\ State Space Models}
 \author{Hans-Peter H{\"o}llwirth}
 \publishers{Master Project Report \\ 
 Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
@@ -112,7 +112,7 @@ p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) = \int p(x_t | x_{t-1}, \bolds
 $$
 where the first term in the integral is the transition density from $x_{t-1}$ to $x_t$, and the second term is the filtering density from before. Likewise, given the prediction density for state $x_t$, the filtering density for $x_t$ is
 $$
-p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) = \int p(x_t | x_{t-1}, \boldsymbol{\theta}) p(x_{t-1} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) dx_{t-1}
+p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) \propto p(y_t | x_{t}, \boldsymbol{\theta}) p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) 
 $$
 
 %%%%  Parameter Inference  %%%%
@@ -479,8 +479,100 @@ In the simulation of the importance sampling particle filter, the auxiliary para
 
 The right graph in \textit{Figure \ref{fig:ullm_theta_aux}} plots the log-likelihood for the same filtering and predictive particles as a function of $\sigma_{\eta}^2$ for 3 choices of $\tilde{\sigma}_{\eta}^2$: $0.8$, $1.4$, and $2.8$. We see that the shape of the curves are similar (in particular, concave), but do not peak at the same value of $\sigma_{\eta}^2$. 
 
-%The plots in \textit{Figure \ref{fig:ullm_loglik}} support the claim that the importance sampling particle filter is better suited for parameter inference than the SIR algorithm is.
-%Note that the log-likelihood equals the log-likelihood of the particle filter if $\boldsymbol{\theta} = \boldsymbol{\tilde{\theta}}$ since all importance weights (both predictive and filtering) are $1$ in that case. What happens as the parameters get further apart? \\
+%%%%%%%%%%
+%    Evaluation   %
+%%%%%%%%%%
+\chapter{Evaluation}
+\label{chp:evaluation}
+
+%%%%  Comparison  %%%%
+\section{Method Comparison}
+\textit{Table \ref{tab:filter_summary}} summarizes for which models and inference types the presented filters can be potentially used. \\
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lccl}
+\hline
+Filter  & Latent state & Parameter & Comment\\
+\hline
+Kalman    & x & x & linear Gaussian models only\\
+SIR      & x & &\\
+CSIR      & x & x & univariate models only\\
+IS      & & x & \\
+\hline
+\end{tabular}
+\caption{Summary of inference with presented filters}
+\label{tab:filter_summary}
+\end{table}
+
+The Kalman filter only works for linear Gaussian state space models. Kalman's latent state estimates statistically minimize the error and so is optimal with respect to many different statistical measures, eg. the mean squared error.  The sequential importance resampling (SIR) particle filter works for latent state inference but usually performs poorly for parameter inference where the log-likelihood with respect to the parameters lacks smoothness. The continuous SIR method smoothes the log-likelihood with respect to the parameters and so works for both latent state and parameter inference. However, CIR only applies to univariate models. Finally, the novel importance sampling particle filter solves parameter inference for any type of state space models. The method does not produce any filtering or prediction particles though and so cannot be used for latent state inference. 
+
+
+%%%%  Parameter Inference  %%%%
+\section{Parameter Inference}
+In this section we compare the performance on parameter inference with respect to bias, standard error, and mean squared error (MSE) for the maximum likelihood estimator (MLE) of different filters. We test the performance on random realizations of the univariate local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$. The CSIR method and the importance sampling particle filter are tested for different particle sizes $P$.
+
+%bias
+\begin{table}[h!]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+\hline
+T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
+\cline{3-8}
+& & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+50        & -0.053 & P50 & P200 & P500 & P50 & P200 & P500\\
+100      & -0.103 & P50 & P200 & P500 & P50 & P200 & P500\\
+250      & -0.089 & P50 & P200 & P500 & P50 & P200 & P500\\
+500      & -0.085 & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+\end{tabular}
+\caption{Monte Carlo bias summary}
+\label{tab:param_inference_bias}
+\end{table}
+
+\textit{Table \ref{tab:param_inference_mse}} shows the bias results over $1000$ Monte Carlo simulations.
+
+%standard error
+\begin{table}[h!]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+\hline
+T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
+\cline{3-8}
+& & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+50        & 0.057 & P50 & P200 & P500 & P50 & P200 & P500\\
+100      & 0.036 & P50 & P200 & P500 & P50 & P200 & P500\\
+250      & 0.023 & P50 & P200 & P500 & P50 & P200 & P500\\
+500      & 0.017 & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+\end{tabular}
+\caption{Monte Carlo standard error summary}
+\label{tab:param_inference_se}
+\end{table}
+
+%MSE
+\begin{table}[h!]
+\centering
+\begin{tabular}{rrrrrrrrrr}
+\hline
+T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
+\cline{3-8}
+& & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+50        & 0.322 & P50 & P200 & P500 & P50 & P200 & P500\\
+100      & 0.141 & P50 & P200 & P500 & P50 & P200 & P500\\
+250      & 0.059 & P50 & P200 & P500 & P50 & P200 & P500\\
+500      & 0.035 & P50 & P200 & P500 & P50 & P200 & P500\\
+\hline
+\end{tabular}
+\caption{Monte Carlo MSE summary}
+\label{tab:param_inference_mse}
+\end{table}
+
+%Conclusion: Particle filtering suffers from propagation error. Current approximations errors are related to past approximation errors. The number of particles $P$ should increase with the sample size $T$ to guarantee a good degree of approximation.
+
 
 %%%%%%%%
 %  Illustration %
@@ -503,7 +595,7 @@ Consider a time series of length $T$ with each observation $\boldsymbol{y}_t=[y_
 \end{tabular}
 \end{center}
 \bigskip
-with initial state $\boldsymbol{x}_1 \sim N(\boldsymbol{a}_1, P_1)$ and where we restrict the covariance matrix of the state disturbances, $\Sigma_{\eta}$, to the form
+with initial state $\boldsymbol{x}_1 \sim N(\boldsymbol{\mu}_1, \Sigma_1)$ and where we restrict the covariance matrix of the state disturbances, $\Sigma_{\eta}$, to the form
 $$
 \Sigma_{\eta} = 
 \begin{bmatrix}
@@ -516,7 +608,7 @@ Thus, $\Sigma_{\eta}$ can be described by $\sigma_{\eta 1}^2$, $\sigma_{\eta 2}^
 $$
 \boldsymbol{\theta} = [\rho, \sigma_{\eta 1}^2, \sigma_{\eta 2}^2, \sigma_{\eta 3}^2, \sigma_{\epsilon}^2]^T
 $$
-The initial state parameters $\boldsymbol{a}_1$ and $P_1$ are assumed to be known.
+The initial state parameters $\boldsymbol{\mu}_1$ and $\Sigma_1$ are assumed to be known.
 
 \subsection{Realization}
 \textit{Figure \ref{fig:mllm_realization}} plots the states and observations for a realization of the trivariate local level model with length $T=100$. The model parameters are 
@@ -532,14 +624,16 @@ The initial state $x_1$ is drawn from a standard normal.
 \label{fig:mllm_realization}
 \end{figure}
 
-
+%  Latent State Inference    %
+\subsection{Latent State Inference}
 
 
 %%%%  Hierarchical Dynamic Poisson Model   %%%%
 \newpage
 \section{Hierarchical Dynamic Poisson Model}
-Explain the main idea and potential use cases.
+Next, we test the particle filters on a non-linear model with non-Gaussian observations, called \textit{hierarchical dynamic Poisson model}. The observations are modeled as a Poisson random variable and represent counts, i.e. the total number of occurrences during a fixed time period. The underlying latent state of an observation is modeled as the the average number of counts in that interval (i.e. the state is the parameter of the Poisson distribution). The state is assumed to be constructed from 3 components: a daily level, intra-daily periodic changes, and intra-daily fluctuations. Both the daily level and intra-daily fluctuations are are assumed to form an (independent) Markov chain. The model in this form might be well suited to model demand in various settings such as server access or patients in a hospital.
 
+%  Model    %
 \subsection{The Model}
 Consider a time series over $M$ days, each consisting of $N$ intra-daily observations. 
 Let $m$ denote the day and $n$ be the intraday index.
@@ -547,51 +641,110 @@ Let $m$ denote the day and $n$ be the intraday index.
 \bigskip
 \begin{center}
 \begin{tabular}{ r r l }
-  observation: & $y_{mn}$ & $= \text{Poisson}(\lambda_{mn})$\\
-  state: & $\log \lambda_{mn}$ & $= \log \lambda_m^{(D)} + \log \lambda_{mn}^{(I)} + \log \lambda_n^{(P)}$\\  
+  observation: & $y_{m,n}$ & $\sim \text{Poisson}(\lambda_{m,n})$\\
+  state: & $\log \lambda_{m,n}$ & $= \log \lambda_m^{(D)} + \log \lambda_{m,n}^{(I)} + \log \lambda_n^{(P)}$\\  
 \end{tabular}
 \end{center}
 \bigskip
 where the state consists of a daily, an intra-daily, and a periodic component:
 \bigskip
 \begin{center}
-\begin{tabular}{ r l l }
-  daily component: & $\log \lambda_{m+1}^{(D)} = \phi_0^{(D)} + \phi_1^{(D)} \log \lambda_{m}^{(D)}  + \eta_m^{(D)}$ & $\eta_t \sim N(0, \sigma^2_{(D)})$ \\
-  intra-daily component: & $\log \lambda_{mn+1}^{(I)} = \phi_1^{(I)} \log \lambda_{mn}^{(I)}  + \eta_{mn}^{(I)}$ & $\eta_{mn} \sim N(0, \sigma^2_{(I)})$ \\
-    periodic component: & $\log \lambda_n^{(P)} = \phi_1^{(P)} \sin(\pi (n-1)/M)$ &\\
+\begin{tabular}{ r l l l}
+  daily: & $\log \lambda_{m+1}^{(D)}$ &$= \phi_0^{(D)} + \phi_1^{(D)} \log \lambda_{m}^{(D)}  + \eta_m^{(D)}$ & $\eta_t \sim N(0, \sigma^2_{(D)})$ \\
+  intra-daily: & $\log \lambda_{m,n+1}^{(I)}$ &$= \phi_1^{(I)} \log \lambda_{m,n}^{(I)}  + \eta_{m,n}^{(I)}$ & $\eta_{m,n} \sim N(0, \sigma^2_{(I)})$ \\
+    periodic: & $\log \lambda_n^{(P)} $ &$= \phi_1^{(P)} \sin(\pi (n-1)/M)$ &\\
 \end{tabular}
 \end{center}
 \bigskip
-The initial daily and intra-daily component is drawn from a normal with mean $a_1$ and covariance $P_1$: 
-$$\log \lambda_{1}^{(D)}, \log \lambda_{1}^{(I)}  \sim N(a_1, P_1)$$ 
+The initial daily and intra-daily component is drawn from a normal with mean $\mu_1$ and covariance $\Sigma_1$: 
+$$\log \lambda_{1}^{(D)}, \log \lambda_{1}^{(I)}  \sim N(\mu_1, \Sigma_1)$$ 
 Note that both the daily and intra-daily component constitute an AR(1) model, with the mean of the intra-daily component $\phi_0^{(I)}$ set to 0. 
 The model is fully specified by the following vector of parameters:
 $$
 \boldsymbol{\theta} = [ \phi_0^{(D)},  \phi_1^{(D)}, \sigma^2_{(D)}, \phi_1^{(I)}, \sigma^2_{(I)}, \phi_1^{(P)}]^T
 $$
-Again, the initial state parameters $a_1$ and $P_1$ are assumed to be known.
+Again, the initial state parameters $\mu_1$ and $\Sigma_1$ are assumed to be known.
 
+%  Model Densities    %
+\subsection{Model Densities}
+The transition and measurement density of the hierarchical dynamic Poisson model can be described as a function of the state components:
+\begin{center}
+\begin{tabular}{ r l }
+  $p(\log \lambda_{m,n+1} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta})$ & $\sim N(\mu_{m,n}, \sigma_{m,n}^2)$ \\
+  $p(y_{m,n} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta})$ & $\sim \text{Poisson}(\lambda_{m}^{(D)} \lambda_{m,n}^{(I)} \lambda_n^{(P)})$ \\
+\end{tabular}
+\end{center}
+where 
+\begin{center}
+\begin{tabular}{ r l }
+  $\mu_{m,n}$ &= $\phi_0^{(D)} + \phi_1^{(D)} \log \lambda_{m}^{(D)} + \phi_1^{(I)} \log \lambda_{m,n}^{(I)} + \phi_1^{(P)} \sin(\pi (n-1)/M)$ \\
+  $\sigma_{m,n}^2$ &= $\sigma_{(D)}^2 + \sigma_{(I)}^2$ \\
+\end{tabular}
+\end{center}
+The transition and measurement density are used in the implementation of the SIR algorithm and the importance sampling particle filter.
 
+%  Realization    %
 \subsection{Realization}
-\textit{Figure \ref{fig:hdpm_realization}} plots the states and observations for a realization of the hierarchical dyanmic Poisson model over $N=5$ days with $M=20$ intra-daily observations. The model parameters are 
+The left graph in \textit{Figure \ref{fig:hdpm_realization}} plots the states and observations for a realization of the hierarchical dyanmic Poisson model over $N=5$ days with $M=20$ intra-daily observations. The model parameters are 
 $$
 \boldsymbol{\theta} = [ \phi_0^{(D)} = 0.7,  \phi_1^{(D)} = 0.6, \sigma^2_{(D)} = 0.6, \phi_1^{(I)} = 0.3, \sigma^2_{(I)} = 0.2, \phi_1^{(P)} = 0.8]^T
 $$
-The initial daily and intra-daily state components were drawn from a standard normal.
+The initial daily and intra-daily state components were drawn from a standard normal. The right graph in \textit{Figure \ref{fig:hdpm_realization}} plots the state components $\log \lambda_{m}^{(D)}$, $\log \lambda_{m,n}^{(I)}$, and $\log \lambda_n^{(P)}$ of that realization.\\
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=115mm]{../../images/hdpm-realization.png}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=73mm]{../../images/hdpm-realization.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=73mm]{../../images/hdpm-log-param.png}
+\end{subfigure}
 \caption{Realization of the model with $N=5$ and $M=20$}
 \label{fig:hdpm_realization}
 \end{figure}
 
+%  Latent State Inference    %
+\subsection{Latent State Inference}
+We estimate the latent state of the realization in \textit{Figure \ref{fig:hdpm_realization}} with the implementation of the sequential importance resampling (SIR) algorithm which uses the transition and measurement densities we derived before. The estimates of the latent states, together with the $90\%$ confidence interval (estimated by the $5\%$ and $95\%$ quantile of the $P=200$ particles) are plotted in \textit{Figure \ref{fig:hdpm_est}}.
 
-\subsection{Densities}
-State transition and prediction density and how they are used in the particle filter
+\begin{figure}[h!]
+\centering
+\includegraphics[width=115mm]{../../images/hdpm-est.png}
+\caption{State estimates with SIR filter ($P=200$)}
+\label{fig:hdpm_est}
+\end{figure}
 
-\subsection{Maximum Likelihood Estimation}
-Show log-likelihood plots
+Note that neither the Kalman filter nor the continuous SIR method can be used for this model. The Kalman filter cannot be used because the model is non-linear (and the observations are not Gaussian). The continuous SIR particle filter is not applicable because the state is a multivariate variable, consisting of the daily, intra-daily, and periodic component.\\
+
+%  Parameter Inference    %
+\subsection{Parameter Inference}
+Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we compare the sequential importance resampling (SIR) method with the novel importance sampling (IS) particle filter. The result is summarized in \textit{Table \ref{tab:hdpm_param_inference}}.\\  
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l r r r r r r r r}
+\hline
+& $\phi_0^{(D)}$ &  $\phi_1^{(D)}$ & $\sigma^2_{(D)}$ & $\phi_1^{(I)}$ & $\sigma^2_{(I)}$ & $\phi_1^{(P)}$ & true $\log \mathcal{L} $ & MLE $\log \mathcal{L} $ \\
+\hline
+True        & 0.70  & 0.60 &  0.30 & 0.80 & 0.60 & 0.20&  &  \\
+SIR         & 0.76  & 0.56  & 0.85 & 0.48 & 0.83 & 1.13 & -296.663 & -310.851 \\
+IS            & 0.65  & 0.59  & 0.40 & 0.63 & 0.35 & 0.31 & -273.295 & -287.333\\
+\hline
+\end{tabular}
+\caption{MLE parameters with different filters}
+\label{tab:hdpm_param_inference}
+\end{table}
+The table compares the estimated parameters with both methods to the true parameters. 
+
+We used box-constrained optimization with the parameters $\phi_0^{(D)}$,  $\phi_1^{(D)}$, $\phi_1^{(I)}$, and $\phi_1^{(P)}$ bounded between $[0,1]$ and the variances $\sigma^2_{(D)}$ and $\sigma^2_{(I)}$ constrained to lie 
+between $[0.1, 5.0]$.
+
+$$
+\boldsymbol{\tilde{\theta}} = [ \tilde{\phi}_0^{(D)} = 0.5,  \tilde{\phi}_1^{(D)} = 0.5, \tilde{\sigma}^2_{(D)} = 1.0, \tilde{\phi}_1^{(I)} = 0.5, \tilde{\sigma}^2_{(I)} = 1.0, \tilde{\phi}_1^{(P)} = 1.0]^T
+$$
+
 
 \begin{figure}[h!]
 \centering
@@ -607,31 +760,16 @@ Show log-likelihood plots
 \label{fig:conv_nomisinfo}
 \end{figure}
 
-%%%%%%%%%%
-%    Evaluation   %
-%%%%%%%%%%
-\chapter{Evaluation}
-\label{chp:evaluation}
-
-%%%%  Comparison  %%%%
-\section{Method Comparison}
-Compare presented filters with respect to their potential use. Kalman filter only works for linear Gaussian state space models. SIR works for latent state inference but not well for parameter inference. CSIR works for both latent state and parameter inference, however, only in the univariate case. Importance sampling particle filter works for parameter inference but cannot be used for latent state inference. Present table with comment column
 
 
-%%%%  Parameter Inference  %%%%
-\section{Parameter Inference}
-Compare bias, SE, and MSE  for univiariate local level
 
-Particle filtering suffers from propagation error.
-Current approximations errors are related to past approximation errors. 
-The number of particles $P$ should increase with the sample size $T$ to guarantee a good degree of approximation.
 
 %%%%%%%%%%
 %    Conclusion   %
 %%%%%%%%%%
 \chapter{Conclusion}
 \label{chp:conclusion}
-by Etessami et al.\cite{etessami2014_2}
+
 
 %%%%%%%%%%%
 %    Bibliography          %
