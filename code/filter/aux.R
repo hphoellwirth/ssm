@@ -80,7 +80,7 @@ m.aux.filter <- function(y, D=ncol(data.frame(y)), x.pr, x.up, var.eps=1, var.ep
     is.pr <- matrix(nrow = T, ncol = P)
     is.up <- matrix(nrow = T, ncol = P)     
     loglik <- 0 
-
+    
     # initial computation of predictive importance weights
     p     <- sapply(1:P, function(p) dmvnorm(x.pr[[1]][p,], mean=rep(0,D), sigma=cov.eta)) 
     p.aux <- sapply(1:P, function(p) dmvnorm(x.pr[[1]][p,], mean=rep(0,D), sigma=cov.eta.aux)) 
@@ -105,7 +105,7 @@ m.aux.filter <- function(y, D=ncol(data.frame(y)), x.pr, x.up, var.eps=1, var.ep
         m     <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.up[[t]][p,], sigma=cov.eps)) 
         m.aux <- sapply(1:P, function(p) dmvnorm(y[t,], mean=x.up[[t]][p,], sigma=cov.eps.aux)) 
         is.up[t,] <- (m / m.aux) * (mean(lik.aux) / mean(lik)) * is.pr[t,][match.rows(x.up[[t]], x.pr[[t]])] 
-        
+                
         # [2] update predictive importance weights
         if (t < T) { 
             p     <- sapply(1:P, function(p) dmvnorm(x.pr[[t+1]][p,], mean=x.up[[t]][p,], sigma=cov.eta)) 
@@ -155,7 +155,7 @@ m.aux.mle <- function(y, D, P, verbose=TRUE) {
     T <- nrow(y)
     
     # draw noise and particles
-    theta_aux <- c(rep(1,D),0)
+    theta_aux <- c(rep(1.5,D),0.2)
     eta.sim <- list()
     for (t in 1:T) {
         eta.sim[[t]] <- mvrnorm(P, mu=rep(0,D), Sigma=diag(D)) 
@@ -167,7 +167,7 @@ m.aux.mle <- function(y, D, P, verbose=TRUE) {
     # set optimization parameters
     lb <- c(rep(0.1,D), -1)
     ub <- c(rep(5,  D),  1)
-    theta_start <- c(rep(1,D), 0)
+    theta_start <- c(rep(0.5,D), 0.5)
     obj <- function(theta){ return( -m.aux.filter(y, x.pr=pf$x.pr.particles, x.up=pf$x.up.particles, cov.eta=construct.cov(c(theta[1:D]), theta[D+1]), cov.eta.aux=construct.cov(c(theta_aux[1:D]), theta_aux[D+1]))$loglik ) } 
     
     # run box-constrained optimization
