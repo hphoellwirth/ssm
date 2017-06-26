@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 
 # load libraries
-# NONE
+library(scales)
 
 # ----------------------------------------------------------------------
 # State/observation plots
@@ -27,7 +27,7 @@ plot.realization <- function(observations, states, ylab='values') {
 
 plot.estimate <- function(observations, estimate, lowerCL, upperCL, ylab='estimate', col='blue') {
     par(mfrow=c(1,1), mar=c(4,4,1,1))
-    plot(observations, type='p', pch=19, col="red", xlab="time", ylab=ylab)
+    plot(observations, type='p', pch=19, col=alpha("red",0.7), xlab="time", ylab=ylab)
     lines(estimate, col=col)
     lines(upperCL, col='black', lty=2)
     lines(lowerCL, col='black', lty=2)

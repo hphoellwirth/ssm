@@ -18,7 +18,7 @@ par(mfrow=c(1,1))
 save.plots <- FALSE
 
 # load libraries
-# NONE
+library(scales)
 
 # if interactive, during the development, set to TRUE
 interactive <- FALSE
@@ -48,23 +48,25 @@ theta <- list(D.phi0=0.7, D.phi1=0.6, I.phi1=0.3, P.int=0.8, D.var=0.6, I.var=0.
 hdpm.data <- gen.hdpm.data(N=N, M=M, theta, a1=0, P1=1)
 
 # plot data and parameter (components)
-if(save.plots) png("../images/hdpm-realization.png", width=1000, height=500, pointsize=14)
+if(save.plots) png("../images/hdpm-realization.png", width=600, height=350, pointsize=14)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col="red", xlab="time", ylab="counts / parameter (components)")
+plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col=alpha("red",0.7), xlab="time", ylab="counts & parameter")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
-#lines(hdpm.data$D, type='l', col="orange")
-#lines(hdpm.data$P, type='l', col="green")
-#lines(hdpm.data$I, type='l', col="blue")
-legend(5,32, legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
+legend('topleft', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
 if(save.plots) dev.off()
 
 # plot log parameter (components)
-if(save.plots) png("../images/dyn-poisson-log-param.png", width=1000, height=500, pointsize=14)
-plot(log(as.vector(t(as.matrix(hdpm.data$lambda)))), type='l', col="black", xlab="time", ylab="log parameter (components)")
-lines(log(hdpm.data$D), type='l', col="orange")
-lines(log(hdpm.data$P), type='l', col="green")
+if(save.plots) png("../images/hdpm-log-param.png", width=600, height=350, pointsize=14)
+par(mfrow=c(1,1), mar=c(4,4,1,1))
+ylim <- c(min(log(hdpm.data$I)), max(log(as.vector(t(as.matrix(hdpm.data$lambda))))))
+plot(log(as.vector(t(as.matrix(hdpm.data$lambda)))), type='l', ylim=ylim, col="black", xlab="time", ylab="log parameter (components)")
+lines(log(hdpm.data$D), type='l', col="red")
 lines(log(hdpm.data$I), type='l', col="blue")
+lines(log(hdpm.data$P), type='l', col="purple")
+legend('topleft', legend=c('state','daily','intra-daily','periodic'), col=c('black','red','blue','purple'), cex=1.0, lty=1, lwd=2.5)
 if(save.plots) dev.off()
+
+
 
 # ----------------------------------------------------------------------
 # Use particle filter with true parameters to estimate model states
@@ -74,12 +76,19 @@ P <- 200
 hdpm.particle.filter <- particle.filter.hdpm(hdpm.data$y, theta, P=P, x_up.init=rep(0,P))
 
 # plot observations, states, and estimates
-if(save.plots) png("../images/hdpm_est.png", width=1000, height=600, pointsize=14)
+states <- matrix(nrow=N*M, ncol=P)
+for (t in 1:(N*M)) {
+    states[t,] <- exp(rowSums(hdpm.particle.filter$x.up.particles[[t]]))
+}
+
+if(save.plots) png("../images/hdpm-est.png", width=700, height=400, pointsize=14)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
-plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col="red", xlab="time", ylab="counts & parameter")
-lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="blue")
-lines(hdpm.particle.filter$x.pr, col="orange")
-#legend(2,33, c('observation','state','particle'), cex=1.0, lty=rep(1,4), lwd=rep(2.5,4), col=c('red','blue','orange'))
+plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col=alpha("red",0.7), xlab="time", ylab="counts & parameter")
+lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
+lines(hdpm.particle.filter$x.pr, col="orange", lwd=1.5)
+lines(rowQuantiles(states, probs=c(0.95)), col=alpha('orange',1.0), lty=2)
+lines(rowQuantiles(states, probs=c(0.05)), col=alpha('orange',1.0), lty=2)
+legend('topleft', c('observation','state','estimate','95% quantile'), cex=1.0, lty=c(0,1,1,2), lwd=rep(2.5,4), col=c('red','black','orange','orange'), pch=c(19,NA,NA,NA))
 if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------

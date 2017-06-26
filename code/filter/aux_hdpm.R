@@ -107,7 +107,6 @@ aux.mle.hdpm <- function(y, P, verbose=TRUE) {
     # draw particles from standard uniform 
     u.sim   <- matrix(runif(N*M*P, min=0, max=1), nrow=N*M, ncol=P)   
     for (nm in c(1:(N*M))) {u.sim[nm,] <- sort( u.sim[nm,] )}    
-    theta_aux <- 1
     eta.sim <- matrix(rnorm(P*T, mean=0, sd=1), nrow=T, ncol=P) 
 
     theta_aux <- list(D.phi0=0.5, D.phi1=0.5, I.phi1=0.5, P.int=1, D.var=1, I.var=1)

@@ -258,9 +258,9 @@ if(save.results) {
 # ----------------------------------------------------------------------
 # Compute filter MLE statistics for different T and P
 # ----------------------------------------------------------------------
-Ts <- c(50,100,150,200,250,300,400,500)
-Ps <- c(100,200,300,400,500)
-R <- 10 # runs per combination
+Ts <- c(50,100,250,500)
+Ps <- c(50,200,500)
+R <- 100 # runs per combination
 
 # generate R local level observations for each length T
 var.eta <- 1.4
@@ -269,7 +269,7 @@ llm.data <- list()
 for (t in 1:length(Ts)) {
     llm.data[[t]] <- matrix(nrow=R, ncol=Ts[t])
     for (i in 1:R) {
-        llm.data[[t]][i,] <- gen.llm.data(n=Ts[t], var.eta)$y
+        llm.data[[t]][i,] <- gen.llm.data(T=Ts[t], var.eta)$y
     }
 }
 
@@ -289,9 +289,9 @@ for (t in 1:length(Ts)) {
 } 
 
 if(save.results) {
-    save(bias.kalman, file="../results/ullm.kalman.bias.Rda")
-    save(se.kalman,   file="../results/ullm.kalman.se.Rda")
-    save(mse.kalman,  file="../results/ullm.kalman.mse.Rda")
+    save(bias.kalman, file="../results/ullm.kalman.bias.1.Rda")
+    save(se.kalman,   file="../results/ullm.kalman.se.1.Rda")
+    save(mse.kalman,  file="../results/ullm.kalman.mse.1.Rda")
 }
 
 if(save.plots) png("../images/ullm_mse_kalman.png", width=750, height=500, pointsize=15)
@@ -301,7 +301,7 @@ if(save.plots) dev.off()
 
 
 # compute MSE for particle filter (over parameters)
-Ts <- c(50,100,150,200,250)
+#Ts <- c(50,100,150,200,250)
 bias.particle <- se.particle <- mse.particle <- data.frame(matrix(nrow=length(Ts), ncol=length(Ps)), row.names = paste0('T',Ts))
 colnames(bias.particle) <- colnames(se.particle) <- colnames(mse.particle) <- paste0('P',Ps)
 for (t in 1:length(Ts)) {
