@@ -49,12 +49,12 @@ plot.loglik <- function(para, loglik, true.para, col='blue', xlab='parameter') {
     abline(v=xticks , lty=3)
 }
 
-plot.loglik.zoom <- function(para, loglik, true.para, col='blue', xlab='parameter', ylab=NA) {
+plot.loglik.zoom <- function(para, loglik, true.para, col='blue', xlab='parameter', ylab=NULL, title=NULL) {
     # remove points further than 10% below the median
     medianll <- median(loglik, na.rm=TRUE)   
     loglik <- replace(loglik, (loglik < 1.1*medianll), NaN)
     
-    plot(para, loglik, type='b', col=col, xlab=xlab, ylab='', xaxt="n", yaxt='n', las=2)
+    plot(para, loglik, type='b', col=col, xlab=xlab, ylab='', main=title, xaxt="n", yaxt='n', las=2)
     elementwise.all.equal <- Vectorize(function(x, y) {isTRUE(all.equal(x, y))})
     points(true.para, loglik[elementwise.all.equal(para, true.para)], pch=19) # highlight true parameter
     xticks <- axis(side=1, at=para)

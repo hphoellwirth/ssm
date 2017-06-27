@@ -209,14 +209,20 @@ plot.loglik.zoom(eta.det, ll.csir.zoom, var.eta, 'blue', 'var.eta with CSIR filt
 plot.loglik.zoom(eta.det, ll.aux.zoom, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
 if(save.plots) dev.off()
 
-#if(save.plots) png("../images/ullm-loglik-detail.png", width=750, height=500, pointsize=15)
-#par(mfrow=c(1,1), mar=c(4,4,1,1))
-#matplot(eta, cbind(ll.kalman,ll.particle,ll.aux), type='b', col=c("green","orange","magenta") , ylab="log-likelihood", xaxt="n", las=2)
-#points(var.eta, -1 ) # highlight true parameter
-#xticks <- axis(side=1, at=eta)
-#abline(v=xticks , lty=3)
-#if(save.plots) dev.off()
+# compare SIR and CSIR
+eta.det <- seq(1.375,1.425,0.0005)
+ll.sir.zoom <- ll.csir.zoom <- rep(0,length(eta.det))
+for (i in 1:length(eta.det)) {
+    cat('.')
+    ll.sir.zoom[i]  <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik 
+    ll.csir.zoom[i] <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=TRUE)$loglik 
+}
 
+if(save.plots) png("../images/ullm-loglik-zoom-2.png", width=1000, height=300, pointsize=14)
+par(mfrow=c(1,2), mar=c(2,1,1,1))
+plot.loglik.zoom(eta.det, ll.sir.zoom, var.eta, 'orange', 'var.eta with SIR filter', 'log-likelihood', 'SIR')
+plot.loglik.zoom(eta.det, ll.csir.zoom, var.eta, 'blue', 'var.eta with CSIR filter', 'log-likelihood', 'CSIR')
+if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------
 # Compute MLE with different filters
