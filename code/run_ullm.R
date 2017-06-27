@@ -63,8 +63,8 @@ llm.kalman.filter <- kalman.filter(llm.data$y, cov.eta=var.eta)
 
 if(save.plots) png("../images/ullm-estimate-kalman.png", width=600, height=450, pointsize=14)
 plot.estimate(llm.data$y, llm.kalman.filter$x.up, 
-              upperCL=(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
-              lowerCL=(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
+              upper90CI=(llm.kalman.filter$x.up + 1.645*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
+              lower90CI=(llm.kalman.filter$x.up - 1.645*sqrt(unlist(llm.kalman.filter$x.up.cov))), 
               ylab='Kalman estimate', col='green')
 if(save.plots) dev.off()
 
@@ -74,8 +74,8 @@ llm.particle.filter <- particle.filter(llm.data$y, cov.eta=var.eta, P=P, x_up.in
 
 if(save.plots) png("../images/ullm-estimate-particle.png", width=600, height=450, pointsize=14)
 plot.estimate(llm.data$y, llm.particle.filter$x.up, 
-              upperCL=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.95)), 
-              lowerCL=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.05)),  
+              upper90CI=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.95)), 
+              lower90CI=rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.05)),  
               ylab='SIR particle estimate', col='orange')
 if(save.plots) dev.off()
 
@@ -83,13 +83,13 @@ if(save.plots) dev.off()
 if(save.plots) png("../images/ullm-filter-comparison.png", width=600, height=450, pointsize=14)
 par(mfrow=c(1,1), mar=c(4,4,1,1))
 plot(llm.data$x, type='l', col="black", xlab="time", ylab='estimates')
-lines(llm.kalman.filter$x.up, col='green')
-lines(llm.particle.filter$x.up, col='orange')
-lines(llm.kalman.filter$x.up + 2*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
-lines(llm.kalman.filter$x.up - 2*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
+lines(llm.kalman.filter$x.up, col='green', lwd=1.5)
+lines(llm.particle.filter$x.up, col='orange', lwd=1.5)
+lines(llm.kalman.filter$x.up + 1.645*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
+lines(llm.kalman.filter$x.up - 1.645*sqrt(unlist(llm.kalman.filter$x.up.cov)), col=alpha('green',0.7), lty=2)
 lines(rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.95)), col=alpha('orange',0.7), lty=2)
 lines(rowQuantiles(llm.particle.filter$x.up.particles, probs=c(0.05)), col=alpha('orange',0.7), lty=2)
-legend('topleft', legend=c('latent states','Kalman estimate', 'Kalman 95% CL', 'SIR estimate', 'SIR 95% CL'), col=c('black','green','green','orange','orange'), cex=1.0, lty=c(1,1,2,1,2), lwd=2.5)
+legend('topleft', legend=c('latent states','Kalman estimate', 'Kalman 90% CI', 'SIR estimate', 'SIR 90% CI'), col=c('black','green','green','orange','orange'), cex=1.0, lty=c(1,1,2,1,2), lwd=2.5)
 if(save.plots) dev.off()
 
 # plot observations, states, and predictions
@@ -259,7 +259,7 @@ if(save.results) {
 # Compute filter MLE statistics for different T and P
 # ----------------------------------------------------------------------
 Ts <- c(50,100,250,500)
-Ps <- c(50,200,500)
+Ps <- c(20,50,200,500)
 R <- 100 # runs per combination
 
 # generate R local level observations for each length T
@@ -289,9 +289,9 @@ for (t in 1:length(Ts)) {
 } 
 
 if(save.results) {
-    save(bias.kalman, file="../results/ullm.kalman.bias.1.Rda")
-    save(se.kalman,   file="../results/ullm.kalman.se.1.Rda")
-    save(mse.kalman,  file="../results/ullm.kalman.mse.1.Rda")
+    save(bias.kalman, file="../results/ullm.kalman.bias.Rda")
+    save(se.kalman,   file="../results/ullm.kalman.se.Rda")
+    save(mse.kalman,  file="../results/ullm.kalman.mse.Rda")
 }
 
 if(save.plots) png("../images/ullm_mse_kalman.png", width=750, height=500, pointsize=15)
@@ -300,7 +300,7 @@ plot(Ts, mse.kalman, type='l', col='red', xlab='T', ylab='mse')
 if(save.plots) dev.off()  
 
 
-# compute MSE for particle filter (over parameters)
+# compute MSE for CSIR particle filter (over parameters)
 #Ts <- c(50,100,150,200,250)
 bias.particle <- se.particle <- mse.particle <- data.frame(matrix(nrow=length(Ts), ncol=length(Ps)), row.names = paste0('T',Ts))
 colnames(bias.particle) <- colnames(se.particle) <- colnames(mse.particle) <- paste0('P',Ps)
@@ -349,7 +349,61 @@ if(save.results) {
     save(mse.aux,  file="../results/ullm.aux.mse.Rda")
 }
 
+# ----------------------------------------------------------------------
+# Load and plot MLE statistics for different T and P
+# ----------------------------------------------------------------------
+load(file="../results/ullm.kalman.bias.Rda")
+load(file="../results/ullm.kalman.se.Rda")
+load(file="../results/ullm.kalman.mse.Rda")
+load(file="../results/ullm.particle.bias.Rda")
+load(file="../results/ullm.particle.se.Rda")
+load(file="../results/ullm.particle.mse.Rda")
+load(file="../results/ullm.aux.bias.Rda")
+load(file="../results/ullm.aux.se.Rda")
+load(file="../results/ullm.aux.mse.Rda")
 
+if(save.plots) png("../images/ullm-mc-mle.png", width=1000, height=300, pointsize=20)
+par(mfrow=c(1,3), mar=c(4,2,1,1))
+# plot bias
+bounds <- c(bias.kalman^2, bias.particle[,'P500']^2, bias.aux[,'P500']^2)
+plot(Ts, bias.kalman^2, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='bias^2')
+lines(Ts, bias.particle[,'P500']^2, type='b', col='orange', lwd='1.5')
+lines(Ts, bias.particle[,'P200']^2, type='b', col=alpha('orange',0.6))
+lines(Ts, bias.particle[,'P50']^2, type='b', col=alpha('orange',0.4))
+lines(Ts, bias.particle[,'P20']^2, type='b', col=alpha('orange',0.2))
+lines(Ts, bias.aux[,'P500']^2, type='b', col='magenta', lwd='1.5')
+lines(Ts, bias.aux[,'P200']^2, type='b', col=alpha('magenta',0.6))
+lines(Ts, bias.aux[,'P50']^2, type='b', col=alpha('magenta',0.4))
+lines(Ts, bias.aux[,'P20']^2, type='b', col=alpha('magenta',0.2))
+lines(Ts, bias.kalman^2, type='b', col='green', lwd='1.5')
+
+# plot standard error
+bounds <- c(se.kalman, se.particle[,'P500'], se.aux[,'P500'])
+plot(Ts, se.kalman, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='standard error')
+lines(Ts, se.particle[,'P500'], type='b', col='orange', lwd='1.5')
+lines(Ts, se.particle[,'P200'], type='b', col=alpha('orange',0.6))
+lines(Ts, se.particle[,'P50'], type='b', col=alpha('orange',0.4))
+lines(Ts, se.particle[,'P20'], type='b', col=alpha('orange',0.2))
+lines(Ts, se.aux[,'P500'], type='b', col='magenta', lwd='1.5')
+lines(Ts, se.aux[,'P200'], type='b', col=alpha('magenta',0.6))
+lines(Ts, se.aux[,'P50'], type='b', col=alpha('magenta',0.4))
+lines(Ts, se.aux[,'P20'], type='b', col=alpha('magenta',0.2))
+lines(Ts, se.kalman, type='b', col='green', lwd='1.5')
+
+# plot MSE
+bounds <- c(mse.kalman, mse.particle[,'P500'], mse.aux[,'P500'])
+plot(Ts, mse.kalman, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='MSE')
+lines(Ts, mse.particle[,'P500'], type='b', col='orange', lwd='1.5')
+lines(Ts, mse.particle[,'P200'], type='b', col=alpha('orange',0.6))
+lines(Ts, mse.particle[,'P50'], type='b', col=alpha('orange',0.4))
+lines(Ts, mse.particle[,'P20'], type='b', col=alpha('orange',0.2))
+lines(Ts, mse.aux[,'P500'], type='b', col='magenta', lwd='1.5')
+lines(Ts, mse.aux[,'P200'], type='b', col=alpha('magenta',0.6))
+lines(Ts, mse.aux[,'P50'], type='b', col=alpha('magenta',0.4))
+lines(Ts, mse.aux[,'P20'], type='b', col=alpha('magenta',0.2))
+lines(Ts, mse.kalman, type='b', col='green', lwd='1.5')
+legend('topright',c('Kalman','CSIR (P=500)','IS (P=500)'), col=c('green','orange','magenta'), cex=1.0, lty=1, lwd=2.5)
+if(save.plots) dev.off()
 
 
 

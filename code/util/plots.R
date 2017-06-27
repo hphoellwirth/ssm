@@ -25,13 +25,13 @@ plot.realization <- function(observations, states, ylab='values', ylim=NULL, tit
     legend('topleft', legend=c('observation','state'), col=c('red','black'), cex=1.0, lty=c(0,1), lwd=c(0,2.5), pch=c(19,NA))
 }
 
-plot.estimate <- function(observations, estimate, lowerCL, upperCL, ylab='estimate', col='blue') {
+plot.estimate <- function(observations, estimate, lower90CI, upper90CI, ylab='estimate', col='blue') {
     par(mfrow=c(1,1), mar=c(4,4,1,1))
     plot(observations, type='p', pch=19, col=alpha("red",0.7), xlab="time", ylab=ylab)
-    lines(estimate, col=col)
-    lines(upperCL, col='black', lty=2)
-    lines(lowerCL, col='black', lty=2)
-    legend('topleft', legend=c('observation','estimate', 'bounds'), col=c('red',col,'black'), cex=1.0, lty=c(0,1,2), lwd=c(0,2.5,2.5), pch=c(19,NA,NA))
+    lines(estimate, col=col, lwd=1.5)
+    lines(upper90CI, col='black', lty=2)
+    lines(lower90CI, col='black', lty=2)
+    legend('topleft', legend=c('observation','estimate', '90% CI'), col=c('red',col,'black'), cex=1.0, lty=c(0,1,2), lwd=c(0,2.5,2.5), pch=c(19,NA,NA))
 }
 
 # ----------------------------------------------------------------------

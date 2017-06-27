@@ -68,7 +68,11 @@ particle.filter <- function(y, var.eps=1, cov.eta=1, eta.sim=NA, u.sim=NA, P=nco
         
         # compute filtered estimator to update (a posteriori) state estimate
         if (use.csir) {
-            x_up <- csir(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
+            if (P >=200)
+                x_up <- csir.c(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
+            else
+                x_up <- csir(x_pr, lik, u.sim[t,]) # cannot be used in combination with auxiliary filter
+            
         } else {
             x_up <- sir(x_pr, lik, u.sim[t,])
         }
@@ -134,7 +138,7 @@ m.particle.filter <- function(y, D=ncol(data.frame(y)), var.eps=1, cov.eta=diag(
 # ----------------------------------------------------------------------
 # (Univariate) maximum likelihood estimator
 # ----------------------------------------------------------------------
-particle.mle <- function(y, P, verbose=TRUE) {
+particle.mle <- function(y, P, verbose=TRUE, use.csir=TRUE) {
     T <- length(y)
     
     # draw noise and particles
@@ -146,7 +150,7 @@ particle.mle <- function(y, P, verbose=TRUE) {
     lb <- 0.1
     ub <- 5
     theta_start <- 2
-    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=TRUE)$loglik ) } 
+    obj <- function(theta){ return( -particle.filter(y, cov.eta=theta, eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=use.csir)$loglik ) } 
     
     # run box-constrained optimization
     if (verbose) print('estimating model parameters...') 
