@@ -23,4 +23,10 @@ R.~E. Kalman.
 \newblock {\em Transactions of the ASME–Journal of Basic Engineering},
   82(Series D):35--45, 1960.
 
+\bibitem{malik2011}
+S.~Malik and M.~K. Pitt.
+\newblock Particle filters for continuous likelihood evaluation and
+  maximisation.
+\newblock {\em Journal of Econometrics}, 165(2):190--209, 2011.
+
 \end{thebibliography}

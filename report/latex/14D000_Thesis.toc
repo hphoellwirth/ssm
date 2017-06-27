@@ -6,31 +6,34 @@
 \contentsline {chapter}{\numberline {3}Filtering}{7}
 \contentsline {section}{\numberline {3.1}Kalman Filter}{7}
 \contentsline {subsection}{\nonumberline Algorithm}{8}
-\contentsline {subsection}{\nonumberline Example: Local Level Model}{8}
+\contentsline {subsection}{\nonumberline Example: Local Level Model}{9}
 \contentsline {subsection}{\nonumberline Likelihood evaluation}{9}
 \contentsline {section}{\numberline {3.2}SIR Particle Filter}{10}
 \contentsline {subsection}{\nonumberline Sequential Importance Resampling (SIR)}{10}
 \contentsline {subsection}{\nonumberline Algorithm}{11}
-\contentsline {subsection}{\nonumberline Example: Local Level Model}{11}
+\contentsline {subsection}{\nonumberline Example: Local Level Model}{12}
 \contentsline {subsection}{\nonumberline Likelihood evaluation}{12}
-\contentsline {section}{\numberline {3.3}Importance Sampling Particle Filter}{13}
-\contentsline {subsection}{\nonumberline Algorithm}{14}
-\contentsline {subsection}{\nonumberline Example: Local Level Model}{15}
-\contentsline {subsection}{\nonumberline Likelihood evaluation}{15}
-\contentsline {chapter}{\numberline {4}Evaluation}{18}
-\contentsline {section}{\numberline {4.1}Method Comparison}{18}
-\contentsline {section}{\numberline {4.2}Parameter Inference}{18}
-\contentsline {chapter}{\numberline {5}Illustration}{21}
-\contentsline {section}{\numberline {5.1}Trivariate Local Level Model}{21}
-\contentsline {subsection}{\nonumberline The Model}{21}
-\contentsline {subsection}{\nonumberline Model Densities}{21}
-\contentsline {subsection}{\nonumberline Realization}{22}
-\contentsline {subsection}{\nonumberline Latent State Inference}{22}
-\contentsline {subsection}{\nonumberline Parameter Inference}{23}
-\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{25}
-\contentsline {subsection}{\nonumberline The Model}{25}
-\contentsline {subsection}{\nonumberline Model Densities}{26}
-\contentsline {subsection}{\nonumberline Realization}{26}
-\contentsline {subsection}{\nonumberline Latent State Inference}{27}
-\contentsline {subsection}{\nonumberline Parameter Inference}{27}
-\contentsline {chapter}{\numberline {6}Conclusion}{29}
+\contentsline {section}{\numberline {3.3}CSIR Particle Filter}{13}
+\contentsline {subsection}{\nonumberline Algorithm}{13}
+\contentsline {subsection}{\nonumberline Example: Local Level Model}{14}
+\contentsline {section}{\numberline {3.4}Importance Sampling Particle Filter}{15}
+\contentsline {subsection}{\nonumberline Algorithm}{15}
+\contentsline {subsection}{\nonumberline Example: Local Level Model}{16}
+\contentsline {subsection}{\nonumberline Likelihood evaluation}{17}
+\contentsline {chapter}{\numberline {4}Evaluation}{20}
+\contentsline {section}{\numberline {4.1}Method Comparison}{20}
+\contentsline {section}{\numberline {4.2}Parameter Inference}{20}
+\contentsline {chapter}{\numberline {5}Illustration}{23}
+\contentsline {section}{\numberline {5.1}Trivariate Local Level Model}{23}
+\contentsline {subsection}{\nonumberline The Model}{23}
+\contentsline {subsection}{\nonumberline Model Densities}{23}
+\contentsline {subsection}{\nonumberline Realization}{24}
+\contentsline {subsection}{\nonumberline Latent State Inference}{24}
+\contentsline {subsection}{\nonumberline Parameter Inference}{25}
+\contentsline {section}{\numberline {5.2}Hierarchical Dynamic Poisson Model}{27}
+\contentsline {subsection}{\nonumberline The Model}{27}
+\contentsline {subsection}{\nonumberline Model Densities}{28}
+\contentsline {subsection}{\nonumberline Realization}{28}
+\contentsline {subsection}{\nonumberline Latent State Inference}{29}
+\contentsline {subsection}{\nonumberline Parameter Inference}{29}
+\contentsline {chapter}{\numberline {6}Conclusion}{31}

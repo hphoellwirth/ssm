@@ -3,46 +3,44 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: 14D000_Thesis.aux
 The style file: plain.bst
 Database file #1: references.bib
-Warning--I didn't find a database entry for "etessami2014_2"
-You've used 4 entries,
+You've used 5 entries,
             2118 wiz_defined-function locations,
-            523 strings with 4644 characters,
-and the built_in function-call counts, 1149 in all, are:
-= -- 113
-> -- 51
+            529 strings with 4770 characters,
+and the built_in function-call counts, 1482 in all, are:
+= -- 148
+> -- 64
 < -- 0
-+ -- 23
-- -- 16
-* -- 77
-:= -- 207
-add.period$ -- 12
-call.type$ -- 4
-change.case$ -- 20
++ -- 28
+- -- 20
+* -- 103
+:= -- 262
+add.period$ -- 15
+call.type$ -- 5
+change.case$ -- 25
 chr.to.int$ -- 0
-cite$ -- 4
-duplicate$ -- 42
-empty$ -- 87
-format.name$ -- 16
-if$ -- 227
+cite$ -- 5
+duplicate$ -- 53
+empty$ -- 114
+format.name$ -- 20
+if$ -- 295
 int.to.chr$ -- 0
-int.to.str$ -- 4
-missing$ -- 4
-newline$ -- 23
-num.names$ -- 8
-pop$ -- 16
+int.to.str$ -- 5
+missing$ -- 5
+newline$ -- 28
+num.names$ -- 10
+pop$ -- 19
 preamble$ -- 1
-purify$ -- 16
+purify$ -- 20
 quote$ -- 0
-skip$ -- 30
+skip$ -- 38
 stack$ -- 0
-substring$ -- 67
-swap$ -- 4
+substring$ -- 97
+swap$ -- 5
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 16
+type$ -- 20
 warning$ -- 0
-while$ -- 12
-width$ -- 5
-write$ -- 44
-(There was 1 warning)
+while$ -- 16
+width$ -- 6
+write$ -- 55

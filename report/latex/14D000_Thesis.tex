@@ -23,8 +23,9 @@
 %%%%%%%%
 %    Cover     %
 %%%%%%%%
-\title{\textit{}\\\textit{}\\Time Series Analysis with\\ State Space Models}
-\author{Hans-Peter H{\"o}llwirth}
+%\title{\textit{}\\\textit{}\\Time Series Analysis with\\ State Space Models}
+\title{\textit{}\\\textit{}\\Particle Filters for Nonlinear\\ State Space Models}
+\author{Hans-Peter H{\"o}llwirth \\  \\Supervisor: \\ Dr. Christian Brownlees}
 \publishers{Master Project Report \\ 
 Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 \date{}
@@ -47,6 +48,8 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 %%%%%%%%%%
 \chapter{Introduction}
 \label{chp:introduction}
+%In this paper, a method is introduced for approximating the likelihood for the unknown parameters of a state space model. The approximation converges to the true likelihood as the simulation size goes to infinity. In addition, the approximating likelihood is continuous as a function of the unknown parameters under rather general conditions. The approach advocated is fast and robust, and it avoids many of the pitfalls associated with current techniques based upon importance sampling. We assess the performance of the method by considering a linear state space model, comparing the results with the Kalman filter, which delivers the true likelihood. We also apply the method to a non-Gaussian state space model, the stochastic volatility model, finding that the approach is efficient and effective. Applications to continuous time finance models and latent panel data models are considered. Two different multivariate approaches are proposed. The neoclassical growth model is considered as an application. 
+
 
 Particle filtering has become an established technique to solve state space models. Theory exists since the 1950s and Kalman filter was proposed in 1960, however, particle filtering then was computationally too expensive.
 
@@ -191,8 +194,6 @@ For the case of this model, the mean and (co)variance of the prediction and filt
 
 %  Algorithm    %
 \subsection{Algorithm}
-Note that to start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$. In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
-
 \begin{algorithm}[h!]
 \caption{(Local Level) Kalman filter}
 \label{alg:kalman}
@@ -216,6 +217,8 @@ Note that to start the recursion, we need an initial state density with $\boldsy
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+To start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$. In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
+
 \textit{Algorithm \ref{alg:kalman}} describes the recursive update of the prediction and filtering density.  For our purpose, the algorithm returns the filtering densities. 
 The sequence of filtering means $\{\boldsymbol{\mu}_{t | t}\}$ is the best possible estimation for the latent states $\{\boldsymbol{x}_t\}$. 
 The sequence of covariances $\{\Sigma_{t | t}\}$ can be used to obtain confidence intervals for these estimates. \\  
@@ -277,7 +280,7 @@ The algorithm's main characteristic is the resampling within the filtering step 
 In the following version of the algorithm we assume the initialization parameters $\boldsymbol{\delta}$ to be known. For example, in the case of the local level model, $\boldsymbol{\delta} = [\boldsymbol{\mu}_1, \Sigma_1]^T$.\\
 
 \begin{algorithm}[h!]
-\caption{Sequential Importance Sampling}
+\caption{Sequential Importance Resampling Particle Filter}
 \label{alg:sir}
 \begin{algorithmic}[1]
 	\Procedure{SIR}{$\mathcal{I}_T, \boldsymbol{\theta}, \boldsymbol{\delta}, P$}
@@ -338,18 +341,16 @@ Note that the estimates of the Kalman filter and the SIR particle filter are alm
 This is because the number of particles $P=200$ was chosen to be sufficiently large. 
 In general, the approximation error of particle filter methods goes $0$ as $P \to \infty$.
 
-
 %  Likelihood    %
 \subsection{Likelihood evaluation}
-The likelihood of a single observation given all previous observations $p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})$ can be estimated by simple Monte Carlo integration:
+The likelihood of a single observation given all previous observations $p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})$ can be estimated by simple Monte Carlo integration:\\
 \begin{align} 
 \begin{split}
 p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | x_t, \boldsymbol{\theta}) p(x_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d x_t \\
-\hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &\approx \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta})\\
- &= \frac{1}{P} \sum_{i=1}^P \tilde{w}_t^i\\
+\hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &\approx \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) = \frac{1}{P} \sum_{i=1}^P \tilde{w}_t^i\\
 \end{split}					
 \end{align}
-Thus, the likelihood can be easily constructed from the (unnormalized) importance weights in the particle filter. The estimated log-likelihood of the whole system, described the the series of observations $\mathcal{I}_T$, can then be defined as
+Thus, the likelihood can be easily constructed from the (unnormalized) importance weights in the particle filter. The estimated log-likelihood of the whole system, described the the series of observations $\mathcal{I}_T$, can then be defined as\\
 \begin{align} 
 \begin{split}
 \log \hat{\mathcal{L}}(\mathcal{I}_T, \boldsymbol{\theta}) &= \log \prod_{t=1}^T \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
@@ -357,7 +358,62 @@ Thus, the likelihood can be easily constructed from the (unnormalized) importanc
 &= \sum_{t=1}^T \log \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) \\
 \end{split}					
 \end{align} 
-Note that for the sequential importance resampling algorithm, this log-likelihood estimator is not necessarily smooth with respect to $\boldsymbol{\theta}$. This can cause problems when trying to find the maximum like-likelihood. For this reason, \textit{Continuous Sequential Importance Sampling (CSIR)} proves to be a better algorithm for parameter inference.
+Note that for the sequential importance resampling algorithm, this log-likelihood estimator is not necessarily smooth with respect to $\boldsymbol{\theta}$. This can cause problems when we want to use the algorithm for parameter inference where the optimizer might get stuck in a local optimum. Thus, for the purpose of parameter inference, other particle filters such as \textit{Continuous Sequential Importance Resampling (CSIR)} are usually preferred.\\
+
+%%%%  CSIR Particle Filter   %%%%
+\section{CSIR Particle Filter}
+The \textit{Continuous Sequential Importance Resampling (CSIR)} particle filter by Malik and Pitt (2011) adapts the filtering step in the SIR algorithm in a way that smoothes the (log-)likelihood with respect to the unknown parameters $\boldsymbol{\theta}$. In particular, it replaces the multinomial sampling step (that uses the importance weights as respective probabilities) by an alternative sampling step which is described in \textit{Algorithm \ref{alg:csir}}. The prediction step and the computation of the importance weights are the same for the CSIR particle filter as the steps described in \textit{Algorithm \ref{alg:sir}}. 
+
+%  Algorithm    %
+\subsection{Algorithm}
+The algorithm takes $P$ predictive particles and their associated, normalized importance weights as input. Instead of bootstrapping from that set of particles with their associated weight as probability, the algorithm sorts the particles, forms its (discrete) cumulative distribution function (cdf), and then interpolates this cdf to obtain a continuous cumulative distribution function. The interpolation lets the continuous cdf pass through the mid-point of each step in the discrete cdf. The algorithm then samples filtering particles from the inverted, smooth cumulative distribution function.\\
+
+\begin{algorithm}[h!]
+\caption{Continuous Sequential Importance Resampling Step}
+\label{alg:csir}
+\begin{algorithmic}[1]
+	\Procedure{CSIR}{$\{x_{t | t - 1}^i\}_{i=1}^P, \{w_t^i\}_{i=1}^P$}
+      	\smallskip
+	\State $u \gets$ sort(Uniform(P, 0, 1))
+	\smallskip
+	\State $\{(\hat{x}_{t | t - 1}^i, \hat{w}_t^i)\}_{i=1}^P \gets$ sort($\{(x_{t | t - 1}^i, w_t^i)\}_{i=1}^P$ by $x_{t | t - 1}$)\Comment{sort particles}
+	\smallskip
+	\State $cw_1 \gets 0$
+	\For{\texttt{$i$ in $1:P$}}
+		\State $cw_{i+1} \gets cw_{i} +  \hat{w}_t^i$ \Comment{cumulative weights}
+	\EndFor	
+      	\smallskip
+	\State $j \gets 1$
+	\For{\texttt{$i$ in $1:P$}} \Comment{continuous resampling}
+		\While{\texttt{$cw_i < u_j$ and $u_j \leq cw_{i+1}$ and $j < P$}}
+			\State $x_{t | t}^j \gets (x_{t | t - 1}^{i+1} - x_{t | t-1}^i) / (cw_{i+1} - cw_i) \times (u_j - cw_i)$
+			\smallskip
+			\If{$j < P$} 
+				\State $j \gets j + 1$ 
+			\Else 
+				\State break 
+			\EndIf
+		\EndWhile 
+	\EndFor		
+	\smallskip
+      \State \textbf{return} $\{x_{t | t}^i\}_{i=1}^P$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Note that the sorting step of the particles in the CSIR algorithm prevents this method to be used for multivariate particles. In other words, the CSIR algorithm is only applicable for univariate state space models.\\
+
+%  Example    %
+\subsection{Example: Local Level Model}
+\textit{Figure \ref{fig:ullm-loglik-zoom-2}} compares the log-likelihood function of the SIR and the CSIR algorithm for a local level model with respect to $\sigma_{\eta}^2$. 
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=145mm]{../../images/ullm-loglik-zoom-2.png}
+\caption{Log-likelihood as a function of $\sigma_{\eta}^2$ with SIR and CSIR filter}
+\label{fig:ullm-loglik-zoom-2}
+\end{figure}
+In particular, the graphs show the log-likelihood around the true parameter $\sigma_{\eta}^2 = 1.4$ (highlighted with a black dot) with small intervals of $0.0005$. The graphs illustrate how the CSIR method smoothes the log-likelihood function which in the case of the SIR algorithm is cluttered with many local optima and so makes the method unsuited for parameter inference. Note though, that the CSIR log-likelihood function is not a concave function either.
 
 %%%%  Importance Sampling Particle Filter   %%%%
 \section{Importance Sampling Particle Filter}
@@ -443,11 +499,10 @@ We consider the realization of an univariate local model with parameters plotted
 
 %  Likelihood    %
 \subsection{Likelihood evaluation}
-% add CSIR?
 As explained earlier, the likelihood is directly evaluated by the importance sampling particle filter algorithm and is actually its main output. 
 The algorithm approximates the log-likelihood via importance sampling. 
 Its main attractive feature is that the log-likelihood is smooth with respect to $\boldsymbol{\theta}$. 
-That claim is supported by the plots in in \textit{Figure \ref{fig:ullm_loglik}} which compare the log-likelihood of different methods for different values of $\sigma_{\eta}^2$ as $\sigma_{\epsilon}^2$ is kept at its true value ($1.0$): the Kalman filter (green), the SIR particle filter (orange), and the importance sampling particle filter (magenta).\\ 
+That claim is supported by the plots in in \textit{Figure \ref{fig:ullm_loglik}} which compare the log-likelihood of different methods for different values of $\sigma_{\eta}^2$ as $\sigma_{\epsilon}^2$ is kept at its true value ($1.0$): the Kalman filter (green), the SIR particle filter (orange), the CSIR particle filter (blue), and the importance sampling particle filter (magenta).\\ 
 
 \begin{figure}[h!]
 \centering
@@ -457,13 +512,15 @@ That claim is supported by the plots in in \textit{Figure \ref{fig:ullm_loglik}}
 \end{subfigure}%
 \begin{subfigure}{0.5\textwidth}
   \centering
-  \includegraphics[width=75mm]{../../images/ullm-loglik-detail.png}
+  \includegraphics[width=75mm]{../../images/ullm-loglik-zoom.png}
 \end{subfigure}
 \caption{Log-likelihood as a function of $\sigma_{\eta}^2$ with different filters}
 \label{fig:ullm_loglik}
 \end{figure}
 
-The left plots show the log-likelihood for larger step sizes ($0.1$) of $\sigma_{\eta}^2$. The function with respect to $\sigma_{\eta}^2$ appears to be smooth for all three filters. However, as the right plots show, the picture changes when we decrease the step size to $0.001$ around the true $\sigma_{\eta}^2$. While both the Kalman and the IS particle filter still produce a smooth, concave log-likelihood curve, the log-likelihood plot of the SIR particle filter reveals many local optima. The log-likelihood for the true parameter $\sigma_{\eta}^2 = 1.4$ is highlighted with a black point.\\   
+The left plots show the log-likelihood for larger step sizes ($0.1$) of $\sigma_{\eta}^2$ (again, with the true parameter $\sigma_{\eta}^2 = 1.4$ highlighted with a black point). The function with respect to $\sigma_{\eta}^2$ appears to be smooth for all four filters. However, as the right plots show, the picture changes when we decrease the step size to $0.001$ around the true $\sigma_{\eta}^2$. While both the Kalman and the IS particle filter still produce a smooth, concave log-likelihood curve, the log-likelihood plots of the SIR and CSIR particle filters no longer appear to be concave. The SIR particle filter in particular is cluttered with many local optima.\\
+
+In the simulation of the importance sampling particle filter, the auxiliary parameters $\boldsymbol{\tilde{\theta}}=[\tilde{\sigma}_{\eta}^2, \tilde{\sigma}_{\epsilon}^2]^T$ have been set to the true parameters $\tilde{\sigma}_{\eta}^2=1.4$ and $\tilde{\sigma}_{\epsilon}^2=1.0$. \textit{Figure \ref{fig:ullm_theta_aux}} shows how the choice of the auxiliary parameters impact the log-likelihood values of the IS particle filter. \\
 
 \begin{figure}[h!]
 \centering
@@ -479,7 +536,7 @@ The left plots show the log-likelihood for larger step sizes ($0.1$) of $\sigma_
 \label{fig:ullm_theta_aux}
 \end{figure}
 
-In the simulation of the importance sampling particle filter, the auxiliary parameters $\boldsymbol{\tilde{\theta}}=[\tilde{\sigma}_{\eta}^2, \tilde{\sigma}_{\epsilon}^2]^T$ have been set to the true parameters $\tilde{\sigma}_{\eta}^2=1.4$ and $\tilde{\sigma}_{\epsilon}^2=1.0$. \textit{Figure \ref{fig:ullm_theta_aux}} shows how the choice of the auxiliary parameters impact the log-likelihood values of the IS particle filter. The left plot shows the log-likelihood evaluated for the true parameters as a function of the auxiliary parameter $\tilde{\sigma}_{\eta}^2$ (meanwhile, $\tilde{\sigma}_{\epsilon}^2$ is kept fixed at $\sigma_{\epsilon}^2=1.0$). The log-likelihood is smallest close to $\tilde{\sigma}_{\eta}^2=\sigma_{\eta}^2=1.4$ and smoothly increases as $\tilde{\sigma}_{\eta}^2$ moves further away. The graph shows that the value of the log-likelihood of the IS particle filter depends on the choice of the auxiliary parameters.\\
+The left plot shows the log-likelihood evaluated for the true parameters as a function of the auxiliary parameter $\tilde{\sigma}_{\eta}^2$ (meanwhile, $\tilde{\sigma}_{\epsilon}^2$ is kept fixed at $\sigma_{\epsilon}^2=1.0$). The log-likelihood is smallest close to $\tilde{\sigma}_{\eta}^2=\sigma_{\eta}^2=1.4$ and smoothly increases as $\tilde{\sigma}_{\eta}^2$ moves further away. The graph shows that the value of the log-likelihood of the IS particle filter depends on the choice of the auxiliary parameters.\\
 
 The right graph in \textit{Figure \ref{fig:ullm_theta_aux}} plots the log-likelihood for the same filtering and predictive particles as a function of $\sigma_{\eta}^2$ for 3 choices of $\tilde{\sigma}_{\eta}^2$: $0.8$, $1.4$, and $2.8$. We see that the shape of the curves are similar (in particular, concave), but do not peak at the same value of $\sigma_{\eta}^2$. 
 
