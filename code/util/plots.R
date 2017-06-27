@@ -82,7 +82,7 @@ plot.loglik.multi <- function(para, loglik, true.para, col=rep('blue',nrow(logli
 # ----------------------------------------------------------------------
 # Importance weight plot
 # ----------------------------------------------------------------------
-plot.weights <- function(weights, col='blue', xlab, ylab='weight', ylim=NULL) {
+plot.weights <- function(weights, col='purple', xlab, ylab='weight', ylim=NULL) {
     
     plot(rowMeans(weights), type='l', col=col, xlab=xlab, ylab=ylab, ylim=ylim, xaxt="n", las=2)
     xticks <- axis(side=1, at=(1:nrow(weights)))

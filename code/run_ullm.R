@@ -162,46 +162,51 @@ for (t in c(1:T)) {u.sim[t,] <- sort( u.sim[t,] )}
 
 # compute log-likelihood for wide range of different var.eta values
 eta <- seq(0.5,2,0.1)
-ll.kalman <- ll.particle <- ll.aux <- rep(0,length(eta))
+ll.kalman <- ll.sir <- ll.csir <- ll.aux <- rep(0,length(eta))
 for (i in 1:length(eta)) {
     cat('.')
     ll.kalman[i]   <- kalman.filter(llm.data$y, cov.eta=eta[i])$loglik
-    ll.particle[i] <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P))$loglik
+    ll.sir[i]      <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik
+    ll.csir[i]     <- particle.filter(llm.data$y, cov.eta=eta[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=TRUE)$loglik
     ll.aux[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta[i], cov.eta.aux=var.eta)$loglik
 }
 
-
 # plot log-likelihood
-if(save.plots) png("../images/ullm-loglik-eta.png", width=500, height=450, pointsize=20)
-par(mfrow=c(3,1), mar=c(2,4,1,1))
+if(save.plots) png("../images/ullm-loglik-eta.png", width=500, height=600, pointsize=20)
+par(mfrow=c(4,1), mar=c(2,4,1,1))
 plot.loglik(eta, ll.kalman, var.eta, 'green', 'var.eta with Kalman filter')
-plot.loglik(eta, ll.particle, var.eta, 'orange', 'var.eta with SIR filter')
+plot.loglik(eta, ll.sir, var.eta, 'orange', 'var.eta with SIR filter')
+plot.loglik(eta, ll.csir, var.eta, 'blue', 'var.eta with CSIR filter')
 plot.loglik(eta, ll.aux, var.eta, 'magenta', 'var.eta with IS particle filter')
 if(save.plots) dev.off()
 
 # plot log-likelihood for different var.eta values zoomed around true value
 eta.det <- seq(1.350,1.450,0.001)
-ll.kalman.det <- ll.particle.det <- ll.aux.det <- rep(0,length(eta.det))
+ll.kalman.zoom <- ll.sir.zoom <- ll.csir.zoom <- ll.aux.zoom <- rep(0,length(eta.det))
 for (i in 1:length(eta.det)) {
     cat('.')
-    ll.kalman.det[i]   <- kalman.filter(llm.data$y, cov.eta=eta.det[i])$loglik
-    ll.particle.det[i] <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir = FALSE)$loglik 
-    ll.aux.det[i]      <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta.det[i], cov.eta.aux=var.eta)$loglik
+    ll.kalman.zoom[i] <- kalman.filter(llm.data$y, cov.eta=eta.det[i])$loglik
+    ll.sir.zoom[i]    <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=FALSE)$loglik 
+    ll.csir.zoom[i]   <- particle.filter(llm.data$y, cov.eta=eta.det[i], eta.sim=eta.sim, u.sim=u.sim, x_up.init=rep(0,P), use.csir=TRUE)$loglik 
+    ll.aux.zoom[i]    <- aux.filter(llm.data$y, x.pr=llm.particle.filter$x.pr.particles, x.up=llm.particle.filter$x.up.particles, cov.eta=eta.det[i], cov.eta.aux=var.eta)$loglik
 }
 
-ll.kalman.det   <- ll.kalman.det / T
-ll.particle.det <- ll.particle.det / T
-ll.aux.det      <- ll.aux.det / T
-ll.kalman.det   <- ll.kalman.det / abs( ll.kalman.det[ which(round(eta.det,3)==var.eta)] )
-ll.particle.det <- ll.particle.det / abs( ll.particle.det[ which(round(eta.det,3)==var.eta)] )
-ll.aux.det      <- ll.aux.det / abs( ll.aux.det[ which(round(eta.det,3)==var.eta)] )
+ll.kalman.zoom <- ll.kalman.zoom / T
+ll.sir.zoom    <- ll.sir.zoom / T
+ll.csir.zoom   <- ll.csir.zoom / T
+ll.aux.zoom    <- ll.aux.zoom / T
+ll.kalman.zoom <- ll.kalman.zoom / abs( ll.kalman.zoom[ which(round(eta.det,3)==var.eta)] )
+ll.sir.zoom    <- ll.sir.zoom / abs( ll.sir.zoom[ which(round(eta.det,3)==var.eta)] )
+ll.csir.zoom   <- ll.csir.zoom / abs( ll.csir.zoom[ which(round(eta.det,3)==var.eta)] )
+ll.aux.zoom    <- ll.aux.zoom / abs( ll.aux.zoom[ which(round(eta.det,3)==var.eta)] )
 
 # plot zoomed log-likelihood
-if(save.plots) png("../images/ullm-loglik-detail.png", width=500, height=450, pointsize=20)
-par(mfrow=c(3,1), mar=c(2,1,1,1))
-plot.loglik.zoom(eta.det, ll.kalman.det, var.eta, 'green', 'var.eta with Kalman filter', 'Kalman')
-plot.loglik.zoom(eta.det, ll.particle.det, var.eta, 'orange', 'var.eta with SIR filter', 'SIR')
-plot.loglik.zoom(eta.det, ll.aux.det, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
+if(save.plots) png("../images/ullm-loglik-zoom.png", width=500, height=600, pointsize=20)
+par(mfrow=c(4,1), mar=c(2,1,1,1))
+plot.loglik.zoom(eta.det, ll.kalman.zoom, var.eta, 'green', 'var.eta with Kalman filter', 'Kalman')
+plot.loglik.zoom(eta.det, ll.sir.zoom, var.eta, 'orange', 'var.eta with SIR filter', 'SIR')
+plot.loglik.zoom(eta.det, ll.csir.zoom, var.eta, 'blue', 'var.eta with CSIR filter', 'CSIR')
+plot.loglik.zoom(eta.det, ll.aux.zoom, var.eta, 'magenta', 'var.eta with IS particle filter', 'IS particle')
 if(save.plots) dev.off()
 
 #if(save.plots) png("../images/ullm-loglik-detail.png", width=750, height=500, pointsize=15)
@@ -367,10 +372,10 @@ par(mfrow=c(1,3), mar=c(4,2,1,1))
 # plot bias
 bounds <- c(bias.kalman^2, bias.particle[,'P500']^2, bias.aux[,'P500']^2)
 plot(Ts, bias.kalman^2, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='bias^2')
-lines(Ts, bias.particle[,'P500']^2, type='b', col='orange', lwd='1.5')
-lines(Ts, bias.particle[,'P200']^2, type='b', col=alpha('orange',0.6))
-lines(Ts, bias.particle[,'P50']^2, type='b', col=alpha('orange',0.4))
-lines(Ts, bias.particle[,'P20']^2, type='b', col=alpha('orange',0.2))
+lines(Ts, bias.particle[,'P500']^2, type='b', col='blue', lwd='1.5')
+lines(Ts, bias.particle[,'P200']^2, type='b', col=alpha('blue',0.6))
+lines(Ts, bias.particle[,'P50']^2, type='b', col=alpha('blue',0.4))
+lines(Ts, bias.particle[,'P20']^2, type='b', col=alpha('blue',0.2))
 lines(Ts, bias.aux[,'P500']^2, type='b', col='magenta', lwd='1.5')
 lines(Ts, bias.aux[,'P200']^2, type='b', col=alpha('magenta',0.6))
 lines(Ts, bias.aux[,'P50']^2, type='b', col=alpha('magenta',0.4))
@@ -380,10 +385,10 @@ lines(Ts, bias.kalman^2, type='b', col='green', lwd='1.5')
 # plot standard error
 bounds <- c(se.kalman, se.particle[,'P500'], se.aux[,'P500'])
 plot(Ts, se.kalman, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='standard error')
-lines(Ts, se.particle[,'P500'], type='b', col='orange', lwd='1.5')
-lines(Ts, se.particle[,'P200'], type='b', col=alpha('orange',0.6))
-lines(Ts, se.particle[,'P50'], type='b', col=alpha('orange',0.4))
-lines(Ts, se.particle[,'P20'], type='b', col=alpha('orange',0.2))
+lines(Ts, se.particle[,'P500'], type='b', col='blue', lwd='1.5')
+lines(Ts, se.particle[,'P200'], type='b', col=alpha('blue',0.6))
+lines(Ts, se.particle[,'P50'], type='b', col=alpha('blue',0.4))
+lines(Ts, se.particle[,'P20'], type='b', col=alpha('blue',0.2))
 lines(Ts, se.aux[,'P500'], type='b', col='magenta', lwd='1.5')
 lines(Ts, se.aux[,'P200'], type='b', col=alpha('magenta',0.6))
 lines(Ts, se.aux[,'P50'], type='b', col=alpha('magenta',0.4))
@@ -393,16 +398,16 @@ lines(Ts, se.kalman, type='b', col='green', lwd='1.5')
 # plot MSE
 bounds <- c(mse.kalman, mse.particle[,'P500'], mse.aux[,'P500'])
 plot(Ts, mse.kalman, type='b', col='green', ylim=c(min(bounds),max(bounds)), xlab='T', ylab='', main='MSE')
-lines(Ts, mse.particle[,'P500'], type='b', col='orange', lwd='1.5')
-lines(Ts, mse.particle[,'P200'], type='b', col=alpha('orange',0.6))
-lines(Ts, mse.particle[,'P50'], type='b', col=alpha('orange',0.4))
-lines(Ts, mse.particle[,'P20'], type='b', col=alpha('orange',0.2))
+lines(Ts, mse.particle[,'P500'], type='b', col='blue', lwd='1.5')
+lines(Ts, mse.particle[,'P200'], type='b', col=alpha('blue',0.6))
+lines(Ts, mse.particle[,'P50'], type='b', col=alpha('blue',0.4))
+lines(Ts, mse.particle[,'P20'], type='b', col=alpha('blue',0.2))
 lines(Ts, mse.aux[,'P500'], type='b', col='magenta', lwd='1.5')
 lines(Ts, mse.aux[,'P200'], type='b', col=alpha('magenta',0.6))
 lines(Ts, mse.aux[,'P50'], type='b', col=alpha('magenta',0.4))
 lines(Ts, mse.aux[,'P20'], type='b', col=alpha('magenta',0.2))
 lines(Ts, mse.kalman, type='b', col='green', lwd='1.5')
-legend('topright',c('Kalman','CSIR (P=500)','IS (P=500)'), col=c('green','orange','magenta'), cex=1.0, lty=1, lwd=2.5)
+legend('topright',c('Kalman','CSIR (P=500)','IS (P=500)'), col=c('green','blue','magenta'), cex=1.0, lty=1, lwd=2.5)
 if(save.plots) dev.off()
 
 
