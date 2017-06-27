@@ -48,6 +48,10 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 \chapter{Introduction}
 \label{chp:introduction}
 
+Particle filtering has become an established technique to solve state space models. Theory exists since the 1950s and Kalman filter was proposed in 1960, however, particle filtering then was computationally too expensive.
+
+%
+In \textit{Chapter \ref{chp:models}} I explain the basic concept of state space models and introduce the univariate local level model. In \textit{Chapter \ref{chp:filtering}} I then introduce several filter methods, including the Kalman filter, the Sequential Importance Resampling (SIR) algorithm, the related Continuous Sequential Importance Resampling (CSIR) algorithm, as well as a novel particle filter called Importance Sampling Particle Filter. Next, I compare these methods and use Monte Carlo tests to compare their inference performance in \textit{Chapter \ref{chp:evaluation}}. Finally, I illustrate the filter methods on two different state space models: A trivariate local level model and a hierarchical dynamic Poisson model. I present the results in \textit{Chapter \ref{chp:Illustration}}.\\
 
 
 %%%%%%%%
@@ -220,7 +224,7 @@ Note that the algorithm needs to invert the matrix $F_t = \Sigma_{t | t-1} + \Si
 
 %  Example    %
 \subsection{Example: Local Level Model}
-\textit{Figure \ref{fig:ullm-kalman}} shows a realization of the univariate local level model with parameters $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ (left plot) and the Kalman prediction with a $95\%$ confidence level (right plot).
+\textit{Figure \ref{fig:ullm-kalman}} shows a realization of the univariate local level model with parameters $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ (left plot) and the Kalman prediction with a $90\%$ confidence level (right plot).
 \begin{figure}[h!]
 \centering
 \begin{subfigure}{.5\textwidth}
@@ -505,73 +509,91 @@ IS      & & x & \\
 \label{tab:filter_summary}
 \end{table}
 
-The Kalman filter only works for linear Gaussian state space models. Kalman's latent state estimates statistically minimize the error and so is optimal with respect to many different statistical measures, eg. the mean squared error.  The sequential importance resampling (SIR) particle filter works for latent state inference but usually performs poorly for parameter inference where the log-likelihood with respect to the parameters lacks smoothness. The continuous SIR method smoothes the log-likelihood with respect to the parameters and so works for both latent state and parameter inference. However, CIR only applies to univariate models. Finally, the novel importance sampling particle filter solves parameter inference for any type of state space models. The method does not produce any filtering or prediction particles though and so cannot be used for latent state inference. 
+The Kalman filter only works for linear Gaussian state space models. Kalman's latent state estimates statistically minimize the error and so is optimal with respect to many different statistical measures, eg. the mean squared error.  The sequential importance resampling (SIR) particle filter works for latent state inference but usually performs poorly for parameter inference where the log-likelihood with respect to the parameters lacks smoothness. The continuous SIR method smoothes the log-likelihood with respect to the parameters and so works for both latent state and parameter inference. However, CSIR only applies to univariate models. Finally, the novel importance sampling (IS) particle filter solves parameter inference for any type of state space models. The method does not produce any filtering or prediction particles though and so cannot be used for latent state inference. 
 
 
 %%%%  Parameter Inference  %%%%
 \section{Parameter Inference}
-In this section we compare the performance on parameter inference with respect to bias, standard error, and mean squared error (MSE) for the maximum likelihood estimator (MLE) of different filters. We test the performance on random realizations of the univariate local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$. The CSIR method and the importance sampling particle filter are tested for different particle sizes $P$.
+In this section I compare different filters on how they perform on parameter inference, measured by bias, standard error, and mean squared error (MSE). I test the performance on random realizations of the univariate local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$. The CSIR method and the importance sampling (IS) particle filter are tested for different particle sizes $P$. Each $(T, P)$ combination is tested over $100$ realizations.\\
+
+For simplification, I assume $\sigma_{\epsilon}^2=1.0$ to be known and only estimate $\sigma_{\eta}^2$ through maximum likelihood estimation (MLE). I use box-constrained optimization with $\sigma_{\eta}^2$ being bounded between $[0.1, 5.0]$. The IS particle filter uses particles generated with $\tilde{\sigma}_{\eta}^2=1.0$.
+
 
 %bias
 \begin{table}[h!]
 \centering
-\begin{tabular}{rrrrrrrrrr}
+\begin{tabular}{rrrrrrrrrrrr}
 \hline
-T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
-\cline{3-8}
-& & P50 & P200 & P500 & P50 & P200 & P500\\
+T  & Kalman &  \multicolumn{4}{c}{CSIR} &  \multicolumn{4}{c}{IS}\\
+\cline{3-10}
+& & P20 & P50 & P200 & P500 & P20 & P50 & P200 & P500\\
 \hline
-50        & -0.053 & P50 & P200 & P500 & P50 & P200 & P500\\
-100      & -0.103 & P50 & P200 & P500 & P50 & P200 & P500\\
-250      & -0.089 & P50 & P200 & P500 & P50 & P200 & P500\\
-500      & -0.085 & P50 & P200 & P500 & P50 & P200 & P500\\
+50        & -0.053 & 0.311 & 0.133 & -0.014 & -0.033 & -0.382 & -0.342 & -0.309 & -0.294\\
+100      & -0.103 & 0.381 & 0.075 & -0.052 & -0.075 & -0.376 & -0.360 & -0.313 & -0.299\\
+250      & -0.089 & 0.421 & 0.125 & -0.031 & -0.064 & -0.382 & -0.333 & -0.323 & -0.306\\
+500      & -0.085 & 0.388 & 0.166 & -0.032 & -0.063 & -0.389 & -0.348 & -0.338 & -0.323\\
 \hline
 \end{tabular}
 \caption{Monte Carlo bias summary}
 \label{tab:param_inference_bias}
 \end{table}
 
-\textit{Table \ref{tab:param_inference_mse}} shows the bias results over $1000$ Monte Carlo simulations.
+\textit{Table \ref{tab:param_inference_bias}} shows the bias results over $100$ Monte Carlo simulations. First, note that the bias reduces as the number of particles $P$ increases. It is lowest for the CSIR filter with large $P$s and the Kalman. The effect is a lot less pronounced for the importance sampling filter which in all scenarios underestimates the true parameter by about $0.4-0.3$. The number of observations $T$ has no apparent affect on the bias.\\
 
 %standard error
 \begin{table}[h!]
 \centering
-\begin{tabular}{rrrrrrrrrr}
+\begin{tabular}{rrrrrrrrrrrr}
 \hline
-T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
-\cline{3-8}
-& & P50 & P200 & P500 & P50 & P200 & P500\\
+T  & Kalman &  \multicolumn{4}{c}{CSIR} &  \multicolumn{4}{c}{IS}\\
+\cline{3-10}
+& & P20 & P50 & P200 & P500 & P20 & P50 & P200 & P500\\
 \hline
-50        & 0.057 & P50 & P200 & P500 & P50 & P200 & P500\\
-100      & 0.036 & P50 & P200 & P500 & P50 & P200 & P500\\
-250      & 0.023 & P50 & P200 & P500 & P50 & P200 & P500\\
-500      & 0.017 & P50 & P200 & P500 & P50 & P200 & P500\\
+50        & 0.057 & 0.084 & 0.068 & 0.063 & 0.060 & 0.021 & 0.025 & 0.028 & 0.033\\
+100      & 0.036 & 0.062 & 0.046 & 0.038 & 0.038 & 0.015 & 0.016 & 0.018 & 0.019\\
+250      & 0.023 & 0.042 & 0.031 & 0.027 & 0.024 & 0.008 & 0.009 & 0.009 & 0.011\\
+500      & 0.017 & 0.032 & 0.027 & 0.019 & 0.018 & 0.006 & 0.007 & 0.006 & 0.008\\
 \hline
 \end{tabular}
 \caption{Monte Carlo standard error summary}
 \label{tab:param_inference_se}
 \end{table}
 
+\textit{Table \ref{tab:param_inference_se}} summarizes the standard error results over $100$ Monte Carlo simulations. The standard error steadily decreases as the number of observations $T$ increases. In the case of the CSIR filter, the standard error furthermore decreases as the $P$ is increased. The result for $P=500$ closely matches the standard errors of the Kalman filter. In contrast, the number of particles $P$ seems to have no affect on the standard error of the importance sampling (IS) filter. Interestingly, its standard errors are significantly lower than the Kalman filter standard errors.\\
+
 %MSE
 \begin{table}[h!]
 \centering
-\begin{tabular}{rrrrrrrrrr}
+\begin{tabular}{rrrrrrrrrrrr}
 \hline
-T  & Kalman &  \multicolumn{3}{c}{CSIR} &  \multicolumn{3}{c}{IS}\\
-\cline{3-8}
-& & P50 & P200 & P500 & P50 & P200 & P500\\
+T  & Kalman &  \multicolumn{4}{c}{CSIR} &  \multicolumn{4}{c}{IS}\\
+\cline{3-10}
+& & P20 & P50 & P200 & P500 & P20 & P50 & P200 & P500\\
 \hline
-50        & 0.322 & P50 & P200 & P500 & P50 & P200 & P500\\
-100      & 0.141 & P50 & P200 & P500 & P50 & P200 & P500\\
-250      & 0.059 & P50 & P200 & P500 & P50 & P200 & P500\\
-500      & 0.035 & P50 & P200 & P500 & P50 & P200 & P500\\
+50        & 0.322 & 0.798 & 0.477 & 0.394 & 0.353 & 0.190 & 0.177 & 0.172 & 0.191\\
+100      & 0.141 & 0.532 & 0.217 & 0.145 & 0.151 & 0.162 & 0.155 & 0.129 & 0.125\\
+250      & 0.059 & 0.351 & 0.112 & 0.071 & 0.063 & 0.153 & 0.119 & 0.112 & 0.106\\
+500      & 0.035 & 0.251 & 0.100 & 0.036 & 0.036 & 0.156 & 0.126 & 0.117 & 0.112\\
 \hline
 \end{tabular}
 \caption{Monte Carlo MSE summary}
 \label{tab:param_inference_mse}
 \end{table}
 
-%Conclusion: Particle filtering suffers from propagation error. Current approximations errors are related to past approximation errors. The number of particles $P$ should increase with the sample size $T$ to guarantee a good degree of approximation.
+\textit{Table \ref{tab:param_inference_mse}} shows the mean squared error (MSE) results over $100$ Monte Carlo simulations. The MSE is defined as the sum of the squared bias and squared standard error and therefore combines the effect of the observation size $T$ and the number of particles $P$ on the result. Observe that the MSE decreases as $T$ grows. The MSE also tends to decrease as the number of particles $P$ gets increased. The Kalman filter produced some unexpected high MSE values for low $T$ values (50 an 100) but generally provides a lower bound to other particle filters for larger $T$s. The CSIR results for $P=500$ closely match the results of the Kalman filter. Interestingly, the IS particle filter produced the lowest MSE for small observation sizes (50 and 100).\\
+
+The results are plotted in \textit{Figure \ref{fig:ullm-mc-mle}}, comparing the Kalman filter with the CSIR and importance sampling particle filter, both with $P=500$ particles. The results with smaller particle sizes are plotted faded.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=155mm]{../../images/ullm-mc-mle.png}
+\caption{Monte Carlo results}
+\label{fig:ullm-mc-mle}
+\end{figure}
+
+
+The results of the Monte Carlo simulations support theoretic results which show that the Kalman filter minimizes the mean squared error of the estimated parameters. Thus, the Kalman filter is the preferred choice for linear Gaussian state space models. Particle filtering, on the other hand, suffers from propagation error, i.e. current approximations errors are related to past approximation errors. Thus, the number of particles $P$ should be increased with the sample size $T$ to guarantee a good degree of approximation.
+
 
 
 %%%%%%%%
