@@ -40,7 +40,7 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 This paper empirically studies a novel particle filter method proposed by Brownlees and Kristensen (2017) for parameter estimation of nonlinear state space models. 
 The particle filter, named \textit{Importance Sampling Particle Filter}, is tested and compared to other established particle filters on two variations of a local level model. 
 Inspections of the log-likelihood plots with respect to model parameters, as well as Monte Carlo maximum likelihood estimations establish the correctness of the new method.
-Finally, the novel particle filter is successfully applied to a nonlinear state space models, the hierarchical dynamic Poisson model.
+Finally, the novel particle filter is successfully applied to a nonlinear state space model, the hierarchical dynamic Poisson model.
 
 \vfill
 
@@ -735,7 +735,7 @@ $$
 \\ \rho \sigma_{\eta 1} \sigma_{\eta 3} & \rho \sigma_{\eta 2} \sigma_{\eta 3} & \sigma_{\eta 3}^2
 \end{bmatrix}
 $$
-Thus, $\Sigma_{\eta}$ can be described by $\sigma_{\eta 1}^2$, $\sigma_{\eta 2}^2$, $\sigma_{\eta 3}^2 > 0$ and $\rho \in [0,1]$. Furthermore, we assume for simplicity that the observation noise has the same variance in each dimension $\sigma_{\epsilon}^2 > 0$. Therefore, the model is fully specified by the following vector of parameters:
+Thus, $\Sigma_{\eta}$ can be described by $\sigma_{\eta 1}^2$, $\sigma_{\eta 2}^2$, $\sigma_{\eta 3}^2 > 0$ and $\rho \in [0,1]$. Furthermore, we assume for simplicity that the observation noise has the same variance in each dimension $\sigma_{\epsilon}^2 > 0$ and is uncorrelated across dimensions. Therefore, the model is fully specified by the following vector of parameters:
 $$
 \boldsymbol{\theta} = [\rho, \sigma_{\eta 1}^2, \sigma_{\eta 2}^2, \sigma_{\eta 3}^2, \sigma_{\epsilon}^2]^T
 $$
@@ -753,11 +753,11 @@ The transition and measurement density of the trivariate local level from above 
 
 %  Realization    %
 \subsection{Realization}
-\textit{Figure \ref{fig:mllm_realization}} plots the states and observations for a realization of the trivariate local level model with length $T=100$. The model parameters are 
+\textit{Figure \ref{fig:mllm_realization}} plots the states and observations for a realization of the trivariate local level model with length $T=50$. The model parameters are 
 $$
 \boldsymbol{\theta} = [\rho = 0.7, \sigma_{\eta 1}^2 = 4.2, \sigma_{\eta 2}^2 = 2.8, \sigma_{\eta 3}^2 = 0.9, \sigma_{\epsilon}^2 = 1.0]^T
 $$
-The initial state $x_1$ is drawn from a standard normal.
+The initial state $\boldsymbol{x}_1$ is drawn from a multivariate standard normal.
 
 \begin{figure}[h!]
 \centering
@@ -768,7 +768,7 @@ The initial state $x_1$ is drawn from a standard normal.
 
 %  Latent State Inference    %
 \subsection{Latent State Inference}
-We estimate the latent states in each dimension with both the Kalman filter and the sequential importance resampling (SIR) method and plot the result in \textit{Figure \ref{fig:mllm_estimate_kalman}} and \textit{Figure \ref{fig:mllm_estimate_sir}}, respectively. Note that the estimates of the two filters are almost identical because $P=200$ was is sufficiently large for the number of observations $T=50$.\\
+We estimate the latent states in each dimension with both the Kalman filter and the sequential importance resampling (SIR) method and plot the result in \textit{Figure \ref{fig:mllm_estimate_kalman}} and \textit{Figure \ref{fig:mllm_estimate_sir}}, respectively. Note that the estimates of the two filters are almost identical because $P=200$ is sufficiently large for the number of observations $T=50$.\\
 
 \begin{figure}[h!]
 \centering
@@ -786,7 +786,7 @@ We estimate the latent states in each dimension with both the Kalman filter and 
 
 %  Parameter Inference    %
 \subsection{Parameter Inference}
-Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we consider the Kalman filter, the sequential importance resampling (SIR) method, and the novel importance sampling (IS) particle filter. We use box-constrained optimization with the variances $\sigma_{\eta 1}^2$,  $\sigma_{\eta 2}^2$, and $\sigma_{\eta 3}^2$ bounded by $[0.1,5.0]$ and  $\rho$ constrained to lie between $[-1.0, 1.0]$. We assume $\sigma_{\epsilon}^2$ to be fixed at $1.0$. The result is summarized in \textit{Table \ref{tab:mllm_param_inference}}.\\  
+Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we consider the Kalman filter, the sequential importance resampling (SIR) method, and the novel importance sampling (IS) particle filter. We use box-constrained optimization with the variances $\sigma_{\eta 1}^2$,  $\sigma_{\eta 2}^2$, and $\sigma_{\eta 3}^2$ bounded by $[0.1,5.0]$ and  $\rho$ constrained to lie in $[-1.0, 1.0]$. We assume $\sigma_{\epsilon}^2$ to be fixed at $1.0$. The result is summarized in \textit{Table \ref{tab:mllm_param_inference}}.\\  
 
 \begin{table}[h!]
 \centering
@@ -796,7 +796,7 @@ Finally, we estimate the model parameters of the realization using maximum likel
 \hline
 True        & 4.20  & 2.80 &  0.90 & 0.70&  &  \\
 Kalman   & 4.96  & 3.10  & 1.01 & 0.73 & -307.712 & -307.459 \\
-SIR         & 2.46  & 2.32  & 1.15 & 0.47 & -313.466 & -339.068 \\
+SIR         & 2.27  & 1.53  & 1.29 & 0.52 & -313.466 & -336.291 \\
 IS            & 2.69  & 2.09  & 1.06 & 0.42 &  & \\
 \hline
 \end{tabular}
@@ -805,7 +805,7 @@ IS            & 2.69  & 2.09  & 1.06 & 0.42 &  & \\
 \end{table}
 Both the SIR and the IS particle filter have been tested with a rather small number of only $P=50$ particles. The reason is that both algorithms rely on observing the multivariate normal density of each particle at each iteration which can considerably slow down the algorithms if $P$ is large. \\                              
     
-Note that the Kalman filter produced the best parameter estimates. The IS particle filter also gave reasonable estimates while the SIR estimates are far off the true parameter values. The reason for this bad performance is the lack of smoothness of the log-likelihood with respect to the parameters as discussed earlier which makes the SIR algorithm an inappropriate filter method for parameter inference. The argument is backed by the log-likelihood plots in \textit{Figure \ref{fig:mllm_loglik}} with respect to $\sigma_{\eta 1}^2$ and $\rho$. While the SIR plot with respect to $\rho$ still looks reasonable, the plot for $\sigma_{\eta 1}^2$ does not exhibit a concave shape.\\
+Note that the Kalman filter produced the best parameter estimates. The IS particle filter also gave reasonable estimates while the SIR estimates are further away from the true parameter values. The reason for this rather bad performance is the lack of smoothness of the log-likelihood with respect to the parameters as discussed earlier which makes the SIR algorithm an inappropriate filter method for parameter inference. The argument is backed by the log-likelihood plots in \textit{Figure \ref{fig:mllm_loglik}} with respect to $\sigma_{\eta 1}^2$ and $\rho$. While the SIR plot with respect to $\rho$ still looks reasonable, the plot for $\sigma_{\eta 1}^2$ does not exhibit a concave shape.\\
 
 \begin{figure}[h!]
 \centering
@@ -825,7 +825,7 @@ Note that the Kalman filter produced the best parameter estimates. The IS partic
 %%%%  Hierarchical Dynamic Poisson Model   %%%%
 \newpage
 \section{Hierarchical Dynamic Poisson Model}
-Next, we test the particle filters on a non-linear model with non-Gaussian observations, called \textit{hierarchical dynamic Poisson model}. The observations are modeled as a Poisson random variable and represent counts, i.e. the total number of occurrences during a fixed time period. The underlying latent state of an observation is modeled as the the average number of counts in that interval (i.e. the state is the parameter of the Poisson distribution). The state is assumed to be constructed from 3 components: a daily level, intra-daily periodic changes, and intra-daily fluctuations. Both the daily level and intra-daily fluctuations are are assumed to form an (independent) Markov chain. The model in this form might be well suited to model demand in various settings such as server access or patients in a hospital.
+Next, we test the particle filters on a non-linear model with non-Gaussian observations, called \textit{hierarchical dynamic Poisson model}. The observations are modeled as a Poisson random variable and represent counts, i.e. the total number of occurrences during a fixed time period. The underlying latent state of an observation is modeled as the the average number of counts in that interval (i.e. the state is the parameter of the Poisson distribution). The state is assumed to be constructed from 3 components: a daily level, intra-daily periodic changes, and intra-daily fluctuations. Both the daily level and intra-daily fluctuations are assumed to form an (independent) Markov chain. The model in this form might be well suited to model demand in various settings such as server access or patients in a hospital.
 
 %  Model    %
 \subsection{The Model}
@@ -850,7 +850,7 @@ where the state consists of a daily, an intra-daily, and a periodic component:
 \end{tabular}
 \end{center}
 \bigskip
-The initial daily and intra-daily component is drawn from a normal with mean $\mu_1$ and covariance $\Sigma_1$: 
+The initial daily and intra-daily component are drawn from a normal with mean $\mu_1$ and covariance $\Sigma_1$: 
 $$\log \lambda_{1}^{(D)}, \log \lambda_{1}^{(I)}  \sim N(\mu_1, \Sigma_1)$$ 
 Note that both the daily and intra-daily component constitute an AR(1) model, with the mean of the intra-daily component $\phi_0^{(I)}$ set to 0. 
 The model is fully specified by the following vector of parameters:
@@ -879,7 +879,7 @@ The transition and measurement density are used in the implementation of the SIR
 
 %  Realization    %
 \subsection{Realization}
-The left graph in \textit{Figure \ref{fig:hdpm_realization}} plots the states and observations for a realization of the hierarchical dyanmic Poisson model over $N=5$ days with $M=20$ intra-daily observations. The model parameters are 
+The left graph in \textit{Figure \ref{fig:hdpm_realization}} plots the states and observations for a realization of the hierarchical dynamic Poisson model over $N=5$ days with $M=20$ intra-daily observations. The model parameters are 
 $$
 \boldsymbol{\theta} = [ \phi_0^{(D)} = 0.7,  \phi_1^{(D)} = 0.6, \sigma^2_{(D)} = 0.6, \phi_1^{(I)} = 0.3, \sigma^2_{(I)} = 0.2, \phi_1^{(P)} = 0.8]^T
 $$
@@ -901,7 +901,7 @@ The initial daily and intra-daily state components were drawn from a standard no
 
 %  Latent State Inference    %
 \subsection{Latent State Inference}
-We estimate the latent states of the realization in \textit{Figure \ref{fig:hdpm_realization}} with the implementation of the sequential importance resampling (SIR) algorithm which uses the transition and measurement densities we derived before. The estimates of the latent states, together with the $90\%$ confidence interval (estimated by the $5\%$ and $95\%$ quantile of the $P=200$ particles) are plotted in \textit{Figure \ref{fig:hdpm_est}}.
+I estimate the latent states of the realization in \textit{Figure \ref{fig:hdpm_realization}} with the implementation of the sequential importance resampling (SIR) algorithm which uses the transition and measurement densities we derived before. The estimates of the latent states, together with the $90\%$ confidence interval (estimated by the $5\%$ and $95\%$ quantile of the $P=200$ particles) are plotted in \textit{Figure \ref{fig:hdpm_est}}.
 
 \begin{figure}[h!]
 \centering
@@ -914,7 +914,7 @@ Note that neither the Kalman filter nor the continuous SIR method can be used fo
 
 %  Parameter Inference    %
 \subsection{Parameter Inference}
-Finally, we estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we compare the sequential importance resampling (SIR) method with the novel importance sampling (IS) particle filter. We use box-constrained optimization with the parameters $\phi_0^{(D)}$,  $\phi_1^{(D)}$, $\phi_1^{(I)}$, and $\phi_1^{(P)}$ bounded between $[0,1]$ and the variances $\sigma^2_{(D)}$ and $\sigma^2_{(I)}$ constrained to lie between $[0.1, 5.0]$. The auxiliary parameter vector used for the IS particle filter is 
+Finally, I estimate the model parameters of the realization using maximum likelihood estimation with different filters. In particular, we compare the sequential importance resampling (SIR) method with the novel importance sampling (IS) particle filter. We use box-constrained optimization with the parameters $\phi_0^{(D)}$,  $\phi_1^{(D)}$, $\phi_1^{(I)}$, and $\phi_1^{(P)}$ bounded in $[0,1]$ and the variances $\sigma^2_{(D)}$ and $\sigma^2_{(I)}$ constrained to lie in $[0.1, 5.0]$. The auxiliary parameter vector used for the IS particle filter is 
 $$
 \boldsymbol{\tilde{\theta}} = [ \tilde{\phi}_0^{(D)} = 0.5,  \tilde{\phi}_1^{(D)} = 0.5, \tilde{\sigma}^2_{(D)} = 1.0, \tilde{\phi}_1^{(I)} = 0.5, \tilde{\sigma}^2_{(I)} = 1.0, \tilde{\phi}_1^{(P)} = 1.0]^T
 $$
@@ -930,7 +930,7 @@ The result is summarized in \textit{Table \ref{tab:hdpm_param_inference}}.\\
 \hline
 True        & 0.70  & 0.60 &  0.30 & 0.80 & 0.60 & 0.20&  &  \\
 SIR         & 0.76  & 0.56  & 0.85 & 0.48 & 0.83 & 1.13 & -296.663 & -310.851 \\
-IS            & 0.65  & 0.59  & 0.40 & 0.63 & 0.35 & 0.31 & -273.295 & -287.333\\
+IS            & 0.65  & 0.59  & 0.40 & 0.63 & 0.35 & 0.31 &  & \\
 \hline
 \end{tabular}
 \caption{MLE parameters with different filters}
@@ -972,6 +972,22 @@ The table compares the estimated parameters with both methods to the true parame
 %%%%%%%%%%
 \chapter{Conclusion}
 \label{chp:conclusion}
+%This paper empirically studies a novel particle filter method proposed by Brownlees and Kristensen (2017) for parameter estimation of nonlinear state space models. The particle filter, named \textit{Importance Sampling Particle Filter}, is tested and compared to other established particle filters on two variations of a local level model. Inspections of the log-likelihood plots with respect to model parameters, as well as Monte Carlo maximum likelihood estimations establish the correctness of the new method. Finally, the novel particle filter is successfully applied to a nonlinear state space models, the hierarchical dynamic Poisson model.
+
+
+The report introduced a novel particle filter method proposed by Brownlees and Kristensen (2017) for parameter estimation of linear and nonlinear state space models and empirically compared it to other well-established particle filter methods in the literature. I showed that all of these filter methods are limited to particular model classes or inference types: 
+\begin{itemize}
+  \item The \textit{Kalman filter} is only applicable for linear Gaussian state space models. 
+  \item The \textit{Sequential Importance Resampling (SIR)} algorithm performs poorly on parameter inference because the likelihood with respect to the parameters is not smooth.
+  \item The \textit{Continuous Sequential Importance Resampling (CSIR)} algorithm fixes the smoothness problem of the SIR method but only works for univariate state space models.  
+\end{itemize}
+In particular, none of those filters work (well) for parameter inference of nonlinear state space models.
+The new algorithm, called \textit{Importance Sampling (IS) Particle Filter}, closes this gap. It uses an auxiliary, misspecified particle filter to compute the likelihood of the model via recursive importance sampling. I showed that this results in a smooth log-likelihood function with respect to the model parameters. \\
+
+The new method was successfully tested on a univariate and a trivariate local level model. Monte Carlo simulations on the univariate local level model compared the new algorithm to other filters and showed that maximum likelihood estimation produces similar accurate results with this method. Finally, I successfully applied the novel particle filter to a nonlinear state space model, the hierarchical dynamic Poisson model, and illustrated how the IS particle filter clearly outperforms the the SIR method in this model. \\
+
+The project results suggest the following guideline: Use the Kalman filter for linear Gaussian state space models. If the model is not linear or Gaussian but still univariate, use the CSIR filter method. If neither is met, use the SIR filter for latent state inference and the new IS particle filter for parameter inference.
+
 
 
 %%%%%%%%%%%

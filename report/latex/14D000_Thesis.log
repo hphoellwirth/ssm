@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  28 JUN 2017 20:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  29 JUN 2017 01:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -892,6 +892,29 @@ ine 963.
 png> <../../images/hdpm-loglik-Dvar.png> <../../images/hdpm-loglik-Dvar-zoom.pn
 g>]
 Chapter 6.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 980.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 980.
+
+Overfull \hbox (6.82768pt too wide) in paragraph at lines 982--983
+[]\OT1/cmr/m/n/10.95 The \OT1/cmr/m/it/10.95 Con-tin-u-ous Se-quen-tial Im-por-
+tance Re-sam-pling (CSIR) \OT1/cmr/m/n/10.95 al-go-rithm fixes the smooth-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 984--986
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 987--988
+
+ []
+
 (./14D000_Thesis.bbl [33
 
 ]
@@ -906,10 +929,10 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 6535 strings out of 493089
- 104436 string characters out of 6134842
+ 6555 strings out of 493089
+ 104790 string characters out of 6134842
  249668 words of memory out of 5000000
- 9888 multiletter control sequences out of 15000+600000
+ 9905 multiletter control sequences out of 15000+600000
  19013 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  48i,18n,52p,1030b,430s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -928,7 +951,7 @@ texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
 live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texl
 ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on 14D000_Thesis.pdf (34 pages, 1217907 bytes).
+Output written on 14D000_Thesis.pdf (34 pages, 1219749 bytes).
 PDF statistics:
  223 PDF objects out of 1000 (max. 8388607)
  122 compressed objects within 2 object streams
