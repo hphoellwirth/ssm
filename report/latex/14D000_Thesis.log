@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  28 JUN 2017 01:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  28 JUN 2017 16:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -467,7 +467,22 @@ Class scrreprt Warning: \float@addtolists detected!
 (scrreprt)              deprecated \float@addtolist interface .
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 70--71
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 69--70
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 71--72
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 74--75
 
  []
 
@@ -476,7 +491,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 70--71
 ]
 Chapter 2.
 
-Underfull \hbox (badness 10000) in paragraph at lines 83--84
+Underfull \hbox (badness 10000) in paragraph at lines 87--88
 
  []
 
@@ -485,19 +500,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 83--84
 ] [6] [7]
 Chapter 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--176
+Underfull \hbox (badness 10000) in paragraph at lines 178--180
 
  []
 
 [8
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 233--234
+Underfull \hbox (badness 10000) in paragraph at lines 238--239
 
  []
 
 [9]
-Underfull \hbox (badness 10000) in paragraph at lines 235--238
+Underfull \hbox (badness 10000) in paragraph at lines 240--243
 
  []
 
@@ -506,7 +521,7 @@ File: ../../images/ullm-realization.png Graphic file (type png)
 
 <use ../../images/ullm-realization.png>
 Package pdftex.def Info: ../../images/ullm-realization.png used on input line 2
-48.
+53.
 (pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
 
 <../../images/ullm-estimate-kalman.png, id=48, 602.25pt x 451.6875pt>
@@ -514,35 +529,36 @@ File: ../../images/ullm-estimate-kalman.png Graphic file (type png)
 
 <use ../../images/ullm-estimate-kalman.png>
 Package pdftex.def Info: ../../images/ullm-estimate-kalman.png used on input li
-ne 252.
+ne 257.
 (pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
  [10 <../../images/ullm-realization.png> <../../images/ullm-estimate-kalman.png
 >]
-Underfull \hbox (badness 10000) in paragraph at lines 268--269
+Underfull \hbox (badness 10000) in paragraph at lines 273--274
 
  []
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 293--294
+Underfull \hbox (badness 10000) in paragraph at lines 298--299
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 332--334
+Overfull \hbox (1.44615pt too wide) in paragraph at lines 334--336
+\OT1/cmr/m/n/10.95 Sample quan-tiles can be used to con-struct con-fi-dence in-
+ter-vals for these es-ti-mates. Through-
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 340--341
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 337--338
-
- []
-
-[12] <../../images/ullm-estimate-particle.png, id=60, 602.25pt x 451.6875pt>
+<../../images/ullm-estimate-particle.png, id=60, 602.25pt x 451.6875pt>
 File: ../../images/ullm-estimate-particle.png Graphic file (type png)
 
 <use ../../images/ullm-estimate-particle.png>
 Package pdftex.def Info: ../../images/ullm-estimate-particle.png used on input 
-line 344.
+line 347.
 (pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
 
 <../../images/ullm-filter-comparison.png, id=61, 602.25pt x 451.6875pt>
@@ -550,26 +566,26 @@ File: ../../images/ullm-filter-comparison.png Graphic file (type png)
 
 <use ../../images/ullm-filter-comparison.png>
 Package pdftex.def Info: ../../images/ullm-filter-comparison.png used on input 
-line 348.
+line 351.
 (pdftex.def)             Requested size: 213.39566pt x 160.05037pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 359--360
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 365--367
+Underfull \hbox (badness 10000) in paragraph at lines 368--370
 
  []
 
 [13 <../../images/ullm-estimate-particle.png> <../../images/ullm-filter-compari
 son.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 373--375
+Underfull \hbox (badness 10000) in paragraph at lines 376--378
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 382--383
+Underfull \hbox (badness 10000) in paragraph at lines 385--386
 
  []
 
@@ -577,7 +593,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 382--383
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 417--418
+Underfull \hbox (badness 10000) in paragraph at lines 420--421
 
  []
 
@@ -586,20 +602,15 @@ File: ../../images/ullm-loglik-zoom-2.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-zoom-2.png>
 Package pdftex.def Info: ../../images/ullm-loglik-zoom-2.png used on input line
- 425.
+ 428.
 (pdftex.def)             Requested size: 412.56496pt x 123.76988pt.
  [15 <../../images/ullm-loglik-zoom-2.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 433--434
+Underfull \hbox (badness 10000) in paragraph at lines 436--437
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 435--436
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 447--448
+Underfull \hbox (badness 10000) in paragraph at lines 448--449
 
  []
 
@@ -607,27 +618,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 447--448
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [16]
-Underfull \hbox (badness 10000) in paragraph at lines 493--494
+Underfull \hbox (badness 10000) in paragraph at lines 494--495
 
  []
 
-[17] <../../images/ullm_is_filt_weights_P200.png, id=82, 752.8125pt x 160.6pt>
+<../../images/ullm_is_filt_weights_P200.png, id=79, 752.8125pt x 160.6pt>
 File: ../../images/ullm_is_filt_weights_P200.png Graphic file (type png)
 
 <use ../../images/ullm_is_filt_weights_P200.png>
 Package pdftex.def Info: ../../images/ullm_is_filt_weights_P200.png used on inp
-ut line 501.
+ut line 502.
 (pdftex.def)             Requested size: 426.79134pt x 91.05037pt.
 
-<../../images/ullm_is_pred_weights_P200.png, id=83, 752.8125pt x 200.75pt>
+<../../images/ullm_is_pred_weights_P200.png, id=80, 752.8125pt x 200.75pt>
 File: ../../images/ullm_is_pred_weights_P200.png Graphic file (type png)
 
 <use ../../images/ullm_is_pred_weights_P200.png>
 Package pdftex.def Info: ../../images/ullm_is_pred_weights_P200.png used on inp
-ut line 506.
+ut line 507.
 (pdftex.def)             Requested size: 426.79134pt x 113.81297pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 515--519
+ [17]
+Underfull \hbox (badness 10000) in paragraph at lines 516--520
 
  []
 
@@ -636,7 +647,7 @@ File: ../../images/ullm-loglik-eta.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-eta.png>
 Package pdftex.def Info: ../../images/ullm-loglik-eta.png used on input line 52
-4.
+5.
 (pdftex.def)             Requested size: 213.39566pt x 256.07692pt.
 
 <../../images/ullm-loglik-zoom.png, id=85, 501.875pt x 602.25pt>
@@ -644,19 +655,19 @@ File: ../../images/ullm-loglik-zoom.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-zoom.png>
 Package pdftex.def Info: ../../images/ullm-loglik-zoom.png used on input line 5
-28.
+29.
 (pdftex.def)             Requested size: 213.39566pt x 256.07692pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 534--535
+Underfull \hbox (badness 10000) in paragraph at lines 535--536
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 536--537
+Underfull \hbox (badness 10000) in paragraph at lines 537--538
 
  []
 
@@ -667,7 +678,7 @@ File: ../../images/ullm-loglik-aux-eta.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-aux-eta.png>
 Package pdftex.def Info: ../../images/ullm-loglik-aux-eta.png used on input lin
-e 542.
+e 543.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
 
 <../../images/ullm-loglik-aux-eta-2.png, id=92, 501.875pt x 301.125pt>
@@ -675,10 +686,10 @@ File: ../../images/ullm-loglik-aux-eta-2.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-aux-eta-2.png>
 Package pdftex.def Info: ../../images/ullm-loglik-aux-eta-2.png used on input l
-ine 546.
+ine 547.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 552--553
+Underfull \hbox (badness 10000) in paragraph at lines 553--554
 
  []
 
@@ -687,24 +698,24 @@ Underfull \hbox (badness 10000) in paragraph at lines 552--553
 [20]
 Chapter 4.
 
-Underfull \hbox (badness 10000) in paragraph at lines 564--565
+Underfull \hbox (badness 10000) in paragraph at lines 565--566
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 587--588
+Underfull \hbox (badness 10000) in paragraph at lines 588--589
 
  []
 
 [21
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 611--612
+Underfull \hbox (badness 10000) in paragraph at lines 612--613
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 632--633
+Underfull \hbox (badness 10000) in paragraph at lines 633--634
 
  []
 
@@ -712,7 +723,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 632--633
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 653--654
+Underfull \hbox (badness 10000) in paragraph at lines 654--655
 
  []
 
@@ -720,10 +731,10 @@ Underfull \hbox (badness 10000) in paragraph at lines 653--654
 File: ../../images/ullm-mc-mle.png Graphic file (type png)
 
 <use ../../images/ullm-mc-mle.png>
-Package pdftex.def Info: ../../images/ullm-mc-mle.png used on input line 659.
+Package pdftex.def Info: ../../images/ullm-mc-mle.png used on input line 660.
 (pdftex.def)             Requested size: 441.01772pt x 132.307pt.
 
-Overfull \hbox (11.01309pt too wide) in paragraph at lines 659--660
+Overfull \hbox (11.01309pt too wide) in paragraph at lines 660--661
  [][] 
  []
 
@@ -736,15 +747,15 @@ File: ../../images/mllm-realization-v2.png Graphic file (type png)
 
 <use ../../images/mllm-realization-v2.png>
 Package pdftex.def Info: ../../images/mllm-realization-v2.png used on input lin
-e 726.
+e 727.
 (pdftex.def)             Requested size: 441.01772pt x 132.307pt.
 
-Overfull \hbox (11.01309pt too wide) in paragraph at lines 726--727
+Overfull \hbox (11.01309pt too wide) in paragraph at lines 727--728
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 733--734
+Underfull \hbox (badness 10000) in paragraph at lines 734--735
 
  []
 
@@ -753,10 +764,10 @@ File: ../../images/mllm-estimate-kalman.png Graphic file (type png)
 
 <use ../../images/mllm-estimate-kalman.png>
 Package pdftex.def Info: ../../images/mllm-estimate-kalman.png used on input li
-ne 737.
+ne 738.
 (pdftex.def)             Requested size: 441.01772pt x 132.307pt.
 
-Overfull \hbox (11.01309pt too wide) in paragraph at lines 737--738
+Overfull \hbox (11.01309pt too wide) in paragraph at lines 738--739
  [][] 
  []
 
@@ -765,10 +776,10 @@ File: ../../images/mllm-estimate-sir.png Graphic file (type png)
 
 <use ../../images/mllm-estimate-sir.png>
 Package pdftex.def Info: ../../images/mllm-estimate-sir.png used on input line 
-744.
+745.
 (pdftex.def)             Requested size: 441.01772pt x 132.307pt.
 
-Overfull \hbox (11.01309pt too wide) in paragraph at lines 744--745
+Overfull \hbox (11.01309pt too wide) in paragraph at lines 745--746
  [][] 
  []
 
@@ -776,18 +787,18 @@ Overfull \hbox (11.01309pt too wide) in paragraph at lines 744--745
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 751--752
+Underfull \hbox (badness 10000) in paragraph at lines 752--753
 
  []
 
 [25 <../../images/mllm-realization-v2.png> <../../images/mllm-estimate-kalman.p
 ng>]
-Underfull \hbox (badness 10000) in paragraph at lines 768--769
+Underfull \hbox (badness 10000) in paragraph at lines 769--770
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 770--771
+Underfull \hbox (badness 10000) in paragraph at lines 771--772
 
  []
 
@@ -797,7 +808,7 @@ File: ../../images/mllm-loglik-var2.png Graphic file (type png)
 
 <use ../../images/mllm-loglik-var2.png>
 Package pdftex.def Info: ../../images/mllm-loglik-var2.png used on input line 7
-76.
+77.
 (pdftex.def)             Requested size: 213.39566pt x 170.71794pt.
 
 <../../images/mllm-loglik-rho.png, id=132, 501.875pt x 401.5pt>
@@ -805,11 +816,11 @@ File: ../../images/mllm-loglik-rho.png Graphic file (type png)
 
 <use ../../images/mllm-loglik-rho.png>
 Package pdftex.def Info: ../../images/mllm-loglik-rho.png used on input line 78
-0.
+1.
 (pdftex.def)             Requested size: 213.39566pt x 170.71794pt.
  [27 <../../images/mllm-loglik-var2.png> <../../images/mllm-loglik-rho.png>] [2
 8]
-Underfull \hbox (badness 10000) in paragraph at lines 847--849
+Underfull \hbox (badness 10000) in paragraph at lines 848--850
 
  []
 
@@ -818,14 +829,14 @@ File: ../../images/hdpm-realization.png Graphic file (type png)
 
 <use ../../images/hdpm-realization.png>
 Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 8
-54.
+55.
 (pdftex.def)             Requested size: 207.70511pt x 121.16005pt.
 
 <../../images/hdpm-log-param.png, id=142, 602.25pt x 351.3125pt>
 File: ../../images/hdpm-log-param.png Graphic file (type png)
 
 <use ../../images/hdpm-log-param.png>
-Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 858
+Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 859
 .
 (pdftex.def)             Requested size: 207.70511pt x 121.16005pt.
  [29 <../../images/hdpm-realization.png> <../../images/hdpm-log-param.png>]
@@ -833,15 +844,15 @@ Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 858
 File: ../../images/hdpm-est.png Graphic file (type png)
 
 <use ../../images/hdpm-est.png>
-Package pdftex.def Info: ../../images/hdpm-est.png used on input line 870.
+Package pdftex.def Info: ../../images/hdpm-est.png used on input line 871.
 (pdftex.def)             Requested size: 327.20668pt x 186.97737pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 875--876
+Underfull \hbox (badness 10000) in paragraph at lines 876--877
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 885--886
+Underfull \hbox (badness 10000) in paragraph at lines 886--887
 
  []
 
@@ -854,7 +865,7 @@ File: ../../images/hdpm-loglik-Dphi1.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi1.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi1.png used on input line 
-907.
+908.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
 
 <../../images/hdpm-loglik-Dphi1-zoom.png, id=154, 501.875pt x 301.125pt>
@@ -862,7 +873,7 @@ File: ../../images/hdpm-loglik-Dphi1-zoom.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi1-zoom.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi1-zoom.png used on input 
-line 911.
+line 912.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
 
 <../../images/hdpm-loglik-Dvar.png, id=155, 501.875pt x 301.125pt>
@@ -870,7 +881,7 @@ File: ../../images/hdpm-loglik-Dvar.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dvar.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dvar.png used on input line 9
-21.
+22.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
 
 <../../images/hdpm-loglik-Dvar-zoom.png, id=156, 501.875pt x 301.125pt>
@@ -878,7 +889,7 @@ File: ../../images/hdpm-loglik-Dvar-zoom.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dvar-zoom.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dvar-zoom.png used on input l
-ine 925.
+ine 926.
 (pdftex.def)             Requested size: 213.39566pt x 128.03845pt.
  [31 <../../images/hdpm-loglik-Dphi1.png> <../../images/hdpm-loglik-Dphi1-zoom.
 png> <../../images/hdpm-loglik-Dvar.png> <../../images/hdpm-loglik-Dvar-zoom.pn
@@ -904,7 +915,7 @@ Here is how much of TeX's memory you used:
  9888 multiletter control sequences out of 15000+600000
  19013 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,18n,52p,1030b,430s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 48i,18n,52p,1073b,430s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
@@ -920,7 +931,7 @@ texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
 live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texl
 ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on 14D000_Thesis.pdf (33 pages, 1212775 bytes).
+Output written on 14D000_Thesis.pdf (33 pages, 1213132 bytes).
 PDF statistics:
  220 PDF objects out of 1000 (max. 8388607)
  120 compressed objects within 2 object streams

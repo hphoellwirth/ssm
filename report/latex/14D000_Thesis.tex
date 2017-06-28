@@ -37,7 +37,7 @@ Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
 %    Abstract   %
 %%%%%%%%
 \section*{Abstract}
-This paper studies a novel particle filter method proposed by Brownlees and Kristensen (2017) for parameter estimation of nonlinear state space models. 
+This paper empirically studies a novel particle filter method proposed by Brownlees and Kristensen (2017) for parameter estimation of nonlinear state space models. 
 The particle filter, named \textit{Importance Sampling Particle Filter}, is tested and compared to other established particle filters on two variations of a local level model. 
 Inspections of the log-likelihood plots with respect to model parameters, as well as Monte Carlo maximum likelihood estimations establish the correctness of the new method.
 Finally, the novel particle filter is successfully applied to a nonlinear state space models, the hierarchical dynamic Poisson model.
@@ -64,10 +64,14 @@ I am grateful to my supervisor, Dr. Christian Brownlees, who guided and supporte
 %In this paper, a method is introduced for approximating the likelihood for the unknown parameters of a state space model. The approximation converges to the true likelihood as the simulation size goes to infinity. In addition, the approximating likelihood is continuous as a function of the unknown parameters under rather general conditions. The approach advocated is fast and robust, and it avoids many of the pitfalls associated with current techniques based upon importance sampling. We assess the performance of the method by considering a linear state space model, comparing the results with the Kalman filter, which delivers the true likelihood. We also apply the method to a non-Gaussian state space model, the stochastic volatility model, finding that the approach is efficient and effective. Applications to continuous time finance models and latent panel data models are considered. Two different multivariate approaches are proposed. The neoclassical growth model is considered as an application. 
 
 
-Particle filtering has become an established technique to solve state space models. Theory exists since the 1950s and Kalman filter was proposed in 1960, however, particle filtering then was computationally too expensive.
+Particle filtering has become an established technique to solve state space models. Theory exists since the 1950s and Kalman filter was proposed in 1960, however, particle filtering then was computationally too expensive. They work online to approximate the marginal distribution of the latent process as observations become available. Importance sampling is used at each time point to approximate the distribution with a set of discrete values, known as particles, each with a corresponding weight.\\
+
+Particle filtering are commonly used for two types of inference problems: Inferring the latent state from observations, and estimating the state space model parameters. Established particle filter methods are limited with regards to their inference ability to particular state space models. The Kalman filter method (Kalman, 1960) is restricted to linear Gaussian models for which the method uses the fact that the prediction and filtering densities can be solved analytically. For nonlinear models, these densities can only be approximated via sampling. The SIR algorithm \\
+
+For this reason, Brownlees and Kristensen (2017) proposed a new method called \textit{Importance Sampling Particle Filter} which works so and so. The main purpose of this project was to implement and test the new method and to compare the method with other established particle filter algorithms.\\
 
 %
-In \textit{Chapter \ref{chp:models}} I explain the basic concept of state space models and introduce the univariate local level model. In \textit{Chapter \ref{chp:filtering}} I then introduce several filter methods, including the Kalman filter, the Sequential Importance Resampling (SIR) algorithm, the related Continuous Sequential Importance Resampling (CSIR) algorithm, as well as a novel particle filter called Importance Sampling Particle Filter. Next, I compare these methods and use Monte Carlo tests to compare their inference performance in \textit{Chapter \ref{chp:evaluation}}. Finally, I illustrate the filter methods on two different state space models: A trivariate local level model and a hierarchical dynamic Poisson model. I present the results in \textit{Chapter \ref{chp:Illustration}}.\\
+The report is structured as follows. I explain the basic concept of state space models In \textit{Chapter \ref{chp:models}}. I introduce the univariate local level model which I use in following chapters to illustrate filter outputs. In \textit{Chapter \ref{chp:filtering}} I then introduce several filter methods, including the Kalman filter, the Sequential Importance Resampling (SIR) algorithm, the related Continuous Sequential Importance Resampling (CSIR) algorithm, as well as the novel particle filter called Importance Sampling Particle Filter. Next, I compare these methods and use Monte Carlo tests to compare their inference performance in \textit{Chapter \ref{chp:evaluation}}. Finally, I illustrate the filter methods on two different state space models: A trivariate local level model and a nonlinear hierarchical dynamic Poisson model. I present the results in \textit{Chapter \ref{chp:Illustration}}.\\
 
 
 %%%%%%%%
@@ -78,7 +82,7 @@ In \textit{Chapter \ref{chp:models}} I explain the basic concept of state space 
 State space models consist of two set of data:
 \begin{enumerate}
 	\item A series of \textbf{latent states} $\{x_t\}_{t=1}^T$ (with $x_t \in \mathcal{X}$) that forms a Markov chain. Thus, $x_t$ is independent of all past states but $x_{t-1}$.
-	\item A set of \textbf{observations} $\{y_t\}_{t=1}^T$ (with $y_t \in \mathcal{Y}$) where any observation $y_t$ only depends on its latent state $x_t$. In other words, an observation is a noisy representation of its underlying state.
+	\item A set of \textbf{observations} $\{y_t\}_{t=1}^T$ (with $y_t \in \mathcal{Y}$) where any observation $y_t$ only depends on its associated latent state $x_t$. In other words, an observation is a noisy representation of its underlying state.
 \end{enumerate}
 Note that if the state space $\mathcal{X}$ and the observation state $\mathcal{Y}$ are both discrete sets, the state space model reduces to a Hidden Markov Model.\\
 
@@ -87,7 +91,7 @@ The relation between the latent states and observations can be summarized by two
 	\item The \textbf{transition density} from the current state to a new state $p(x_{t+1} | x_t, \boldsymbol{\theta})$.
 	\item The \textbf{measurement density} for an observation given the latent state $p(y_t | x_t, \boldsymbol{\theta})$.
 \end{enumerate}
-Here, $\boldsymbol{\theta} \in \Theta$ denotes the parameter vector of a state space model. 
+Here, $\boldsymbol{\theta} \in \Theta$ denotes the parameter vector of the state space model. 
 
 
 %%%%  Local Level Model  %%%%
@@ -105,8 +109,7 @@ with some initial state $x_1 \sim N(\mu_1, \Sigma_1)$. All noise elements, i.e. 
 $$
 \boldsymbol{\theta} = [\sigma_{\eta}^2,  \sigma_{\epsilon}^2]^T
 $$
-Note that in the case of noise-free observations (i.e. $\sigma_{\eta}^2 = 0$), the model reduces to a pure random-walk. Likewise, if $\sigma_{\epsilon}^2 = 0$, the observations $\{y_t\}_{t=1}^T$ are a white noise representation of a some value $x_1$.\\
-The transition and measurement density of the local level model are simple to deduce:
+Note that in the case of noise-free observations (i.e. $\sigma_{\eta}^2 = 0$), the model reduces to a pure random-walk. Likewise, if $\sigma_{\epsilon}^2 = 0$, the observations $\{y_t\}_{t=1}^T$ are a white noise representation of some value $x_1$. The transition and measurement density of the local level model are simple to deduce:
 \begin{center}
 \begin{tabular}{ r l }
   $p(x_{t+1} | x_t, \boldsymbol{\theta})$ & $\sim N(x_t,\sigma_{\epsilon}^2)$ \\
@@ -134,17 +137,18 @@ where the first term in the integral is the transition density from $x_{t-1}$ to
 $$
 p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) \propto p(y_t | x_{t}, \boldsymbol{\theta}) p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) 
 $$
+where the first term is the measurement density for observation $y_t$, and the second term is the prediction density from the equation before.
 
 %%%%  Parameter Inference  %%%%
 \section{Parameter Inference}
-Assuming a particular state space model, another common objective is is to infer the model parameters from observations. This is usually achieved via \textbf{maximum likelihood estimation}. The log-likelihood of the observations for a given parameter vector $\boldsymbol{\theta}$ is the product of the conditional densities of observations, given all previous observations:
-\begin{align} 
+Assuming a particular state space model, another common objective is is to infer the model parameters from observations. This is usually achieved via \textit{maximum likelihood estimation}. The log-likelihood of the observations for a given parameter vector $\boldsymbol{\theta}$ is the product of the conditional densities of observations, given all previous observations:
+\begin{align*} 
 \begin{split}
 \log \mathcal{L}(\boldsymbol{\theta}) &= \log \prod_{t=1}^T p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})\\
 &= \sum_{t=1}^T \log  p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})\\
 &= \sum_{t=1}^T \log  \int p(y_t | x_{t}, \boldsymbol{\theta}) p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d x_t\\
 \end{split}					
-\end{align} 
+\end{align*} 
 The decomposition of the observation densities into measurement density and prediction density, however, makes the maximization problem analytically intractable for most state space models.
 
 
@@ -171,7 +175,7 @@ is analytically intractable. One notable exception are linear Gaussian state spa
 
 %%%%  Kalman Filter   %%%%
 \section{Kalman Filter}
-State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the observations $\{y_t\}_{t=1}^T$ have linear dependencies and are normally distributed, the joint distribution and of the latent process $p(x_{0:t} | y_{0:t})$ is also Gaussian (and so are the prediction and filtering density). 
+State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the observations $\{y_t\}_{t=1}^T$ have linear dependencies and are normally distributed, the joint distribution and the latent process $p(x_{0:t} | y_{0:t})$ are also Gaussian (and so are the prediction and filtering density). 
 The inference problem can be analytically solved by using standard results of multivariate Gaussian marginal and conditional distributions.\\
 
 The \textit{Kalman filter}, however, uses a more efficient way to infer the latent states. 
@@ -188,20 +192,20 @@ Consider the multivariate generalization of the univariate local level model fro
 \bigskip
 For the case of this model, the mean and (co)variance of the prediction and filtering density are updated as follows:
 \begin{enumerate}
-	\item The \textbf{prediction step} obtains the \textit{a priori} estimate of $\boldsymbol{x}_t$, given $\mathcal{I}_{t-1}$ (using the \textit{a posteriori} estimate with $t-1$).
-		\begin{align} 
+	\item The \textbf{prediction step} obtains the \textit{a priori} estimate of $\boldsymbol{x}_t$, given $\mathcal{I}_{t-1}$ (using the \textit{a posteriori} estimate of $\boldsymbol{x}_{t-1}$).
+		\begin{align*} 
 		\begin{split}
 		\boldsymbol{\mu}_{t | t-1} &= \boldsymbol{\mu}_{t-1 | t-1}\\
 		\Sigma_{t | t-1} &= \Sigma_{t-1 | t-1} + \Sigma_{\eta}\\
 		\end{split}					
-		\end{align} 
-	\item The \textbf{update step} combines a new observation $\boldsymbol{y}_t$ with the \textit{a priori} estimate to obtain an improved \textit{a posteriori} estimate. 
-		\begin{align} 
+		\end{align*} 
+	\item The \textbf{update step} combines a new observation $\boldsymbol{y}_t$ with the \textit{a priori} estimate for $\boldsymbol{x}_t$ to obtain an improved \textit{a posteriori} estimate. 
+		\begin{align*} 
 		\begin{split}
 		\boldsymbol{\mu}_{t | t} &= \boldsymbol{\mu}_{t | t-1} + K_t \boldsymbol{v}_t\\
 		\Sigma_{t | t} &= \Sigma_{t | t-1}(1 - K_t)\\
 		\end{split}					
-		\end{align} 
+		\end{align*} 
 		where $\boldsymbol{v}_t = \boldsymbol{y}_t - \boldsymbol{\mu}_{t | t-1}$ denotes the difference between prediction and observation and $K_t = \Sigma_{t | t-1} (\Sigma_{t | t-1} + \Sigma_{\epsilon})^{-1}$ denotes the \textit{Kalman gain}. It determines how much the new observation affects the updated prediction.	
 \end{enumerate}
 
@@ -230,9 +234,10 @@ For the case of this model, the mean and (co)variance of the prediction and filt
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
-To start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$. In the following version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
 
-\textit{Algorithm \ref{alg:kalman}} describes the recursive update of the prediction and filtering density.  For our purpose, the algorithm returns the filtering densities. 
+\textit{Algorithm \ref{alg:kalman}} describes the recursive update of the prediction and filtering density.  To start the recursion, we need an initial state density with $\boldsymbol{\mu}_1$ and $\Sigma_1$. In our version of the algorithm we assume $\boldsymbol{\mu}_1$ and $\Sigma_1$ to be known. There are various ways to initialize the algorithm when $\boldsymbol{\mu}_1$ and $\Sigma_1$ are unknown, however, these methods are beyond the scope of this project.\\
+
+For our purpose, the algorithm returns the filtering densities. 
 The sequence of filtering means $\{\boldsymbol{\mu}_{t | t}\}$ is the best possible estimation for the latent states $\{\boldsymbol{x}_t\}$. 
 The sequence of covariances $\{\Sigma_{t | t}\}$ can be used to obtain confidence intervals for these estimates. \\  
 
@@ -259,9 +264,9 @@ Note that the algorithm needs to invert the matrix $F_t = \Sigma_{t | t-1} + \Si
 \subsection{Likelihood evaluation}
 The log-likelihood function for the linear Gaussian space model has the following (\textit{prediction error decomposition}) form:
 $$
-\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\frac{Td}{2} \log(2 \pi) - \frac{1}{2} \sum_{t=1}^T (\log |F_t| + v_t^TF_t^{-1} v_t)
+\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\frac{Td}{2} \log(2 \pi) - \frac{1}{2} \sum_{t=1}^T (\log |F_t| + \boldsymbol{v}_t^TF_t^{-1} \boldsymbol{v}_t)
 $$
-Its elements $F_t$ and $v_t$ are routinely calculated by the Kalman filter and so the log-likelihood can be directly evaluated in the Kalman function. Note that $F_t$ might not be singular for all $t=1,\ldots, T$ for particular $\boldsymbol{\theta}$ values. Setting $\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\infty$ in this case suffices for the purpose of maximum likelihood estimation.
+Its elements $F_t$ and $\boldsymbol{v}_t$ are routinely calculated by the Kalman filter and so the log-likelihood can be directly evaluated in the Kalman function. Note that $F_t$ might not be singular for all $t=1,\ldots, T$ for particular $\boldsymbol{\theta}$ values. Setting $\log \mathcal{L}(\mathcal{I}_T, \boldsymbol{\theta}) = -\infty$ in this case suffices for the purpose of maximum likelihood estimation.
 
 %%%%  SIR Particle Filter   %%%%
 \section{SIR Particle Filter}
@@ -275,11 +280,11 @@ One of the best-known particle filter methods is the \textit{Sequential Importan
 \begin{enumerate}
 	\item The \textbf{prediction step} obtains a new prediction particle for each filtering particle by propagating the system, using the transition density:
 	$$
-	x_{t | t-1}^i \sim p(x_t | x_{t-1 | t-1}^i, \theta) \quad \text{for } i=1, \ldots, P
+	x_{t | t-1}^i \sim p(x_t | x_{t-1 | t-1}^i, \boldsymbol{\theta}) \quad \text{for } i=1, \ldots, P
 	$$
 	\item The \textbf{filtering step} (or update step) computes the importance weight $w_t^i$ of each prediction particle 
 	$$
-	w_{t}^i = \frac{p(y_t | x_{t | t-1}^i, \theta)}{\sum_{j=1}^P p(y_t | x_{t | t-1}^j, \theta)} \quad \text{for } i=1, \ldots, P
+	w_{t}^i = \frac{p(y_t | x_{t | t-1}^i, \boldsymbol{\theta})}{\sum_{j=1}^P p(y_t | x_{t | t-1}^j, \boldsymbol{\theta})} \quad \text{for } i=1, \ldots, P
 	$$
 	and then picks the filtering particles via multinomial sampling, using the computed importance weights as respective probabilities:	
 	$$
@@ -327,11 +332,9 @@ An estimate of the latent states can be constructed by averaging over the partic
 $$
 \hat{x}_t = \frac{1}{P}\sum_{i=1}^P x_{t | t}^i
 $$
-Their standard deviation (or other sample quantiles) can be used to construct confidence intervals for these estimates. 
+Sample quantiles can be used to construct confidence intervals for these estimates. Throughout this paper, I report the $0.05$ and $0.95$ quantiles to form the $90\%$ confidence interval. 
 
-The sequence of filtering means $\{\boldsymbol{\mu}_{t | t}\}$ is the best possible prediction for the latent states $\{\boldsymbol{x}_t\}$. 
-The sequence of covariances $\{\Sigma_{t | t}\}$ can be used to obtain confidence intervals for these estimates. \\  
-
+\newpage
 %  Example    %
 \subsection{Example: Local Level Model}
 In the case of the univariate local level model with $\boldsymbol{\theta}=[\sigma_{\eta}^2, \sigma_{\epsilon}^2]^T$, the prediction step draws from a normal transition density: $p(x_t | x_{t-1 | t-1}^i, \boldsymbol{\theta}) = N(x_{t-1 | t-1}, \sigma_{\eta}^2)$ and the importance weights are evaluated on a normal measurement density: $p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) = N(x_{t | t-1}, \sigma_{\epsilon}^2)$. The state initialization density is $p(x_{0 | 0 } | \boldsymbol{\delta}) = N(\mu_1, \Sigma_1)$.\\
@@ -357,20 +360,20 @@ In general, the approximation error of particle filter methods goes $0$ as $P \t
 %  Likelihood    %
 \subsection{Likelihood evaluation}
 The likelihood of a single observation given all previous observations $p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})$ can be estimated by simple Monte Carlo integration:\\
-\begin{align} 
+\begin{align*} 
 \begin{split}
 p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | x_t, \boldsymbol{\theta}) p(x_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d x_t \\
 \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &\approx \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) = \frac{1}{P} \sum_{i=1}^P \tilde{w}_t^i\\
 \end{split}					
-\end{align}
+\end{align*}
 Thus, the likelihood can be easily constructed from the (unnormalized) importance weights in the particle filter. The estimated log-likelihood of the whole system, described the the series of observations $\mathcal{I}_T$, can then be defined as\\
-\begin{align} 
+\begin{align*} 
 \begin{split}
 \log \hat{\mathcal{L}}(\mathcal{I}_T, \boldsymbol{\theta}) &= \log \prod_{t=1}^T \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
 &= \sum_{t=1}^T \log \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
 &= \sum_{t=1}^T \log \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) \\
 \end{split}					
-\end{align} 
+\end{align*} 
 Note that for the sequential importance resampling algorithm, this log-likelihood estimator is not necessarily smooth with respect to $\boldsymbol{\theta}$. This can cause problems when we want to use the algorithm for parameter inference where the optimizer might get stuck in a local optimum. Thus, for the purpose of parameter inference, other particle filters such as \textit{Continuous Sequential Importance Resampling (CSIR)} are usually preferred.\\
 
 %%%%  CSIR Particle Filter   %%%%
@@ -379,7 +382,7 @@ The \textit{Continuous Sequential Importance Resampling (CSIR)} particle filter 
 
 %  Algorithm    %
 \subsection{Algorithm}
-The algorithm takes $P$ predictive particles and their associated, normalized importance weights as input. Instead of bootstrapping from that set of particles with their associated weight as probability, the algorithm sorts the particles, forms its (discrete) cumulative distribution function (cdf), and then interpolates this cdf to obtain a continuous cumulative distribution function. The interpolation lets the continuous cdf pass through the mid-point of each step in the discrete cdf. The algorithm then samples filtering particles from the inverted, smooth cumulative distribution function.\\
+The algorithm takes $P$ predictive particles and their associated, normalized importance weights as input. Instead of bootstrapping from that set of particles with their associated weight as probability, the algorithm sorts the particles in ascending order, forms its (discrete) cumulative distribution function (cdf), and then interpolates this cdf to obtain a continuous cumulative distribution function. The interpolation lets the continuous cdf pass through the mid-point of each step in the discrete cdf. The algorithm then samples filtering particles from the inverted, smooth cumulative distribution function. The details are described in \textit{Algorithm \ref{alg:csir}}.\\
 
 \begin{algorithm}[h!]
 \caption{Continuous Sequential Importance Resampling Step}
@@ -418,7 +421,7 @@ Note that the sorting step of the particles in the CSIR algorithm prevents this 
 
 %  Example    %
 \subsection{Example: Local Level Model}
-\textit{Figure \ref{fig:ullm-loglik-zoom-2}} compares the log-likelihood function of the SIR and the CSIR algorithm for a local level model with respect to $\sigma_{\eta}^2$. 
+\textit{Figure \ref{fig:ullm-loglik-zoom-2}} compares the log-likelihood function of the SIR with the CSIR algorithm for a realization of a local level model with respect to $\sigma_{\eta}^2$. 
 
 \begin{figure}[h!]
 \centering
@@ -426,21 +429,19 @@ Note that the sorting step of the particles in the CSIR algorithm prevents this 
 \caption{Log-likelihood as a function of $\sigma_{\eta}^2$ with SIR and CSIR filter}
 \label{fig:ullm-loglik-zoom-2}
 \end{figure}
-In particular, the graphs show the log-likelihood around the true parameter $\sigma_{\eta}^2 = 1.4$ (highlighted with a black dot) with small intervals of $0.0005$. The graphs illustrate how the CSIR method smoothes the log-likelihood function which in the case of the SIR algorithm is cluttered with many local optima and so makes the method unsuited for parameter inference. Note though, that the CSIR log-likelihood function is not a concave function either.
+The graphs show the measured log-likelihood around the true parameter $\sigma_{\eta}^2 = 1.4$ (highlighted with a black dot) with small intervals of $0.0005$. The plots illustrate how the CSIR method smoothes the log-likelihood function which in the case of the SIR algorithm is cluttered with many local optima and so makes the method unsuited for parameter inference. Note though that the log-likelihood function of the CSIR method is not a concave function either.
 
 %%%%  Importance Sampling Particle Filter   %%%%
 \section{Importance Sampling Particle Filter}
 The SIR algorithm suffers from not being necessarily smooth with respect to the model parameters $\boldsymbol{\theta}$ which makes the method unfit for parameter inference. The alternative continuous SIR algorithm smoothes the log-likelihood with respect to $\boldsymbol{\theta}$, however, the algorithm only works in the univariate case. For this reason, Brownlees and Kristensen (2017) propose a novel particle filter method called \textit{importance sampling particle filter} which smoothes the log-likelihood with respect to $\boldsymbol{\theta}$ and still works in the multivariate case. \\
 
-The key idea of this new method is the following: Use an auxiliary, misspecified particle filter which does not depend on the model parameters $\boldsymbol{\theta}$ to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling. Let $\tilde{p}(y_t | \tilde{x}_{t})$ be the auxiliary measurement density, let $\tilde{p}(\tilde{x}_{t+1} | \tilde{x}_{t})$ be the auxiliary transition density, and let $\tilde{p}(\tilde{x}_1)$ be the auxiliary initial density. Furthermore, let $\tilde{p}(\tilde{x}_{t} | \mathcal{I}_{t-1})$ and  $\tilde{p}(\tilde{x}_{t} | \mathcal{I}_{t})$ be the auxiliary prediction and filtering density, respectively (note that none of those densities depends on the model parameter $\boldsymbol{\theta}$).\\
-
-We can use the samples from the misspecified, auxiliary prediction distribution 
-\begin{align} 
+The key idea of this new method is the following: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ (and independent of $\boldsymbol{\theta}$) to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling. Let $p(y_t | \tilde{x}_{t}, \boldsymbol{\tilde{\theta}})$ be the auxiliary measurement density, let $p(\tilde{x}_{t+1} | \tilde{x}_{t}, \boldsymbol{\tilde{\theta}})$ be the auxiliary transition density, and let $p(\tilde{x}_1, \boldsymbol{\tilde{\theta}})$ be the auxiliary initial density. Furthermore, let $p(\tilde{x}_{t} | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}})$ and  $p(\tilde{x}_{t} | \mathcal{I}_{t}, \boldsymbol{\tilde{\theta}})$ be the auxiliary prediction and filtering density, respectively (note that none of those densities depends on the model parameter $\boldsymbol{\theta}$). We can then use the samples from the misspecified, auxiliary prediction distribution to compute the likelihood of parameter vector $\boldsymbol{\theta}$: 
+\begin{align*} 
 \begin{split}
 p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d \tilde{x}_t \\
-&= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) \bigg[ \frac{p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})}{p(\tilde{x}_t | \mathcal{I}_{t-1})} \bigg] p(\tilde{x}_t | \mathcal{I}_{t-1}) d \tilde{x}_t \\
+&= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) \bigg[ \frac{p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})}{p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}})} \bigg] p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}}) d \tilde{x}_t \\
 \end{split}					
-\end{align}  
+\end{align*}  
 
 %  Algorithm    %
 \subsection{Algorithm}
