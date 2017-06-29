@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  29 JUN 2017 19:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.1.16)  29 JUN 2017 20:59
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1201,7 +1201,7 @@ File: ../../images/ullm-estimate-kalman.png Graphic file (type png)
 
 <use ../../images/ullm-estimate-kalman.png>
 Package pdftex.def Info: ../../images/ullm-estimate-kalman.png used on input li
-ne 129.
+ne 130.
 (pdftex.def)             Requested size: 271.01pt x 203.25749pt.
  [9
 
@@ -1213,7 +1213,7 @@ File: ../../images/ullm-estimate-particle.png Graphic file (type png)
 
 <use ../../images/ullm-estimate-particle.png>
 Package pdftex.def Info: ../../images/ullm-estimate-particle.png used on input 
-line 156.
+line 158.
 (pdftex.def)             Requested size: 271.01pt x 203.25749pt.
  [11
 
@@ -1227,7 +1227,7 @@ File: ../../images/ullm-loglik-zoom-2.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-zoom-2.png>
 Package pdftex.def Info: ../../images/ullm-loglik-zoom-2.png used on input line
- 186.
+ 189.
 (pdftex.def)             Requested size: 301.12732pt x 90.33818pt.
  [14
 
@@ -1241,7 +1241,7 @@ File: ../../images/ullm_is_filt_weights_P200.png Graphic file (type png)
 
 <use ../../images/ullm_is_filt_weights_P200.png>
 Package pdftex.def Info: ../../images/ullm_is_filt_weights_P200.png used on inp
-ut line 225.
+ut line 229.
 (pdftex.def)             Requested size: 338.76248pt x 72.26932pt.
 
 <../../images/ullm_is_pred_weights_P200.png, id=501, 752.8125pt x 200.75pt>
@@ -1249,7 +1249,7 @@ File: ../../images/ullm_is_pred_weights_P200.png Graphic file (type png)
 
 <use ../../images/ullm_is_pred_weights_P200.png>
 Package pdftex.def Info: ../../images/ullm_is_pred_weights_P200.png used on inp
-ut line 225.
+ut line 229.
 (pdftex.def)             Requested size: 338.76248pt x 90.33665pt.
  [17
 
@@ -1264,7 +1264,7 @@ File: ../../images/ullm-loglik-eta.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-eta.png>
 Package pdftex.def Info: ../../images/ullm-loglik-eta.png used on input line 25
-1.
+6.
 (pdftex.def)             Requested size: 150.56366pt x 180.67639pt.
 
 <../../images/ullm-loglik-zoom.png, id=585, 501.875pt x 602.25pt>
@@ -1272,7 +1272,7 @@ File: ../../images/ullm-loglik-zoom.png Graphic file (type png)
 
 <use ../../images/ullm-loglik-zoom.png>
 Package pdftex.def Info: ../../images/ullm-loglik-zoom.png used on input line 2
-51.
+56.
 (pdftex.def)             Requested size: 150.56366pt x 180.67639pt.
  [20
 
@@ -1283,7 +1283,7 @@ Package pdftex.def Info: ../../images/ullm-loglik-zoom.png used on input line 2
 File: ../../images/ullm-mc-mle.png Graphic file (type png)
 
 <use ../../images/ullm-mc-mle.png>
-Package pdftex.def Info: ../../images/ullm-mc-mle.png used on input line 279.
+Package pdftex.def Info: ../../images/ullm-mc-mle.png used on input line 285.
 (pdftex.def)             Requested size: 331.23853pt x 99.37155pt.
  [22
 
@@ -1297,10 +1297,10 @@ File: ../../images/mllm-realization-v2.png Graphic file (type png)
 
 <use ../../images/mllm-realization-v2.png>
 Package pdftex.def Info: ../../images/mllm-realization-v2.png used on input lin
-e 318.
+e 324.
 (pdftex.def)             Requested size: 351.31776pt x 105.39532pt.
 
-Overfull \hbox (9.02246pt too wide) in paragraph at lines 318--318
+Overfull \hbox (9.02246pt too wide) in paragraph at lines 324--324
  [][] 
  []
 
@@ -1312,10 +1312,10 @@ File: ../../images/mllm-estimate-kalman.png Graphic file (type png)
 
 <use ../../images/mllm-estimate-kalman.png>
 Package pdftex.def Info: ../../images/mllm-estimate-kalman.png used on input li
-ne 326.
+ne 332.
 (pdftex.def)             Requested size: 351.31776pt x 105.39532pt.
 
-Overfull \hbox (9.02246pt too wide) in paragraph at lines 326--326
+Overfull \hbox (9.02246pt too wide) in paragraph at lines 332--332
  [][] 
  []
 
@@ -1327,10 +1327,10 @@ File: ../../images/mllm-estimate-sir.png Graphic file (type png)
 
 <use ../../images/mllm-estimate-sir.png>
 Package pdftex.def Info: ../../images/mllm-estimate-sir.png used on input line 
-333.
+339.
 (pdftex.def)             Requested size: 351.31776pt x 105.39532pt.
 
-Overfull \hbox (9.02246pt too wide) in paragraph at lines 333--333
+Overfull \hbox (9.02246pt too wide) in paragraph at lines 339--339
  [][] 
  []
 
@@ -1342,7 +1342,7 @@ File: ../../images/mllm-loglik-var2.png Graphic file (type png)
 
 <use ../../images/mllm-loglik-var2.png>
 Package pdftex.def Info: ../../images/mllm-loglik-var2.png used on input line 3
-42.
+48.
 (pdftex.def)             Requested size: 165.61925pt x 132.4954pt.
 
 <../../images/mllm-loglik-rho.png, id=810, 501.875pt x 401.5pt>
@@ -1350,14 +1350,14 @@ File: ../../images/mllm-loglik-rho.png Graphic file (type png)
 
 <use ../../images/mllm-loglik-rho.png>
 Package pdftex.def Info: ../../images/mllm-loglik-rho.png used on input line 34
-2.
+8.
 (pdftex.def)             Requested size: 165.61925pt x 132.4954pt.
  [28
 
  <../../images/mllm-loglik-var2.png> <../../images/mllm-loglik-rho.png>] [29
 
 ]
-Overfull \hbox (16.80444pt too wide) in paragraph at lines 384--384
+Overfull \hbox (16.80444pt too wide) in paragraph at lines 390--390
  [] 
  []
 
@@ -1367,8 +1367,8 @@ Overfull \hbox (16.80444pt too wide) in paragraph at lines 384--384
 File: ../../images/hdpm-realization.png Graphic file (type png)
 
 <use ../../images/hdpm-realization.png>
-Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 3
-96.
+Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 4
+02.
 (pdftex.def)             Requested size: 271.01pt x 158.08916pt.
  [31
 
@@ -1377,7 +1377,7 @@ Package pdftex.def Info: ../../images/hdpm-realization.png used on input line 3
 File: ../../images/hdpm-log-param.png Graphic file (type png)
 
 <use ../../images/hdpm-log-param.png>
-Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 407
+Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 413
 .
 (pdftex.def)             Requested size: 271.01pt x 158.08916pt.
  [32
@@ -1387,7 +1387,7 @@ Package pdftex.def Info: ../../images/hdpm-log-param.png used on input line 407
 File: ../../images/hdpm-est.png Graphic file (type png)
 
 <use ../../images/hdpm-est.png>
-Package pdftex.def Info: ../../images/hdpm-est.png used on input line 415.
+Package pdftex.def Info: ../../images/hdpm-est.png used on input line 421.
 (pdftex.def)             Requested size: 316.17833pt x 180.67332pt.
  [33
 
@@ -1397,7 +1397,7 @@ File: ../../images/hdpm-loglik-Dphi1.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi1.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi1.png used on input line 
-424.
+430.
 (pdftex.def)             Requested size: 150.56366pt x 90.33818pt.
 
 <../../images/hdpm-loglik-Dphi1-zoom.png, id=979, 501.875pt x 301.125pt>
@@ -1405,7 +1405,7 @@ File: ../../images/hdpm-loglik-Dphi1-zoom.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dphi1-zoom.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dphi1-zoom.png used on input 
-line 424.
+line 430.
 (pdftex.def)             Requested size: 150.56366pt x 90.33818pt.
  [34
 
@@ -1416,7 +1416,7 @@ File: ../../images/hdpm-loglik-Dvar.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dvar.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dvar.png used on input line 4
-32.
+38.
 (pdftex.def)             Requested size: 150.56366pt x 90.33818pt.
 
 <../../images/hdpm-loglik-Dvar-zoom.png, id=1009, 501.875pt x 301.125pt>
@@ -1424,7 +1424,7 @@ File: ../../images/hdpm-loglik-Dvar-zoom.png Graphic file (type png)
 
 <use ../../images/hdpm-loglik-Dvar-zoom.png>
 Package pdftex.def Info: ../../images/hdpm-loglik-Dvar-zoom.png used on input l
-ine 432.
+ine 438.
 (pdftex.def)             Requested size: 150.56366pt x 90.33818pt.
  [35
 
@@ -1443,11 +1443,11 @@ ine 432.
 \tf@snm=\write8
 \openout8 = `slides.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 456.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 456.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 462.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 462.
  (./slides.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 456.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 456.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 462.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 462.
 Package rerunfilecheck Info: File `slides.out' has not changed.
 (rerunfilecheck)             Checksum: 98B8F5536685E22EE3B16116059D5D5B;232.
 
@@ -1455,7 +1455,7 @@ Package rerunfilecheck Info: File `slides.out' has not changed.
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 456.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 462.
  ) 
 Here is how much of TeX's memory you used:
  17337 strings out of 493089
@@ -1485,7 +1485,7 @@ l/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi9.pfb></usr/local
 texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/te
 xlive/2015/texmf-dist/fonts/type1/public/amsfonts/symbols/msam7.pfb></usr/local
 /texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfso1000.pfb>
-Output written on slides.pdf (37 pages, 1117506 bytes).
+Output written on slides.pdf (37 pages, 1119539 bytes).
 PDF statistics:
  1175 PDF objects out of 1200 (max. 8388607)
  1052 compressed objects within 11 object streams

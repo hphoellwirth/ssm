@@ -112,6 +112,7 @@ where
 %%% Kalman filter %%%
 \begin{frame}
 \frametitle{Kalman filter}
+\framesubtitle{by Kalman (1960)}
 For linear Gaussian state space models, $p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta})$ is analytically tractable. The \textbf{Kalman filter} infers latent states analytically by recursively updating:
 \begin{enumerate}
 \item the prediction density $x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta} \sim N(\mu_{t | t-1}, \Sigma_{t | t-1})$
@@ -131,6 +132,7 @@ Latent state estimates statistically minimize the error and hence are \textit{op
 %%% SIR filter %%%
 \begin{frame}
 \frametitle{Sequential Importance Resampling (SIR)}
+\framesubtitle{by Gordon et al. (1993)}
 Recursively computes $P$ prediction and filtering particles:
 \begin{enumerate}
 	\item \textbf{Prediction step}: draw prediction particles from transition density:
@@ -171,6 +173,7 @@ Maximum likelihood estimation on the approximated log-likelihood of the observat
 %%% CSIR filter %%%
 \begin{frame}
 \frametitle{Continuous Sequential Importance Resampling (CSIR)}
+\framesubtitle{by Malik \& Pitt (2011)}
 \textbf{Problem}: Log-likelihood estimator of SIR method w.r.t. $\boldsymbol{\theta}$ is not smooth. Poor parameter inference results.\\
 \bigskip
 \textbf{Solution}: Smooth it! Sort prediction particles in ascending order, form (discrete) CDF using associated weights, interpolate CDF, and finally draw filtering particles from this inverted, smoothed CDF.
@@ -188,7 +191,8 @@ Maximum likelihood estimation on the approximated log-likelihood of the observat
 %%% Importance Sampling particle filter %%%
 \begin{frame}
 \frametitle{Importance Sampling Particle Filter}
-\textbf{Key idea}: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ (independent of $\boldsymbol{\theta}$) to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling.
+\framesubtitle{by Brownlees \& Kristensen (2017)}
+\textbf{Key idea}: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling.
 \begin{align*} 
 \begin{split}
 p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d \tilde{x}_t \\
@@ -245,6 +249,7 @@ The estimated log-likelihood of $\boldsymbol{\theta}$ weighs each auxiliary part
 %%% Method Comparison %%%
 \begin{frame}
 \frametitle{Method Comparison}
+\framesubtitle{Log-likelihood plots}
 \centering
 \includegraphics[scale=0.30]{ullm-loglik-eta}
 \includegraphics[scale=0.30]{ullm-loglik-zoom}
@@ -253,6 +258,7 @@ The estimated log-likelihood of $\boldsymbol{\theta}$ weighs each auxiliary part
 %%% Method Comparison %%%
 \begin{frame}
 \frametitle{Method Comparison}
+\framesubtitle{Filter Choice}
 \begin{table}
 \centering
 \begin{tabular}{lccl}
