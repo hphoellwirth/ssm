@@ -36,9 +36,8 @@
 \begin{frame}
 \frametitle{Outline}
 \begin{itemize}
-\item What I have done
 \item State Space Models
-\item Particle Filters
+\item Filtering
 	\begin{itemize}
 	\item Kalman Filter
 	\item Sequential Importance Resampling (SIR)
@@ -85,31 +84,158 @@ $$
 \begin{frame}
 \frametitle{Local Level Realization}
 \framesubtitle{$\sigma_{\eta}^2=1.4$, $\sigma_{\epsilon}^2=1.0$}
-
 \centering
 \includegraphics[scale=0.45]{ullm-realization}
-\end{frame}
-
-%%% Latent State Inference %%%
-\begin{frame}
-\frametitle{Latent State Inference}
-\centering
-\includegraphics[scale=0.45]{ullm-estimate-kalman}
-\end{frame}
-
-%%% Parameter Inference %%%
-\begin{frame}
-\frametitle{Parameter Inference}
-\centering
-\includegraphics[scale=0.45]{ullm-estimate-kalman}
 \end{frame}
 
 %%%%%%%%%%%%%
 %      Particle Filtering     %
 %%%%%%%%%%%%%
-\section{Particle Filtering}
+\section{Filtering}
 
+%%% Filtering %%%
+\begin{frame}
+\frametitle{Filtering}
+Let $\mathcal{I}_t = \{y_1, y_2, \ldots, y_t\}$. The objective of filtering is to update our knowledge of the system $p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta})$ each time a new observation $y_t$ is brought in. $p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta})$ can be decomposed in recursive form:
+$$
+p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta}) = \Big[ \frac{p(y_t | x_t,\boldsymbol{\theta}) p(x_t | x_{t-1},\boldsymbol{\theta})}{p(y_t | \mathcal{I}_{t-1},\boldsymbol{\theta})} \Big] p(x_{0:(t-1)} | \mathcal{I}_{t-1},\boldsymbol{\theta}) 
+$$
+where
+\begin{itemize}
+\item $p(y_t | x_t,\boldsymbol{\theta})$ is the measurement density
+\item $p(x_t | x_{t-1},\boldsymbol{\theta})$ is the transition density
+\end{itemize}
+\bigskip
+\alert{Particle filtering}: recursively simulate the transition density and evaluate the measurement density 
+\end{frame}
 
+%%% Kalman filter %%%
+\begin{frame}
+\frametitle{Kalman filter}
+For linear Gaussian state space models, $p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta})$ is analytically tractable. The \textbf{Kalman filter} infers latent states analytically by recursively updating:
+\begin{enumerate}
+\item the prediction density $x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta} \sim N(\mu_{t | t-1}, \Sigma_{t | t-1})$
+\item the filtering density $x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta} \sim N(\mu_{t | t}, \Sigma_{t | t})$
+\end{enumerate}
+\bigskip
+Latent state estimates statistically minimize the error and hence are \textit{optimal}.
+\end{frame}
+
+\begin{frame}
+\frametitle{Kalman filter}
+\framesubtitle{Latent State Inference}
+\centering
+\includegraphics[scale=0.45]{ullm-estimate-kalman}
+\end{frame}
+
+%%% SIR filter %%%
+\begin{frame}
+\frametitle{Sequential Importance Resampling (SIR)}
+Recursively computes $P$ prediction and filtering particles:
+\begin{enumerate}
+	\item \textbf{Prediction step}: draw prediction particles from transition density:
+	$$
+	x_{t | t-1}^i \sim p(x_t | x_{t-1 | t-1}^i, \boldsymbol{\theta}) \quad \text{for } i=1, \ldots, P
+	$$
+	\item \textbf{Filtering step}: draw filtering particles via multinomial sampling: 	
+	$$
+	x_{t | t }^j \sim MN(w_t^1, \ldots, w_t^P) \quad \text{for } j=1, \ldots, P
+	$$
+	where importance weights are (normalized) evaluations of the measurement density 
+	$$
+	w_{t}^i = \frac{p(y_t | x_{t | t-1}^i, \boldsymbol{\theta})}{\sum_{j=1}^P p(y_t | x_{t | t-1}^j, \boldsymbol{\theta})} \quad \text{for } i=1, \ldots, P
+	$$
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sequential Importance Resampling (SIR)}
+\framesubtitle{Latent State Inference}
+\centering
+\includegraphics[scale=0.45]{ullm-estimate-particle}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sequential Importance Resampling (SIR)}
+\framesubtitle{Parameter Inference}
+Maximum likelihood estimation on the approximated log-likelihood of the observations, given all previous observations:
+\begin{align*} 
+\begin{split}
+\log \hat{\mathcal{L}}(\mathcal{I}_T, \boldsymbol{\theta}) &= \log \prod_{t=1}^T \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
+&= \sum_{t=1}^T \log \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
+&= \sum_{t=1}^T \log \frac{1}{P} \sum_{i=1}^P p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) \\
+\end{split}					
+\end{align*} 
+\end{frame}
+
+%%% CSIR filter %%%
+\begin{frame}
+\frametitle{Continuous Sequential Importance Resampling (CSIR)}
+\textbf{Problem}: Log-likelihood estimator of SIR method w.r.t. $\boldsymbol{\theta}$ is not smooth. Poor parameter inference results.\\
+\bigskip
+\textbf{Solution}: Smooth it! Sort prediction particles in ascending order, form (discrete) CDF using associated weights, interpolate CDF, and finally draw filtering particles from this inverted, smoothed CDF.
+\end{frame}
+
+\begin{frame}
+\framesubtitle{Comparison of log-likelihoods w.r.t. $\boldsymbol{\theta}$}
+\frametitle{Continuous Sequential Importance Resampling (CSIR)}
+\centering
+\includegraphics[scale=0.30]{ullm-loglik-zoom-2}\\
+\bigskip
+\textbf{Caveat}: CSIR method only works for univariate state space models. 
+\end{frame}
+
+%%% Importance Sampling particle filter %%%
+\begin{frame}
+\frametitle{Importance Sampling Particle Filter}
+\textbf{Key idea}: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ (independent of $\boldsymbol{\theta}$) to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling.
+\begin{align*} 
+\begin{split}
+p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d \tilde{x}_t \\
+&= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) \bigg[ \frac{p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})}{p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}})} \bigg] p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}}) d \tilde{x}_t \\
+\hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &\approx \frac{1}{P} \sum_{i=1}^P p(y_t | \tilde{x}_{t|t-1}^i, \boldsymbol{\theta})  \bigg[ \frac{p(\tilde{x}_{t|t-1}^i | \mathcal{I}_{t-1}, \boldsymbol{\theta})}{p(\tilde{x}_{t|t-1}^i | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}})} \bigg] \\
+&= \frac{1}{P} \sum_{i=1}^P p(y_t | \tilde{x}_{t|t-1}^i, \boldsymbol{\theta}) is_{t|t-1}^i \\
+\end{split}					
+\end{align*}  
+\end{frame}
+
+\begin{frame}
+\frametitle{Importance Sampling Particle Filter}
+\framesubtitle{Importance Weights}
+Recursively computes $P$ prediction and filtering importance weights:
+\begin{enumerate}
+	\item \textbf{Prediction importance weight}: compares transition densities
+	$$
+	is_{t|t-1}^i = \bigg[ \frac{p(\tilde{x}_{t|t-1}^i | \tilde{x}_{t-1|t-1}^i, \boldsymbol{\theta})}{p(\tilde{x}_{t|t-1}^i | \tilde{x}_{t-1|t-1}^i, \boldsymbol{\tilde{\theta}})} \bigg] is_{t-1|t-1}^i	
+	$$  
+	\item \textbf{Filtering importance weight}: compares measurement densities and likelihood	
+	$$
+	is_{t|t}^i = \bigg[ \frac{p(y_t | \tilde{x}_{t|t}^i, \boldsymbol{\theta})}{p(y_t | \tilde{x}_{t|t}^i, \boldsymbol{\tilde{\theta}})} \bigg] \bigg[ \frac{p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\tilde{\theta}})}{p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta})} \bigg] is_{t|t-1}^j		
+	$$ 
+	where $j$ is such that $\tilde{x}_{t|t}^i = \tilde{x}_{t|t-1}^j$
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Importance Sampling Particle Filter}
+\framesubtitle{Importance Weights}
+\centering
+\includegraphics[scale=0.45]{ullm_is_filt_weights_P200}\\
+\includegraphics[scale=0.45]{ullm_is_pred_weights_P200}
+\end{frame}
+
+\begin{frame}
+\frametitle{Importance Sampling Particle Filter}
+\framesubtitle{Parameter Inference}
+The estimated log-likelihood of $\boldsymbol{\theta}$ weighs each auxiliary particle $\tilde{x}_{t|t-1}^i$ with predictive importance weight $is_{t|t-1}^i$: 
+\begin{align*} 
+\begin{split}
+\log \hat{\mathcal{L}}(\mathcal{I}_T, \boldsymbol{\theta}) &= \log \prod_{t=1}^T \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
+&= \sum_{t=1}^T \log \hat{p}(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) \\
+&= \sum_{t=1}^T \log \frac{1}{P} \sum_{i=1}^P p(y_t | \tilde{x}_{t|t-1}^i, \boldsymbol{\theta}) is_{t|t-1}^i \\
+\end{split}					
+\end{align*} 
+\end{frame}
 
 %%%%%%%%%%%
 %      Evaluation     %
@@ -145,8 +271,11 @@ IS      & & x & \\
 %%% Monte Carlo Simulations %%%
 \begin{frame}
 \frametitle{Monte Carlo Simulations}
-\centering
-\includegraphics[scale=0.30]{ullm-mc-mle}
+...on random realizations of the local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$ \\(and different values of $P$: 20, 50, 200, 500)
+\bigskip
+\begin{center}
+\includegraphics[scale=0.33]{ullm-mc-mle}
+\end{center}
 \end{frame}
 
 %%%%%%%%%%
@@ -208,8 +337,8 @@ $\boldsymbol{\theta} = [\rho = 0.7, \sigma_{\eta 1}^2 = 4.2, \sigma_{\eta 2}^2 =
 \frametitle{Parameter Inference}
 \framesubtitle{Log-likelihood plots for $\sigma_{\eta 2}^2$ and $\rho$}
 \centering
-\includegraphics[scale=0.30]{mllm-loglik-var2}
-\includegraphics[scale=0.30]{mllm-loglik-rho}
+\includegraphics[scale=0.33]{mllm-loglik-var2}
+\includegraphics[scale=0.33]{mllm-loglik-rho}
 \end{frame}
 
 \begin{frame}
@@ -217,14 +346,14 @@ $\boldsymbol{\theta} = [\rho = 0.7, \sigma_{\eta 1}^2 = 4.2, \sigma_{\eta 2}^2 =
 \framesubtitle{Results}
 \begin{table}
 \centering
-\begin{tabular}{l r r r r r r}
+\begin{tabular}{l r r r r}
 \hline
-& $\sigma_{\eta 1}^2$ &  $\sigma_{\eta 2}^2$ & $\sigma_{\eta 3}^2$ & $\rho$ & true $\log \mathcal{L} $ & MLE $\log \mathcal{L} $ \\
+& $\sigma_{\eta 1}^2$ &  $\sigma_{\eta 2}^2$ & $\sigma_{\eta 3}^2$ & $\rho$\\
 \hline
-True        & 4.20  & 2.80 &  0.90 & 0.70&  &  \\
-Kalman   & 4.96  & 3.10  & 1.01 & 0.73 & -307.712 & -307.459 \\
-SIR         & 2.27  & 1.53  & 1.29 & 0.52 & -313.466 & -336.291 \\
-IS            & 2.69  & 2.09  & 1.06 & 0.42 &  & \\
+True        & 4.20  & 2.80 &  0.90 & 0.70\\
+Kalman   & 4.96  & 3.10  & 1.01 & 0.73\\
+SIR         & 2.27  & 1.53  & 1.29 & 0.52\\
+IS            & 2.69  & 2.09  & 1.06 & 0.42\\
 \hline
 \end{tabular}
 \end{table}
