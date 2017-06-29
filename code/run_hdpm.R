@@ -18,6 +18,7 @@ par(mfrow=c(1,1))
 save.plots <- FALSE
 
 # load libraries
+library(matrixStats)
 library(scales)
 
 # if interactive, during the development, set to TRUE
@@ -83,7 +84,7 @@ if(save.plots) png("../images/hdpm-est.png", width=700, height=400, pointsize=14
 par(mfrow=c(1,1), mar=c(4,4,1,1))
 plot(as.vector(t(as.matrix(hdpm.data$y))), type='p', pch=19, col=alpha("red",0.7), xlab="time", ylab="counts & parameter")
 lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
-lines(hdpm.particle.filter$x.pr, col="orange", lwd=1.5)
+lines(hdpm.particle.filter$x.up, col="orange", lwd=1.5)
 lines(rowQuantiles(states, probs=c(0.95)), col=alpha('orange',1.0), lty=2)
 lines(rowQuantiles(states, probs=c(0.05)), col=alpha('orange',1.0), lty=2)
 legend('topleft', c('observation','state','estimate','95% quantile'), cex=1.0, lty=c(0,1,1,2), lwd=rep(2.5,4), col=c('red','black','orange','orange'), pch=c(19,NA,NA,NA))

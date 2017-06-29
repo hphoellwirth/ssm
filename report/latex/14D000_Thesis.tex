@@ -175,7 +175,7 @@ is analytically intractable. One notable exception are linear Gaussian state spa
 
 %%%%  Kalman Filter   %%%%
 \section{Kalman Filter}
-State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the observations $\{y_t\}_{t=1}^T$ have linear dependencies and are normally distributed, the joint distribution and the latent process $p(x_{0:t} | y_{0:t})$ are also Gaussian (and so are the prediction and filtering density). 
+State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the observations $\{y_t\}_{t=1}^T$ have linear dependencies and are normally distributed, the joint distribution and the latent process $p(x_{0:t} | \mathcal{I}_t,\boldsymbol{\theta})$ are also Gaussian (and so are the prediction and filtering density). 
 The inference problem can be analytically solved by using standard results of multivariate Gaussian marginal and conditional distributions.\\
 
 The \textit{Kalman filter}, however, uses a more efficient way to infer the latent states. 
