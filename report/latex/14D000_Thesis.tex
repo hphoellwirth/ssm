@@ -24,7 +24,7 @@
 %    Cover     %
 %%%%%%%%
 %\title{\textit{}\\\textit{}\\Time Series Analysis with\\ State Space Models}
-\title{\textit{}\\\textit{}\\Particle Filters for Nonlinear\\ State Space Models}
+\title{\textit{}\\\textit{}\\Particle Filtering for Nonlinear\\ State Space Models}
 \author{Hans-Peter H{\"o}llwirth \\  \\Supervisor: \\ Dr. Christian Brownlees}
 \publishers{Master Project Report \\ 
 Barcelona Graduate School of Economics \\ Master Degree in Data Science \\ 2017}
@@ -112,8 +112,8 @@ $$
 Note that in the case of noise-free observations (i.e. $\sigma_{\eta}^2 = 0$), the model reduces to a pure random-walk. Likewise, if $\sigma_{\epsilon}^2 = 0$, the observations $\{y_t\}_{t=1}^T$ are a white noise representation of some value $x_1$. The transition and measurement density of the local level model are simple to deduce:
 \begin{center}
 \begin{tabular}{ r l }
-  $p(x_{t+1} | x_t, \boldsymbol{\theta})$ & $\sim N(x_t,\sigma_{\epsilon}^2)$ \\
-  $p(y_t | x_t, \boldsymbol{\theta})$ & $\sim N(x_t,\sigma_{\eta}^2)$ \\
+  $x_{t+1} | x_t, \boldsymbol{\theta}$ & $\sim N(x_t,\sigma_{\epsilon}^2)$ \\
+  $y_t | x_t, \boldsymbol{\theta}$ & $\sim N(x_t,\sigma_{\eta}^2)$ \\
 \end{tabular}
 \end{center}
 \bigskip
@@ -179,7 +179,7 @@ State space models in which both the latent states $\{x_t\}_{t=1}^T$ and the obs
 The inference problem can be analytically solved by using standard results of multivariate Gaussian marginal and conditional distributions.\\
 
 The \textit{Kalman filter}, however, uses a more efficient way to infer the latent states. 
-The filter recursively computes the Gaussian prediction density $p(x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta}) = N(\mu_{t | t-1}, \Sigma_{t | t-1})$ and filtering density $p(x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta}) = N(\mu_{t | t}, \Sigma_{t | t})$ by obtaining their respective mean and covariance. 
+The filter recursively computes the Gaussian prediction density $x_{t} | \mathcal{I}_{t-1}, \boldsymbol{\theta} \sim N(\mu_{t | t-1}, \Sigma_{t | t-1})$ and filtering density $x_{t} | \mathcal{I}_{t}, \boldsymbol{\theta} \sim N(\mu_{t | t}, \Sigma_{t | t})$ by obtaining their respective mean and covariance. 
 This method has the big advantage that it does not need all observations to be kept in memory and can easily update the system whenever a new observation is made.
 Consider the multivariate generalization of the univariate local level model from before:
 \bigskip
@@ -337,7 +337,7 @@ Sample quantiles can be used to construct confidence intervals for these estimat
 \newpage
 %  Example    %
 \subsection{Example: Local Level Model}
-In the case of the univariate local level model with $\boldsymbol{\theta}=[\sigma_{\eta}^2, \sigma_{\epsilon}^2]^T$, the prediction step draws from a normal transition density: $p(x_t | x_{t-1 | t-1}^i, \boldsymbol{\theta}) = N(x_{t-1 | t-1}, \sigma_{\eta}^2)$ and the importance weights are evaluated on a normal measurement density: $p(y_t | x_{t | t-1}^i, \boldsymbol{\theta}) = N(x_{t | t-1}, \sigma_{\epsilon}^2)$. The state initialization density is $p(x_{0 | 0 } | \boldsymbol{\delta}) = N(\mu_1, \Sigma_1)$.\\
+In the case of the univariate local level model with $\boldsymbol{\theta}=[\sigma_{\eta}^2, \sigma_{\epsilon}^2]^T$, the prediction step draws from a normal transition density: $x_t | x_{t-1 | t-1}^i, \boldsymbol{\theta} \sim N(x_{t-1 | t-1}, \sigma_{\eta}^2)$ and the importance weights are evaluated on a normal measurement density: $y_t | x_{t | t-1}^i, \boldsymbol{\theta} \sim N(x_{t | t-1}, \sigma_{\epsilon}^2)$. The state initialization density is $x_{0 | 0 } | \boldsymbol{\delta} \sim N(\mu_1, \Sigma_1)$.\\
 
 \textit{Figure \ref{fig:ullm-particle}} shows the SIR particle filter estimate with $P=200$ particles for the same realization of the local level model that has been plotted in \textit{Figure \ref{fig:ullm-kalman}}. The left plot shows the estimated states together with the $0.05$ and $0.95$ sample quantiles. The right plot compares the SIR particle estimates with the Kalman estimates. 
 \begin{figure}[h!]
@@ -746,8 +746,8 @@ The initial state parameters $\boldsymbol{\mu}_1$ and $\Sigma_1$ are assumed to 
 The transition and measurement density of the trivariate local level from above can be easily derived from the model formulation:
 \begin{center}
 \begin{tabular}{ r l }
-  $p(\boldsymbol{x}_{t+1} | \boldsymbol{x}_t, \boldsymbol{\theta})$ & $\sim N(\boldsymbol{x}_t, \sigma_{\epsilon}^2 I_3)$ \\
-  $p(\boldsymbol{y}_t | \boldsymbol{x}_t, \boldsymbol{\theta})$ & $\sim N(\boldsymbol{x}_t, \Sigma_{\eta})$ \\
+  $\boldsymbol{x}_{t+1} | \boldsymbol{x}_t, \boldsymbol{\theta}$ & $\sim N(\boldsymbol{x}_t, \sigma_{\epsilon}^2 I_3)$ \\
+  $\boldsymbol{y}_t | \boldsymbol{x}_t, \boldsymbol{\theta}$ & $\sim N(\boldsymbol{x}_t, \Sigma_{\eta})$ \\
 \end{tabular}
 \end{center}
 
@@ -864,8 +864,8 @@ Again, the initial state parameters $\mu_1$ and $\Sigma_1$ are assumed to be kno
 The transition and measurement density of the hierarchical dynamic Poisson model can be described as a function of the state components:
 \begin{center}
 \begin{tabular}{ r l }
-  $p(\log \lambda_{m,n+1} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta})$ & $\sim N(\mu_{m,n}, \sigma_{m,n}^2)$ \\
-  $p(y_{m,n} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta})$ & $\sim \text{Poisson}(\lambda_{m}^{(D)} \lambda_{m,n}^{(I)} \lambda_n^{(P)})$ \\
+  $\log \lambda_{m,n+1} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta}$ & $\sim N(\mu_{m,n}, \sigma_{m,n}^2)$ \\
+  $y_{m,n} | \log \lambda_{m}^{(D)}, \log \lambda_{m,n}^{(I)}, \log \lambda_n^{(P)},\boldsymbol{\theta}$ & $\sim \text{Poisson}(\lambda_{m}^{(D)} \lambda_{m,n}^{(I)} \lambda_n^{(P)})$ \\
 \end{tabular}
 \end{center}
 where 
