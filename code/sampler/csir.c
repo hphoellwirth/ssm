@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <R.h>
 
 double *array;
 
@@ -30,7 +29,7 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
     
     int P = len[0];
     int i; 
-    error("P = %d\n", P);
+    //error("P = %d\n", P);
 
     // standardize w
     double sum_w = 0.0;    
@@ -50,7 +49,7 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
     qsort(p_idx, P, sizeof(*p_idx), cmp);    
     
     // compute cumulated sum of w
-    // double w_cum[(P+1)];
+    //double w_cum[(P+1)];
     double * w_cum = malloc((P+1) * sizeof(double));
     w_cum[0] = 0.0;
     for (i = 1; i <= P; i++) {
@@ -67,7 +66,7 @@ void csir(double *s, double *p, double *w, double *u, int *len) {
     // compute s
     int j = 0;
     for (i = 0; i < P; i++) {
-        while((w_cum[i] < u[j]) && (u[j] <= w_cum[i+1])){
+        while((w_cum[i] < u[j]) && (u[j] <= w_cum[i+1]) && (j < P)) {
             s[j] = p_new[i] + ((p_new[i+1]-p_new[i])/(w_cum[i+1]-w_cum[i])) * (u[j]-w_cum[i]);
             if (j < P) {
                 j++;

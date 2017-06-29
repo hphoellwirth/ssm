@@ -83,7 +83,6 @@ csir <- function(p, w, u) {
     p.sort <- cbind(seq(1,P,1),p)
     p.idx <- p.sort[order(p.sort[,2]),]
     p <- p.idx[,2]
-    alpha_idx <- 
     w <- w[p.idx[,1]]
     w.cum <- c(0, cumsum(w))
     p  <- c(p[1], p)
@@ -91,7 +90,7 @@ csir <- function(p, w, u) {
     # importance resampling of particles
     j <- 1
     for (i in 1:P){
-        while((w.cum[i] < u[j]) & (u[j] <= w.cum[i+1])){
+        while((w.cum[i] < u[j]) & (u[j] <= w.cum[i+1]) & (j < P)) {
             s[j] <- p[i] + ((p[i+1]-p[i])/(w.cum[i+1]-w.cum[i])) * (u[j]-w.cum[i])
             if (j < P) {
                 j <- j + 1
