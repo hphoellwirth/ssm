@@ -87,7 +87,7 @@ lines(as.vector(t(as.matrix(hdpm.data$lambda))), type='l', col="black")
 lines(hdpm.particle.filter$x.up, col="orange", lwd=1.5)
 lines(rowQuantiles(states, probs=c(0.95)), col=alpha('orange',1.0), lty=2)
 lines(rowQuantiles(states, probs=c(0.05)), col=alpha('orange',1.0), lty=2)
-legend('topleft', c('observation','state','estimate','95% quantile'), cex=1.0, lty=c(0,1,1,2), lwd=rep(2.5,4), col=c('red','black','orange','orange'), pch=c(19,NA,NA,NA))
+legend('topleft', c('observation','state','estimate','90% CI'), cex=1.0, lty=c(0,1,1,2), lwd=rep(2.5,4), col=c('red','black','orange','orange'), pch=c(19,NA,NA,NA))
 if(save.plots) dev.off()
 
 # ----------------------------------------------------------------------

@@ -102,7 +102,7 @@ if(save.plots) png("../images/mllm-estimate-kalman.png", width=1000, height=300,
 par(mfrow=c(1,3), mar=c(2,2,1,1))
 for (d in 1:D) {
     plot(mllm.data$y[,d], type='p', pch=19, col=alpha("red",0.7), main=paste('d',d), xlab="time", ylab=NULL, ylim=c(min(mllm.data$y), max(mllm.data$y)))
-    lines(mllm.particle.filter$x.pr[,d], col='green', lwd=1.5)
+    lines(mllm.particle.filter$x.up[,d], col='green', lwd=1.5)
     lines(mllm.kalman.filter$x.up[,d] + 2*sqrt(unlist(lapply(mllm.kalman.filter$x.up.cov, '[[', (1 + (d-1)*4)))), col='black', lty=2)
     lines(mllm.kalman.filter$x.up[,d] - 2*sqrt(unlist(lapply(mllm.kalman.filter$x.up.cov, '[[', (1 + (d-1)*4)))), col='black', lty=2)
     if (d==1) legend('topleft', legend=c('observation','estimate', '90% CI'), col=c('red','green','black'), cex=1.0, lty=c(0,1,2), lwd=c(0,2.5,2.5), pch=c(19,NA,NA))
