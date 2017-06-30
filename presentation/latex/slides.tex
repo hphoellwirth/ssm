@@ -180,7 +180,7 @@ Maximum likelihood estimation on the approximated log-likelihood of the observat
 \end{frame}
 
 \begin{frame}
-\framesubtitle{Comparison of log-likelihoods w.r.t. $\boldsymbol{\theta}$}
+\framesubtitle{Comparison of log-likelihoods w.r.t. $\sigma_{\eta}^2$}
 \frametitle{Continuous Sequential Importance Resampling (CSIR)}
 \centering
 \includegraphics[scale=0.30]{ullm-loglik-zoom-2}\\
@@ -192,7 +192,7 @@ Maximum likelihood estimation on the approximated log-likelihood of the observat
 \begin{frame}
 \frametitle{Importance Sampling Particle Filter}
 \framesubtitle{by Brownlees \& Kristensen (2017)}
-\textbf{Key idea}: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ to compute the log-likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling.
+\textbf{Key idea}: Use an auxiliary, misspecified particle filter with parameter vector $\boldsymbol{\tilde{\theta}}$ to compute the likelihood with respect to $\boldsymbol{\theta}$ via recursive importance sampling.
 \begin{align*} 
 \begin{split}
 p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \boldsymbol{\theta}) p(\tilde{x}_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) d \tilde{x}_t \\
@@ -205,7 +205,7 @@ p(y_t | \mathcal{I}_{t-1}, \boldsymbol{\theta}) &= \int p(y_t | \tilde{x}_t, \bo
 
 \begin{frame}
 \frametitle{Importance Sampling Particle Filter}
-\framesubtitle{Importance Weights}
+\framesubtitle{Mean Importance Weights}
 Recursively computes $P$ prediction and filtering importance weights:
 \begin{enumerate}
 	\item \textbf{Prediction importance weight}: compares transition densities
@@ -255,6 +255,16 @@ The estimated log-likelihood of $\boldsymbol{\theta}$ weighs each auxiliary part
 \includegraphics[scale=0.30]{ullm-loglik-zoom}
 \end{frame}
 
+%%% Monte Carlo Simulations %%%
+\begin{frame}
+\frametitle{Monte Carlo Simulations}
+...on random realizations of the local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$ \\(and different values of $P$: 20, 50, 200, 500)
+\bigskip
+\begin{center}
+\includegraphics[scale=0.33]{ullm-mc-mle}
+\end{center}
+\end{frame}
+
 %%% Method Comparison %%%
 \begin{frame}
 \frametitle{Method Comparison}
@@ -272,16 +282,6 @@ IS      & & x & \\
 \hline
 \end{tabular}
 \end{table}
-\end{frame}
-
-%%% Monte Carlo Simulations %%%
-\begin{frame}
-\frametitle{Monte Carlo Simulations}
-...on random realizations of the local level model with $\sigma_{\eta}^2=1.4$ and $\sigma_{\epsilon}^2=1.0$ of several different lengths $T$ \\(and different values of $P$: 20, 50, 200, 500)
-\bigskip
-\begin{center}
-\includegraphics[scale=0.33]{ullm-mc-mle}
-\end{center}
 \end{frame}
 
 %%%%%%%%%%
@@ -341,7 +341,7 @@ $\boldsymbol{\theta} = [\rho = 0.7, \sigma_{\eta 1}^2 = 4.2, \sigma_{\eta 2}^2 =
 %%% Parameter Inference %%%
 \begin{frame}
 \frametitle{Parameter Inference}
-\framesubtitle{Log-likelihood plots for $\sigma_{\eta 2}^2$ and $\rho$}
+\framesubtitle{Log-likelihood plots w.r.t. $\sigma_{\eta 2}^2$ and $\rho$}
 \centering
 \includegraphics[scale=0.33]{mllm-loglik-var2}
 \includegraphics[scale=0.33]{mllm-loglik-rho}
@@ -423,7 +423,7 @@ $\boldsymbol{\theta} = [ \phi_0^{(D)} = 0.7,  \phi_1^{(D)} = 0.6, \sigma^2_{(D)}
 %%% Parameter Inference %%%
 \begin{frame}
 \frametitle{Parameter Inference}
-\framesubtitle{Log-likelihood plots for $\phi_1^{(D)}$}
+\framesubtitle{Log-likelihood plots w.r.t. $\phi_1^{(D)}$}
 \centering
 \includegraphics[scale=0.30]{hdpm-loglik-Dphi1}
 \includegraphics[scale=0.30]{hdpm-loglik-Dphi1-zoom}
@@ -431,7 +431,7 @@ $\boldsymbol{\theta} = [ \phi_0^{(D)} = 0.7,  \phi_1^{(D)} = 0.6, \sigma^2_{(D)}
 
 \begin{frame}
 \frametitle{Parameter Inference}
-\framesubtitle{Log-likelihood plots for $\sigma_{(D)}^2$}
+\framesubtitle{Log-likelihood plots w.r.t. $\sigma_{(D)}^2$}
 \centering
 \includegraphics[scale=0.30]{hdpm-loglik-Dvar}
 \includegraphics[scale=0.30]{hdpm-loglik-Dvar-zoom}
